@@ -1,0 +1,30 @@
+--- ./mm/vmscan.c	2021-07-18 12:04:16.696163005 -0700
++++ ./mm/vmscan.c	2021-07-18 12:05:30.170027836 -0700
+@@ -2565,6 +2565,27 @@
+ 			BUG();
+ 		}
+ 
++#if defined(CONFIG_UNEVICTABLE_ACTIVEFILE)
++       if (lru == LRU_ACTIVE_FILE) {
++           unsigned long kib_active_file_now = K(global_node_page_state(NR_ACTIVE_FILE));
++           if (kib_active_file_now <= sysctl_unevictable_activefile_kbytes) {
++               nr[lru] = 0;
++               continue;
++           }
++       }
++#endif
++
++#if defined(CONFIG_UNEVICTABLE_INACTIVEFILE)
++       if (lru == LRU_INACTIVE_FILE) {
++           unsigned long kib_inactive_file_now = K(global_node_page_state(NR_INACTIVE_FILE));
++           if (kib_inactive_file_now <= sysctl_unevictable_inactivefile_kbytes) {
++               nr[lru] = 0;
++               continue;
++           }
++       }
++#endif
++
++
+ 		*lru_pages += lruvec_size;
+ 		nr[lru] = scan;
+ 	}

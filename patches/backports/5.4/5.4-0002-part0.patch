@@ -1,0 +1,20 @@
+--- ./block/bfq-iosched.c	2021-07-14 16:49:26.204408758 -0700
++++ ./block/bfq-iosched.c	2021-07-14 16:51:56.725170660 -0700
+@@ -1961,12 +1961,11 @@
+ static void bfq_check_waker(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 			    u64 now_ns)
+ {
+-	if (!bfqd->last_completed_rq_bfqq ||
+-	    bfqd->last_completed_rq_bfqq == bfqq ||
+-	    bfq_bfqq_has_short_ttime(bfqq) ||
+-	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
+-	    bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
+-		return;
++    if (bfqd->last_completed_rq_bfqq &&
++        !bfq_bfqq_has_short_ttime(bfqq) &&
++        ktime_get_ns() - bfqd->last_completion <
++        200 * NSEC_PER_USEC) {
++        if (bfqd->last_completed_rq_bfqq != bfqq &&
+ 
+ 	if (bfqd->last_completed_rq_bfqq !=
+ 	    bfqq->tentative_waker_bfqq) {

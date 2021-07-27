@@ -1,0 +1,10 @@
+--- ./kernel/sched/fair.c.new	2021-07-20 11:47:56.642975284 -0700
++++ ./kernel/sched/fair.c	2021-07-20 11:47:57.545986028 -0700
+@@ -6570,7 +6570,6 @@
+ 	return !task_fits_capacity(p, min_cap);
+ }
+ 
+-#if !defined(CONFIG_CACULE_SCHED)
+ /*
+  * select_task_rq_fair: Select target runqueue for the waking task in domains
+  * that have the 'sd_flag' flag set. In practice, this is SD_BALANCE_WAKE,

@@ -1,0 +1,7 @@
+--- ./arch/x86/entry/syscalls/syscall_32.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/x86/entry/syscalls/syscall_32.tbl	2021-07-12 18:20:10.339009506 -0700
+@@ -440,3 +440,4 @@
+ 433	i386	fspick			sys_fspick			__ia32_sys_fspick
+ 434	i386	pidfd_open		sys_pidfd_open			__ia32_sys_pidfd_open
+ 435	i386	clone3			sys_clone3			__ia32_sys_clone3
++436	i386	process_reap	sys_process_reap

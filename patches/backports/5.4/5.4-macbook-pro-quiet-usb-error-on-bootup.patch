@@ -1,0 +1,13 @@
+--- ./sound/usb/clock.c	2021-07-18 23:53:18.000000000 -0700
++++ ./sound/usb/clock.c 2021-07-19 14:07:14.763985936 -0700
+@@ -516,8 +516,8 @@
+ 			      UAC_EP_CS_ATTR_SAMPLE_RATE << 8, ep,
+ 			      data, sizeof(data));
+ 	if (err < 0) {
+-		dev_err(&dev->dev, "%d:%d: cannot set freq %d to ep %#x\n",
+-			iface, fmt->altsetting, rate, ep);
++		//dev_err(&dev->dev, "%d:%d: cannot set freq %d to ep %#x\n",
++		//	iface, fmt->altsetting, rate, ep);
+ 		return err;
+ 	}
+ 

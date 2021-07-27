@@ -1,0 +1,11 @@
+--- ./mm/compaction.c	2021-07-21 00:38:34.854370700 -0700
++++ ./mm/compaction.c	2021-07-21 00:39:40.595381511 -0700
+@@ -1594,7 +1594,7 @@
+ #ifdef CONFIG_PREEMPT_RT
+ int sysctl_compact_unevictable_allowed __read_mostly = 0;
+ #else
+-int sysctl_compact_unevictable_allowed __read_mostly = 1;
++int sysctl_compact_unevictable_allowed __read_mostly = 0;
+ #endif
+ 
+ static inline void

@@ -1,0 +1,65 @@
+--- ./block/mq-deadline.c	2021-07-11 13:15:32.453275661 -0700
++++ ./block/mq-deadline.c	2021-07-11 11:44:13.113321931 -0700
+@@ -18,6 +18,8 @@
+ #include <linux/rbtree.h>
+ #include <linux/sbitmap.h>
+ 
++#include <trace/events/block.h>
++
+ #include "blk.h"
+ #include "blk-mq.h"
+ #include "blk-mq-debugfs.h"
+@@ -485,6 +487,7 @@
+ 	struct request_queue *q = hctx->queue;
+ 	struct deadline_data *dd = q->elevator->elevator_data;
+ 	const int data_dir = rq_data_dir(rq);
++	LIST_HEAD(free);
+ 
+ 	/*
+ 	 * This may be a requeue of a write request that has locked its
+@@ -492,10 +495,12 @@
+ 	 */
+ 	blk_req_zone_write_unlock(rq);
+ 
+-	if (blk_mq_sched_try_insert_merge(q, rq))
++	if (blk_mq_sched_try_insert_merge(q, rq, &free)) {
++		blk_mq_free_requests(&free);
+ 		return;
++	}
+ 
+-	blk_mq_sched_request_inserted(rq);
++	trace_block_rq_insert(rq);
+ 
+ 	if (at_head) {
+ 		list_add(&rq->queuelist, &dd->dispatch);
+@@ -537,7 +542,7 @@
+  * Nothing to do here. This is defined only to ensure that .finish_request
+  * method is called upon request completion.
+  */
+-static void dd_prepare_request(struct request *rq, struct bio *bio)
++static void dd_prepare_request(struct request *rq)
+ {
+ }
+ 
+@@ -788,12 +793,21 @@
+ 	.queue_debugfs_attrs = deadline_queue_debugfs_attrs,
+ #endif
+ 	.elevator_attrs = deadline_attrs,
++#ifdef CONFIG_MQ_IOSCHED_DEADLINE_NODEFAULT
++	.elevator_name = "mq-deadline-nodefault",
++	.elevator_alias = "deadline-nodefault",
++#else
+ 	.elevator_name = "mq-deadline",
+ 	.elevator_alias = "deadline",
++#endif
+ 	.elevator_features = ELEVATOR_F_ZBD_SEQ_WRITE,
+ 	.elevator_owner = THIS_MODULE,
+ };
++#ifdef CONFIG_MQ_IOSCHED_DEADLINE_NODEFAULT
++MODULE_ALIAS("mq-deadline-nodefault-iosched");
++#else
+ MODULE_ALIAS("mq-deadline-iosched");
++#endif
+ 
+ static int __init deadline_init(void)
+ {

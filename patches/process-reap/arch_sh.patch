@@ -1,0 +1,7 @@
+--- ./arch/sh/kernel/syscalls/syscall.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/sh/kernel/syscalls/syscall.tbl	2021-07-12 18:19:53.018755779 -0700
+@@ -438,3 +438,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++436	common	process_reap		sys_process_reap

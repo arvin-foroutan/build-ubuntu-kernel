@@ -1,0 +1,18 @@
+--- ./include/uapi/asm-generic/unistd.h	2021-07-14 07:53:49.000000000 -0700
++++ ./include/uapi/asm-generic/unistd.h	2021-07-17 08:14:51.998651286 -0700
+@@ -851,8 +851,17 @@
+ __SYSCALL(__NR_clone3, sys_clone3)
+ #endif
+ 
++#define __NR_futex_wait 436
++__SYSCALL(__NR_futex_wait, sys_futex_wait)
++
++#define __NR_futex_wake 437
++__SYSCALL(__NR_futex_wake, sys_futex_wake)
++
++#define __NR_futex_waitv 438
++__SYSCALL(__NR_futex_waitv, sys_futex_waitv)
++
+ #undef __NR_syscalls
+-#define __NR_syscalls 436
++#define __NR_syscalls 439

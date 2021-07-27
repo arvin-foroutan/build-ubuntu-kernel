@@ -1,0 +1,42 @@
+Correct Polaris10 setup.
+
+Change-Id: Ia97b0995320ea06264b2b382331ff0b54b801665
+Signed-off-by: Evan Quan <evan.quan at amd.com>
+Acked-by: Alex Deucher <alexander.deucher at amd.com>
+---
+ .../drm/amd/pm/powerplay/hwmgr/smu_helper.c    | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu_helper.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu_helper.c
+index b485f8b1d6f2..2a0ca5194bbe 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu_helper.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu_helper.c
+@@ -505,11 +505,23 @@ int phm_initializa_dynamic_state_adjustment_rule_settings(struct pp_hwmgr *hwmgr
+ 	} else {
+ 		table_clk_vlt->count = 4;
+ 		table_clk_vlt->entries[0].clk = PP_DAL_POWERLEVEL_ULTRALOW;
+-		table_clk_vlt->entries[0].v = 0;
++		if (hwmgr->chip_id >= CHIP_POLARIS10 &&
++		    hwmgr->chip_id <= CHIP_VEGAM)
++			table_clk_vlt->entries[0].v = 700;
++		else
++			table_clk_vlt->entries[0].v = 0;
+ 		table_clk_vlt->entries[1].clk = PP_DAL_POWERLEVEL_LOW;
+-		table_clk_vlt->entries[1].v = 720;
++		if (hwmgr->chip_id >= CHIP_POLARIS10 &&
++		    hwmgr->chip_id <= CHIP_VEGAM)
++			table_clk_vlt->entries[1].v = 740;
++		else
++			table_clk_vlt->entries[1].v = 720;
+ 		table_clk_vlt->entries[2].clk = PP_DAL_POWERLEVEL_NOMINAL;
+-		table_clk_vlt->entries[2].v = 810;
++		if (hwmgr->chip_id >= CHIP_POLARIS10 &&
++		    hwmgr->chip_id <= CHIP_VEGAM)
++			table_clk_vlt->entries[2].v = 800;
++		else
++			table_clk_vlt->entries[2].v = 810;
+ 		table_clk_vlt->entries[3].clk = PP_DAL_POWERLEVEL_PERFORMANCE;
+ 		table_clk_vlt->entries[3].v = 900;
+ 		if (pptable_info != NULL)
+-- 
+2.28.0

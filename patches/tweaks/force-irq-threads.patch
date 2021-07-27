@@ -1,0 +1,20 @@
+--- ./kernel/irq/manage.c	2021-07-07 05:24:58.000000000 -0700
++++ ./kernel/irq/manage.c	2021-07-09 20:46:28.985719974 -0700
+@@ -25,9 +25,16 @@
+ #include "internals.h"
+ 
+ #if defined(CONFIG_IRQ_FORCED_THREADING) && !defined(CONFIG_PREEMPT_RT)
+-__read_mostly bool force_irqthreads;
++__read_mostly bool force_irqthreads = true;
+ EXPORT_SYMBOL_GPL(force_irqthreads);
+ 
++static int __init setup_noforced_irqthreads(char *arg)
++{
++	force_irqthreads = false;
++	return 0;
++}
++early_param("nothreadirqs", setup_noforced_irqthreads);
++
+ static int __init setup_forced_irqthreads(char *arg)
+ {
+ 	force_irqthreads = true;

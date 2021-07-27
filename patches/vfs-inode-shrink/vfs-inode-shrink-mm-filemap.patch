@@ -1,0 +1,23 @@
+--- ./mm/filemap.c	2021-07-18 01:05:26.699573470 -0700
++++ ./mm/filemap.c	2021-07-18 01:07:08.991080728 -0700
+@@ -868,10 +868,10 @@
+ 					void **shadowp)
+ {
+ 	XA_STATE(xas, &mapping->i_pages, offset);
++   int error;
+ 	int huge = PageHuge(page);
+ 	struct mem_cgroup *memcg;
+-	int error;
+-
++   bool populated = false;
+ 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+ 	VM_BUG_ON_PAGE(PageSwapBacked(page), page);
+ 	mapping_set_update(&xas, mapping);
+@@ -919,6 +919,7 @@
+ 		if (xas_error(&xas))
+ 			goto unlock;
+ 
++       populated = mapping_empty(mapping);
+ 		if (old)
+ 			mapping->nrexceptional--;
+ 		mapping->nrpages++;

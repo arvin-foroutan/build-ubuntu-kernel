@@ -1,0 +1,11 @@
+--- ./kernel/padata.c	2021-07-16 19:29:55.140040806 -0700
++++ ./kernel/padata.c	2021-07-16 19:37:43.257797095 -0700
+@@ -474,7 +474,7 @@
+ 
+ 	padata_init_pqueues(pd);
+ 	padata_init_squeues(pd);
+-	atomic_set(&pd->seq_nr, -1);
++   pd->seq_nr = -1;
+ 	atomic_set(&pd->reorder_objects, 0);
+ 	atomic_set(&pd->refcnt, 1);
+ 	spin_lock_init(&pd->lock);

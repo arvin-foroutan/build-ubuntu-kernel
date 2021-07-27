@@ -1,0 +1,42 @@
+--- ./tools/perf/builtin-bench.c	2021-07-14 07:53:49.000000000 -0700
++++ ./tools/perf/builtin-bench.c	2021-07-17 08:28:12.201170311 -0700
+@@ -10,11 +10,12 @@
+ /*
+  * Available benchmark collection list:
+  *
+- *  sched ... scheduler and IPC performance
+- *  mem   ... memory access performance
+- *  numa  ... NUMA scheduling and MM performance
+- *  futex ... Futex performance
+- *  epoll ... Event poll performance
++ *  sched  ... scheduler and IPC performance
++ *  mem    ... memory access performance
++ *  numa   ... NUMA scheduling and MM performance
++ *  futex  ... Futex performance
++ *  futex2 ... Futex2 performance
++ *  epoll  ... Event poll performance
+  */
+ #include <subcmd/parse-options.h>
+ #include "builtin.h"
+@@ -67,6 +68,13 @@
+ 	{ NULL,		NULL,						NULL			}
+ };
+ 
++static struct bench futex2_benchmarks[] = {
++    { "hash",      "Benchmark for futex2 hash table",            bench_futex2_hash  },
++    { "wake",      "Benchmark for futex2 wake calls",            bench_futex2_wake  },
++    { "wake-parallel", "Benchmark for parallel futex2 wake calls",   bench_futex2_wake_parallel },
++    { NULL,     NULL,                       NULL            }
++};
++
+ #ifdef HAVE_EVENTFD
+ static struct bench epoll_benchmarks[] = {
+ 	{ "wait",	"Benchmark epoll concurrent epoll_waits",       bench_epoll_wait	},
+@@ -89,6 +97,7 @@
+ 	{ "numa",	"NUMA scheduling and MM benchmarks",		numa_benchmarks		},
+ #endif
+ 	{"futex",       "Futex stressing benchmarks",                   futex_benchmarks        },
++   {"futex2",      "Futex2 stressing benchmarks",                  futex2_benchmarks        },
+ #ifdef HAVE_EVENTFD
+ 	{"epoll",       "Epoll stressing benchmarks",                   epoll_benchmarks        },
+ #endif

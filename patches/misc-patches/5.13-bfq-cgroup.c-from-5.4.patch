@@ -1,0 +1,430 @@
+--- ./block/bfq-cgroup.c	2021-07-11 12:43:38.390794884 -0700
++++ ./block/bfq-cgroup.c	2021-07-07 05:24:58.000000000 -0700
+@@ -347,6 +347,17 @@
+ 	bfqg_put(bfqg);
+ }
+ 
++void bfqg_stats_update_legacy_io(struct request_queue *q, struct request *rq)
++{
++	struct bfq_group *bfqg = blkg_to_bfqg(rq->bio->bi_blkg);
++
++	if (!bfqg)
++		return;
++
++	blkg_rwstat_add(&bfqg->stats.bytes, rq->cmd_flags, blk_rq_bytes(rq));
++	blkg_rwstat_add(&bfqg->stats.ios, rq->cmd_flags, 1);
++}
++
+ /* @stats = 0 */
+ static void bfqg_stats_reset(struct bfqg_stats *stats)
+ {
+@@ -431,6 +442,8 @@
+ 
+ static void bfqg_stats_exit(struct bfqg_stats *stats)
+ {
++	blkg_rwstat_exit(&stats->bytes);
++	blkg_rwstat_exit(&stats->ios);
+ #ifdef CONFIG_BFQ_CGROUP_DEBUG
+ 	blkg_rwstat_exit(&stats->merged);
+ 	blkg_rwstat_exit(&stats->service_time);
+@@ -448,6 +461,10 @@
+ 
+ static int bfqg_stats_init(struct bfqg_stats *stats, gfp_t gfp)
+ {
++	if (blkg_rwstat_init(&stats->bytes, gfp) ||
++	    blkg_rwstat_init(&stats->ios, gfp))
++		return -ENOMEM;
++
+ #ifdef CONFIG_BFQ_CGROUP_DEBUG
+ 	if (blkg_rwstat_init(&stats->merged, gfp) ||
+ 	    blkg_rwstat_init(&stats->service_time, gfp) ||
+@@ -530,6 +547,8 @@
+ 
+ 	entity->orig_weight = entity->weight = entity->new_weight = d->weight;
+ 	entity->my_sched_data = &bfqg->sched_data;
++	entity->last_bfqq_created = NULL;
++
+ 	bfqg->my_entity = entity; /*
+ 				   * the root_group's will be set to NULL
+ 				   * in bfq_init_queue()
+@@ -643,7 +662,7 @@
+ 
+ 	if (bfq_bfqq_busy(bfqq))
+ 		bfq_deactivate_bfqq(bfqd, bfqq, false, false);
+-	else if (entity->on_st)
++	else if (entity->on_st_or_in_serv)
+ 		bfq_put_idle_entity(bfq_entity_service_tree(entity), entity);
+ 	bfqg_and_blkg_put(bfqq_group(bfqq));
+ 
+@@ -1083,18 +1102,35 @@
+ 	return bfq_io_set_device_weight(of, buf, nbytes, off);
+ }
+ 
+-#ifdef CONFIG_BFQ_CGROUP_DEBUG
+-static int bfqg_print_stat(struct seq_file *sf, void *v)
++static int bfqg_print_rwstat(struct seq_file *sf, void *v)
+ {
+-	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)), blkg_prfill_stat,
+-			  &blkcg_policy_bfq, seq_cft(sf)->private, false);
++	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)), blkg_prfill_rwstat,
++			  &blkcg_policy_bfq, seq_cft(sf)->private, true);
+ 	return 0;
+ }
+ 
+-static int bfqg_print_rwstat(struct seq_file *sf, void *v)
++static u64 bfqg_prfill_rwstat_recursive(struct seq_file *sf,
++					struct blkg_policy_data *pd, int off)
+ {
+-	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)), blkg_prfill_rwstat,
+-			  &blkcg_policy_bfq, seq_cft(sf)->private, true);
++	struct blkg_rwstat_sample sum;
++
++	blkg_rwstat_recursive_sum(pd_to_blkg(pd), &blkcg_policy_bfq, off, &sum);
++	return __blkg_prfill_rwstat(sf, pd, &sum);
++}
++
++static int bfqg_print_rwstat_recursive(struct seq_file *sf, void *v)
++{
++	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)),
++			  bfqg_prfill_rwstat_recursive, &blkcg_policy_bfq,
++			  seq_cft(sf)->private, true);
++	return 0;
++}
++
++#ifdef CONFIG_BFQ_CGROUP_DEBUG
++static int bfqg_print_stat(struct seq_file *sf, void *v)
++{
++	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)), blkg_prfill_stat,
++			  &blkcg_policy_bfq, seq_cft(sf)->private, false);
+ 	return 0;
+ }
+ 
+@@ -1123,15 +1159,6 @@
+ 	return __blkg_prfill_u64(sf, pd, sum);
+ }
+ 
+-static u64 bfqg_prfill_rwstat_recursive(struct seq_file *sf,
+-					struct blkg_policy_data *pd, int off)
+-{
+-	struct blkg_rwstat_sample sum;
+-
+-	blkg_rwstat_recursive_sum(pd_to_blkg(pd), &blkcg_policy_bfq, off, &sum);
+-	return __blkg_prfill_rwstat(sf, pd, &sum);
+-}
+-
+ static int bfqg_print_stat_recursive(struct seq_file *sf, void *v)
+ {
+ 	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)),
+@@ -1140,18 +1167,11 @@
+ 	return 0;
+ }
+ 
+-static int bfqg_print_rwstat_recursive(struct seq_file *sf, void *v)
+-{
+-	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)),
+-			  bfqg_prfill_rwstat_recursive, &blkcg_policy_bfq,
+-			  seq_cft(sf)->private, true);
+-	return 0;
+-}
+-
+ static u64 bfqg_prfill_sectors(struct seq_file *sf, struct blkg_policy_data *pd,
+ 			       int off)
+ {
+-	u64 sum = blkg_rwstat_total(&pd->blkg->stat_bytes);
++	struct bfq_group *bfqg = blkg_to_bfqg(pd->blkg);
++	u64 sum = blkg_rwstat_total(&bfqg->stats.bytes);
+ 
+ 	return __blkg_prfill_u64(sf, pd, sum >> 9);
+ }
+@@ -1168,8 +1188,8 @@
+ {
+ 	struct blkg_rwstat_sample tmp;
+ 
+-	blkg_rwstat_recursive_sum(pd->blkg, NULL,
+-			offsetof(struct blkcg_gq, stat_bytes), &tmp);
++	blkg_rwstat_recursive_sum(pd->blkg, &blkcg_policy_bfq,
++			offsetof(struct bfq_group, stats.bytes), &tmp);
+ 
+ 	return __blkg_prfill_u64(sf, pd,
+ 		(tmp.cnt[BLKG_RWSTAT_READ] + tmp.cnt[BLKG_RWSTAT_WRITE]) >> 9);
+@@ -1220,9 +1240,7 @@
+ }
+ 
+ struct blkcg_policy blkcg_policy_bfq = {
+-#ifndef CONFIG_BLK_CGROUP_IOCOST
+ 	.dfl_cftypes		= bfq_blkg_files,
+-#endif
+ 	.legacy_cftypes		= bfq_blkcg_legacy_files,
+ 
+ 	.cpd_alloc_fn		= bfq_cpd_alloc,
+@@ -1237,143 +1255,139 @@
+ 	.pd_reset_stats_fn	= bfq_pd_reset_stats,
+ };
+ 
+-#define bfq_make_blkcg_legacy_files(prefix)			\
+-	{							\
+-		.name = #prefix "weight",			\
+-		.flags = CFTYPE_NOT_ON_ROOT,			\
+-		.seq_show = bfq_io_show_weight,			\
+-		.write_u64 = bfq_io_set_weight_legacy,		\
+-	},							\
+-								\
+-	/* statistics, covers only the tasks in the bfqg */	\
+-	{							\
+-		.name = #prefix "io_service_bytes",		\
+-		.private = (unsigned long)&blkcg_policy_bfq,	\
+-		.seq_show = blkg_print_stat_bytes,		\
+-	},							\
+-	{							\
+-		.name = #prefix "io_serviced",		\
+-		.private = (unsigned long)&blkcg_policy_bfq,	\
+-		.seq_show = blkg_print_stat_ios,		\
+-	},							\
+-								\
+-	/* the same statistics which cover the bfqg and its descendants */ \
+-	{							\
+-		.name = #prefix "io_service_bytes_recursive",	\
+-		.private = (unsigned long)&blkcg_policy_bfq,	\
+-		.seq_show = blkg_print_stat_bytes_recursive,	\
+-	},							\
+-	{							\
+-		.name = #prefix "io_serviced_recursive",	\
+-		.private = (unsigned long)&blkcg_policy_bfq,	\
+-		.seq_show = blkg_print_stat_ios_recursive,	\
+-	}
+-
+-#define bfq_make_blkcg_legacy_debug_files(prefix)			\
+-	{								\
+-		.name = #prefix "time",				\
+-		.private = offsetof(struct bfq_group, stats.time),	\
+-		.seq_show = bfqg_print_stat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "sectors",				\
+-		.seq_show = bfqg_print_stat_sectors,			\
+-	},								\
+-	{								\
+-		.name = #prefix "io_service_time",			\
+-		.private = offsetof(struct bfq_group, stats.service_time), \
+-		.seq_show = bfqg_print_rwstat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "io_wait_time",			\
+-		.private = offsetof(struct bfq_group, stats.wait_time),	\
+-		.seq_show = bfqg_print_rwstat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "io_merged",				\
+-		.private = offsetof(struct bfq_group, stats.merged),	\
+-		.seq_show = bfqg_print_rwstat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "io_queued",				\
+-		.private = offsetof(struct bfq_group, stats.queued),	\
+-		.seq_show = bfqg_print_rwstat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "time_recursive",			\
+-		.private = offsetof(struct bfq_group, stats.time),	\
+-		.seq_show = bfqg_print_stat_recursive,			\
+-	},								\
+-	{								\
+-		.name = #prefix "sectors_recursive",			\
+-		.seq_show = bfqg_print_stat_sectors_recursive,		\
+-	},								\
+-	{								\
+-		.name = #prefix "io_service_time_recursive",		\
+-		.private = offsetof(struct bfq_group, stats.service_time), \
+-		.seq_show = bfqg_print_rwstat_recursive,		\
+-	},								\
+-	{								\
+-		.name = #prefix "io_wait_time_recursive",		\
+-		.private = offsetof(struct bfq_group, stats.wait_time),	\
+-		.seq_show = bfqg_print_rwstat_recursive,		\
+-	},								\
+-	{								\
+-		.name = #prefix "io_merged_recursive",		\
+-		.private = offsetof(struct bfq_group, stats.merged),	\
+-		.seq_show = bfqg_print_rwstat_recursive,		\
+-	},								\
+-	{								\
+-		.name = #prefix "io_queued_recursive",		\
+-		.private = offsetof(struct bfq_group, stats.queued),	\
+-		.seq_show = bfqg_print_rwstat_recursive,		\
+-	},								\
+-	{								\
+-		.name = #prefix "avg_queue_size",			\
+-		.seq_show = bfqg_print_avg_queue_size,			\
+-	},								\
+-	{								\
+-		.name = #prefix "group_wait_time",			\
+-		.private = offsetof(struct bfq_group, stats.group_wait_time), \
+-		.seq_show = bfqg_print_stat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "idle_time",				\
+-		.private = offsetof(struct bfq_group, stats.idle_time),	\
+-		.seq_show = bfqg_print_stat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "empty_time",				\
+-		.private = offsetof(struct bfq_group, stats.empty_time), \
+-		.seq_show = bfqg_print_stat,				\
+-	},								\
+-	{								\
+-		.name = #prefix "dequeue",				\
+-		.private = offsetof(struct bfq_group, stats.dequeue),	\
+-		.seq_show = bfqg_print_stat,				\
+-	}
+-
+ struct cftype bfq_blkcg_legacy_files[] = {
+-	bfq_make_blkcg_legacy_files(bfq.),
+-	bfq_make_blkcg_legacy_files(),
++	{
++		.name = "bfq.weight",
++		.flags = CFTYPE_NOT_ON_ROOT,
++		.seq_show = bfq_io_show_weight_legacy,
++		.write_u64 = bfq_io_set_weight_legacy,
++	},
++	{
++		.name = "bfq.weight_device",
++		.flags = CFTYPE_NOT_ON_ROOT,
++		.seq_show = bfq_io_show_weight,
++		.write = bfq_io_set_weight,
++	},
++
++	/* statistics, covers only the tasks in the bfqg */
++	{
++		.name = "bfq.io_service_bytes",
++		.private = offsetof(struct bfq_group, stats.bytes),
++		.seq_show = bfqg_print_rwstat,
++	},
++	{
++		.name = "bfq.io_serviced",
++		.private = offsetof(struct bfq_group, stats.ios),
++		.seq_show = bfqg_print_rwstat,
++	},
+ #ifdef CONFIG_BFQ_CGROUP_DEBUG
+-	bfq_make_blkcg_legacy_debug_files(bfq.),
+-	bfq_make_blkcg_legacy_debug_files(),
+-#endif
++	{
++		.name = "bfq.time",
++		.private = offsetof(struct bfq_group, stats.time),
++		.seq_show = bfqg_print_stat,
++	},
++	{
++		.name = "bfq.sectors",
++		.seq_show = bfqg_print_stat_sectors,
++	},
++	{
++		.name = "bfq.io_service_time",
++		.private = offsetof(struct bfq_group, stats.service_time),
++		.seq_show = bfqg_print_rwstat,
++	},
++	{
++		.name = "bfq.io_wait_time",
++		.private = offsetof(struct bfq_group, stats.wait_time),
++		.seq_show = bfqg_print_rwstat,
++	},
++	{
++		.name = "bfq.io_merged",
++		.private = offsetof(struct bfq_group, stats.merged),
++		.seq_show = bfqg_print_rwstat,
++	},
++	{
++		.name = "bfq.io_queued",
++		.private = offsetof(struct bfq_group, stats.queued),
++		.seq_show = bfqg_print_rwstat,
++	},
++#endif /* CONFIG_BFQ_CGROUP_DEBUG */
++
++	/* the same statistics which cover the bfqg and its descendants */
++	{
++		.name = "bfq.io_service_bytes_recursive",
++		.private = offsetof(struct bfq_group, stats.bytes),
++		.seq_show = bfqg_print_rwstat_recursive,
++	},
++	{
++		.name = "bfq.io_serviced_recursive",
++		.private = offsetof(struct bfq_group, stats.ios),
++		.seq_show = bfqg_print_rwstat_recursive,
++	},
++#ifdef CONFIG_BFQ_CGROUP_DEBUG
++	{
++		.name = "bfq.time_recursive",
++		.private = offsetof(struct bfq_group, stats.time),
++		.seq_show = bfqg_print_stat_recursive,
++	},
++	{
++		.name = "bfq.sectors_recursive",
++		.seq_show = bfqg_print_stat_sectors_recursive,
++	},
++	{
++		.name = "bfq.io_service_time_recursive",
++		.private = offsetof(struct bfq_group, stats.service_time),
++		.seq_show = bfqg_print_rwstat_recursive,
++	},
++	{
++		.name = "bfq.io_wait_time_recursive",
++		.private = offsetof(struct bfq_group, stats.wait_time),
++		.seq_show = bfqg_print_rwstat_recursive,
++	},
++	{
++		.name = "bfq.io_merged_recursive",
++		.private = offsetof(struct bfq_group, stats.merged),
++		.seq_show = bfqg_print_rwstat_recursive,
++	},
++	{
++		.name = "bfq.io_queued_recursive",
++		.private = offsetof(struct bfq_group, stats.queued),
++		.seq_show = bfqg_print_rwstat_recursive,
++	},
++	{
++		.name = "bfq.avg_queue_size",
++		.seq_show = bfqg_print_avg_queue_size,
++	},
++	{
++		.name = "bfq.group_wait_time",
++		.private = offsetof(struct bfq_group, stats.group_wait_time),
++		.seq_show = bfqg_print_stat,
++	},
++	{
++		.name = "bfq.idle_time",
++		.private = offsetof(struct bfq_group, stats.idle_time),
++		.seq_show = bfqg_print_stat,
++	},
++	{
++		.name = "bfq.empty_time",
++		.private = offsetof(struct bfq_group, stats.empty_time),
++		.seq_show = bfqg_print_stat,
++	},
++	{
++		.name = "bfq.dequeue",
++		.private = offsetof(struct bfq_group, stats.dequeue),
++		.seq_show = bfqg_print_stat,
++	},
++#endif	/* CONFIG_BFQ_CGROUP_DEBUG */
+ 	{ }	/* terminate */
+ };
+ 
+-#define bfq_make_blkg_files(prefix)		\
+-	{					\
+-		.name = #prefix "weight",	\
+-		.flags = CFTYPE_NOT_ON_ROOT,	\
+-		.seq_show = bfq_io_show_weight,	\
+-		.write = bfq_io_set_weight,	\
+-	}
+-
+ struct cftype bfq_blkg_files[] = {
+-	bfq_make_blkg_files(bfq.),
+-	bfq_make_blkg_files(),
++	{
++		.name = "bfq.weight",
++		.flags = CFTYPE_NOT_ON_ROOT,
++		.seq_show = bfq_io_show_weight,
++		.write = bfq_io_set_weight,
++	},
+ 	{} /* terminate */
+ };
+ 

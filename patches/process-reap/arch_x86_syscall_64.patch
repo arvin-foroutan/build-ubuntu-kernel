@@ -1,0 +1,10 @@
+--- ./arch/x86/entry/syscalls/syscall_64.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/x86/entry/syscalls/syscall_64.tbl	2021-07-12 18:20:18.531129430 -0700
+@@ -357,6 +357,7 @@
+ 433	common	fspick			__x64_sys_fspick
+ 434	common	pidfd_open		__x64_sys_pidfd_open
+ 435	common	clone3			__x64_sys_clone3/ptregs
++436	common	process_reap	sys_process_reap
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact

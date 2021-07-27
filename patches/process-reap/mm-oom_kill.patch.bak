@@ -1,0 +1,63 @@
+--- ./mm/oom_kill.c	2021-07-11 03:52:08.000000000 -0700
++++ ./mm/oom_kill.c	2021-07-12 19:01:59.399441324 -0700
+@@ -27,6 +27,7 @@
+ #include <linux/sched/coredump.h>
+ #include <linux/sched/task.h>
+ #include <linux/swap.h>
++#include <linux/syscalls.h>
+ #include <linux/timex.h>
+ #include <linux/jiffies.h>
+ #include <linux/cpuset.h>
+@@ -1138,3 +1139,52 @@
+ 	out_of_memory(&oc);
+ 	mutex_unlock(&oom_lock);
+ }
++
++SYSCALL_DEFINE2(process_reap, int, pidfd, unsigned int, flags)
++{
++    struct pid *pid;
++    struct task_struct *task;
++    struct mm_struct *mm = NULL;
++    unsigned int f_flags;
++    long ret = 0;
++
++    if (flags != 0)
++        return -EINVAL;
++
++    pid = pidfd_get_pid(pidfd, &f_flags);
++    if (IS_ERR(pid))
++        return PTR_ERR(pid);
++
++    task = get_pid_task(pid, PIDTYPE_PID);
++    if (!task) {
++        ret = -ESRCH;
++        goto put_pid;
++    }
++
++    /*
++     * * If the task is dying and in the process of releasing its memory
++     * * then get its mm.
++     * */
++    task_lock(task);
++    if (task_will_free_mem(task) && (task->flags & PF_KTHREAD) == 0) {
++        mm = task->mm;
++        mmget(mm);
++    }
++    task_unlock(task);
++    if (!mm) {
++        ret = -EINVAL;
++        goto put_task;
++    }
++
++    mmap_read_lock(mm);
++    if (!__oom_reap_task_mm(mm))
++        ret = -EAGAIN;
++    mmap_read_unlock(mm);
++
++    mmput(mm);
++put_task:
++    put_task_struct(task);
++put_pid:
++    put_pid(pid);
++    return ret;
++}

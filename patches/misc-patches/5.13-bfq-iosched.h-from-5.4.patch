@@ -1,0 +1,88 @@
+--- ./block/bfq-iosched.h	2021-07-11 12:43:38.433795522 -0700
++++ ./block/bfq-iosched.h	2021-07-11 11:44:13.108321846 -0700
+@@ -10,6 +10,8 @@
+ #include <linux/hrtimer.h>
+ #include <linux/blk-cgroup.h>
+ 
++#include "blk-cgroup-rwstat.h"
++
+ #define BFQ_IOPRIO_CLASSES	3
+ #define BFQ_CL_IDLE_TIMEOUT	(HZ/5)
+ 
+@@ -148,7 +150,7 @@
+ 	 * Flag, true if the entity is on a tree (either the active or
+ 	 * the idle one of its service_tree) or is in service.
+ 	 */
+-	bool on_st;
++	bool on_st_or_in_serv;
+ 
+ 	/* B-WF2Q+ start and finish timestamps [sectors/weight] */
+ 	u64 start, finish;
+@@ -195,6 +197,9 @@
+ 
+ 	/* flag, set if the entity is counted in groups_with_pending_reqs */
+ 	bool in_groups_with_pending_reqs;
++
++	/* last child queue of entity created (for non-leaf entities) */
++	struct bfq_queue *last_bfqq_created;
+ };
+ 
+ struct bfq_group;
+@@ -228,6 +233,8 @@
+ struct bfq_queue {
+ 	/* reference counter */
+ 	int ref;
++	/* counter of references from other queues for delayed stable merge */
++	int stable_ref;
+ 	/* parent bfq_data */
+ 	struct bfq_data *bfqd;
+ 
+@@ -363,6 +370,8 @@
+ 
+ 	unsigned long first_IO_time; /* time of first I/O for this queue */
+ 
++	unsigned long creation_time; /* when this queue is created */
++
+ 	/* max service rate measured so far */
+ 	u32 max_service_rate;
+ 
+@@ -452,6 +461,11 @@
+ 	u64 saved_last_serv_time_ns;
+ 	unsigned int saved_inject_limit;
+ 	unsigned long saved_decrease_time_jif;
++
++	/* candidate queue for a stable merge (due to close creation time) */
++	struct bfq_queue *stable_merge_bfqq;
++
++	bool stably_merged;	/* non splittable if true */
+ };
+ 
+ /**
+@@ -576,6 +590,9 @@
+ 	/* bfqq owning the last completed rq */
+ 	struct bfq_queue *last_completed_rq_bfqq;
+ 
++	/* last bfqq created, among those in the root group */
++	struct bfq_queue *last_bfqq_created;
++
+ 	/* time of last transition from empty to non-empty (ns) */
+ 	u64 last_empty_occupied_ns;
+ 
+@@ -818,6 +835,9 @@
+ };
+ 
+ struct bfqg_stats {
++	/* basic stats */
++	struct blkg_rwstat		bytes;
++	struct blkg_rwstat		ios;
+ #ifdef CONFIG_BFQ_CGROUP_DEBUG
+ 	/* number of ios merged */
+ 	struct blkg_rwstat		merged;
+@@ -965,6 +985,7 @@
+ 
+ /* ---------------- cgroups-support interface ---------------- */
+ 
++void bfqg_stats_update_legacy_io(struct request_queue *q, struct request *rq);
+ void bfqg_stats_update_io_add(struct bfq_group *bfqg, struct bfq_queue *bfqq,
+ 			      unsigned int op);
+ void bfqg_stats_update_io_remove(struct bfq_group *bfqg, unsigned int op);

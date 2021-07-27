@@ -1,0 +1,30 @@
+From: Dmytro Laktyushkin <Dmytro.Laktyushkin at amd.com>
+
+dcn20_calculate_dlg_params was incorrectly indexing pipe src and
+dst structs when extracting global sync params.
+
+Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin at amd.com>
+Reviewed-by: Jaehyun Chung <Jaehyun.Chung at amd.com>
+Acked-by: Leo Li <sunpeng.li at amd.com>
+---
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index 9aceb159bef5..49a147661cd4 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -2638,8 +2638,8 @@ void dcn20_calculate_dlg_params(
+ 			continue;
+ 
+ 		if (!visited[pipe_idx]) {
+-			display_pipe_source_params_st *src = &pipes[pipe_idx_unsplit].pipe.src;
+-			display_pipe_dest_params_st *dst = &pipes[pipe_idx_unsplit].pipe.dest;
++			display_pipe_source_params_st *src = &pipes[pipe_idx].pipe.src;
++			display_pipe_dest_params_st *dst = &pipes[pipe_idx].pipe.dest;
+ 
+ 			dst->vstartup_start = context->bw_ctx.dml.vba.VStartup[pipe_idx_unsplit];
+ 			dst->vupdate_offset = context->bw_ctx.dml.vba.VUpdateOffsetPix[pipe_idx_unsplit];
+-- 
+2.22.0
+

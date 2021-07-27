@@ -1,0 +1,21 @@
+Not needed as far as I can see.
+
+Signed-off-by: Christian König <christian.koenig at amd.com>
+---
+ drivers/gpu/drm/drm_gem_vram_helper.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index 4442c9c23ff2..bd4a5740a038 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -15,7 +15,6 @@
+ #include <drm/drm_plane.h>
+ #include <drm/drm_prime.h>
+ #include <drm/drm_simple_kms_helper.h>
+-#include <drm/ttm/ttm_page_alloc.h>
+ 
+ static const struct drm_gem_object_funcs drm_gem_vram_object_funcs;
+ 
+-- 
+2.17.1

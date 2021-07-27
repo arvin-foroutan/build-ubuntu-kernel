@@ -1,0 +1,7 @@
+--- ./arch/parisc/kernel/syscalls/syscall.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/parisc/kernel/syscalls/syscall.tbl	2021-07-12 18:19:13.250172275 -0700
+@@ -433,3 +433,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3_wrapper
++436	common	process_reap		sys_process_reap

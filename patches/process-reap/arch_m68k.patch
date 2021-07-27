@@ -1,0 +1,7 @@
+--- ./arch/m68k/kernel/syscalls/syscall.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/m68k/kernel/syscalls/syscall.tbl	2021-07-12 18:18:16.433336192 -0700
+@@ -435,3 +435,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++436	common	process_reap		sys_process_reap

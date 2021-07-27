@@ -1,0 +1,11 @@
+--- ./arch/arm64/include/asm/unistd.h	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/arm64/include/asm/unistd.h	2021-07-12 18:17:33.280699013 -0700
+@@ -38,7 +38,7 @@
+ #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
+ #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
+ 
+-#define __NR_compat_syscalls		436
++#define __NR_compat_syscalls		437
+ #endif
+ 
+ #define __ARCH_WANT_SYS_CLONE

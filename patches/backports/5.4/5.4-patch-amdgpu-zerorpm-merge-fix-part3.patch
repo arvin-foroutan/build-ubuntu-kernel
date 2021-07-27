@@ -1,0 +1,42 @@
+--- ./drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2021-07-25 07:42:07.809846731 -0700
++++ ./drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2021-07-25 07:46:57.193606184 -0700
+@@ -1497,7 +1497,14 @@
+ 	PP_ASSERT_WITH_CODE((0 == tmp_result),
+ 			"Failed to enable VR hot GPIO interrupt!", result = tmp_result);
+ 
+-	smum_send_msg_to_smc(hwmgr, (PPSMC_Msg)PPSMC_NoDisplay);
++   if (hwmgr->chip_id >= CHIP_POLARIS10 &&
++       hwmgr->chip_id <= CHIP_VEGAM) {
++       tmp_result = smu7_notify_has_display(hwmgr);
++       PP_ASSERT_WITH_CODE((0 == tmp_result),
++               "Failed to enable display setting!", result = tmp_result);
++   } else {
++       smum_send_msg_to_smc(hwmgr, (PPSMC_Msg)PPSMC_NoDisplay, NULL);
++   }
+ 
+ 	if (hwmgr->chip_id >= CHIP_POLARIS10 &&
+ 	    hwmgr->chip_id <= CHIP_VEGAM) {
+@@ -4292,9 +4299,23 @@
+ 			smum_send_msg_to_smc_with_parameter(hwmgr,
+ 					(PPSMC_Msg)PPSMC_MSG_SetVBITimeout, data->frame_time_x2);
+ 	}
++
+ 	return (smum_send_msg_to_smc(hwmgr, (PPSMC_Msg)PPSMC_HasDisplay) == 0) ?  0 : -EINVAL;
+ }
+ 
++static int smu7_notify_smc_display(struct pp_hwmgr *hwmgr)
++{
++    struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
++    int result = 0;
++
++    if (data->mclk_ignore_signal)
++        result = smu7_notify_no_display(hwmgr);
++    else
++        result = smu7_notify_has_display(hwmgr);
++
++    return result;
++}
++
+ static int smu7_set_power_state_tasks(struct pp_hwmgr *hwmgr, const void *input)
+ {
+ 	int tmp_result, result = 0;

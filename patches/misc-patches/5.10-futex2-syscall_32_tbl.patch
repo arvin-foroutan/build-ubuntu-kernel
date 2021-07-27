@@ -1,0 +1,10 @@
+--- ./arch/x86/entry/syscalls/syscall_32.tbl	2021-07-14 07:53:49.000000000 -0700
++++ ./arch/x86/entry/syscalls/syscall_32.tbl	2021-07-17 08:06:10.953650831 -0700
+@@ -440,3 +440,6 @@
+ 433	i386	fspick			sys_fspick			__ia32_sys_fspick
+ 434	i386	pidfd_open		sys_pidfd_open			__ia32_sys_pidfd_open
+ 435	i386	clone3			sys_clone3			__ia32_sys_clone3
++436    i386    futex_wait      sys_futex_wait      compat_sys_futex_wait
++437    i386    futex_wake      sys_futex_wake
++438    i386    futex_waitv     sys_futex_waitv     compat_sys_futex_waitv
++439    i386    futex_requeue   sys_futex_requeue   compat_sys_futex_requeue

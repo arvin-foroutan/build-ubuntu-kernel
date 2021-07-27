@@ -1,0 +1,38 @@
+--- ./mm/swapfile.c	2021-07-24 23:54:43.681758882 -0700
++++ ./mm/swapfile.c	2021-07-24 23:59:49.357153584 -0700
+@@ -1273,20 +1273,28 @@
+ 	if (!si)
+ 		goto bad_nofile;
+ 
+-	rcu_read_lock();
+-	if (!(si->flags & SWP_VALID))
+-		goto unlock_out;
+-	offset = swp_offset(entry);
++   if (!percpu_ref_tryget_live(&si->users))
++       goto out;
++
++   /*
++    * Guarantee the si->users are checked before accessing other
++    * fields of swap_info_struct.
++    *
++    * Paired with the spin_unlock() after setup_swap_info() in
++    * enable_swap_info().
++    */
++   smp_rmb();
++   offset = swp_offset(entry);
+ 	if (offset >= si->max)
+-	    goto unlock_out;
++	    goto put_out;
+ 
+ 	return si;
+ bad_nofile:
+ 	pr_err("%s: %s%08lx\n", __func__, Bad_file, entry.val);
+ out:
+ 	return NULL;
+-unlock_out:
+-	rcu_read_unlock();
++put_out:
++   percpu_ref_put(&si->users);
+ 	return NULL;
+ }
+ 

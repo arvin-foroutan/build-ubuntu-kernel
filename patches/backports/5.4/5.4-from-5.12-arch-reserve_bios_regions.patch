@@ -1,0 +1,11 @@
+--- ./arch/x86/kernel/setup.c	2021-07-16 18:15:03.594183347 -0700
++++ ./arch/x86/kernel/setup.c	2021-07-16 18:08:02.876026492 -0700
+@@ -1126,8 +1126,6 @@
+ 	memblock_set_current_limit(ISA_END_ADDRESS);
+ 	e820__memblock_setup();
+ 
+-	reserve_bios_regions();
+-
+ 	if (efi_enabled(EFI_MEMMAP)) {
+ 		efi_fake_memmap();
+ 		efi_find_mirror();

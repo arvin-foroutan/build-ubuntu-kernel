@@ -1,0 +1,7 @@
+--- ./arch/microblaze/kernel/syscalls/syscall.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/microblaze/kernel/syscalls/syscall.tbl	2021-07-12 18:18:26.969491466 -0700
+@@ -441,3 +441,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++436	common	process_reap		sys_process_reap

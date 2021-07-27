@@ -1,0 +1,34 @@
+Correct Polaris smc boot level setup.
+
+Change-Id: I0bb1cd916f65763ab6e8bb4a401508a3adbf8d2d
+Signed-off-by: Evan Quan <evan.quan at amd.com>
+Acked-by: Alex Deucher <alexander.deucher at amd.com>
+---
+ .../gpu/drm/amd/pm/powerplay/smumgr/polaris10_smumgr.c    | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/smumgr/polaris10_smumgr.c b/drivers/gpu/drm/amd/pm/powerplay/smumgr/polaris10_smumgr.c
+index 47230d8fb592..d4253b1116c2 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/smumgr/polaris10_smumgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/smumgr/polaris10_smumgr.c
+@@ -1587,10 +1587,18 @@ static int polaris10_populate_smc_boot_level(struct pp_hwmgr *hwmgr,
+ 	result = phm_find_boot_level(&(data->dpm_table.sclk_table),
+ 			data->vbios_boot_state.sclk_bootup_value,
+ 			(uint32_t *)&(table->GraphicsBootLevel));
++	if (result) {
++		table->GraphicsBootLevel = 0;
++		result = 0;
++	}
+ 
+ 	result = phm_find_boot_level(&(data->dpm_table.mclk_table),
+ 			data->vbios_boot_state.mclk_bootup_value,
+ 			(uint32_t *)&(table->MemoryBootLevel));
++	if (result) {
++		table->MemoryBootLevel = 0;
++		result = 0;
++	}
+ 
+ 	table->BootVddc  = data->vbios_boot_state.vddc_bootup_value *
+ 			VOLTAGE_SCALE;
+-- 
+2.28.0

@@ -1,0 +1,13 @@
+--- ./include/net/tcp.h	2021-07-24 11:05:55.755806773 -0700
++++ ./include/net/tcp.h	2021-07-24 11:09:04.755218360 -0700
+@@ -850,7 +850,9 @@
+ 	__u8		txstamp_ack:1,	/* Record TX timestamp for ack? */
+ 			eor:1,		/* Is skb MSG_EOR marked? */
+ 			has_rxtstamp:1,	/* SKB has a RX timestamp	*/
+-			unused:5;
++           fast_ack_mode:2, /* which fast ack mode ? */
++           unused:3;
++
+ 	__u32		ack_seq;	/* Sequence number ACK'd	*/
+ 	union {
+ 		struct {

@@ -1,0 +1,10 @@
+--- ./kernel/sched/fair.c	2021-07-20 12:18:10.650313873 -0700
++++ ./kernel/sched/fair.c	2021-07-20 12:18:22.969502969 -0700
+@@ -8968,7 +8968,6 @@
+ 
+ 	if (asym_active_balance(env))
+ 		return 1;
+-#endif
+ 
+ 	/*
+ 	 * The dst_cpu is idle and the src_cpu CPU has only 1 CFS task.

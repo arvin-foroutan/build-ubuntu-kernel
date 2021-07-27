@@ -1,0 +1,24 @@
+Correct Polaris10 pcie spc cap setting.
+
+Change-Id: I7f9a65cd615c43a62a38713a07290e3ec5afaef1
+Signed-off-by: Evan Quan <evan.quan at amd.com>
+Acked-by: Alex Deucher <alexander.deucher at amd.com>
+---
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
+index 7eca860236db..59c199cd7aeb 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
+@@ -2865,6 +2865,8 @@ static int smu7_hwmgr_backend_init(struct pp_hwmgr *hwmgr)
+ 		data->pcie_gen_cap = adev->pm.pcie_gen_mask;
+ 		if (data->pcie_gen_cap & CAIL_PCIE_LINK_SPEED_SUPPORT_GEN3)
+ 			data->pcie_spc_cap = 20;
++		else
++			data->pcie_spc_cap = 16;
+ 		data->pcie_lane_cap = adev->pm.pcie_mlw_mask;
+ 
+ 		hwmgr->platform_descriptor.vbiosInterruptId = 0x20000400; /* IRQ_SOURCE1_SW_INT */
+-- 
+2.28.0

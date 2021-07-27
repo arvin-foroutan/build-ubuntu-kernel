@@ -1,0 +1,11 @@
+--- ./block/bfq-iosched.c	2021-07-14 19:39:31.677338590 -0700
++++ ./block/bfq-iosched.c	2021-07-14 19:41:12.566669382 -0700
+@@ -6548,7 +6548,7 @@
+ 		/* If the queue was seeky for too long, break it apart. */
+ 		if (bfq_bfqq_coop(bfqq) && bfq_bfqq_split_coop(bfqq) &&
+ 			!bic->stably_merged) {
+-			struct bfq_queue *old_bfqq = bfqq;
++           bfq_log_bfqq(bfqd, bfqq, "breaking apart bfqq");
+ 
+ 			/* Update bic before losing reference to bfqq */
+ 			if (bfq_bfqq_in_large_burst(bfqq))

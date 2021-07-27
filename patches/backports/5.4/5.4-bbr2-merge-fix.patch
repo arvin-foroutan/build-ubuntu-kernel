@@ -1,0 +1,17 @@
+--- ./net/ipv4/tcp_input.c	2021-07-24 10:45:20.059850082 -0700
++++ ./net/ipv4/tcp_input.c	2021-07-24 10:48:52.193169546 -0700
+@@ -934,10 +934,14 @@
+ static void tcp_sum_lost(struct tcp_sock *tp, struct sk_buff *skb)
+ {
+ 	__u8 sacked = TCP_SKB_CB(skb)->sacked;
++   struct sock *sk = (struct sock *)tp;
++   const struct tcp_congestion_ops *ca_ops = inet_csk(sk)->icsk_ca_ops;
+ 
+ 	if (!(sacked & TCPCB_LOST) ||
+ 	    ((sacked & TCPCB_LOST) && (sacked & TCPCB_SACKED_RETRANS)))
+ 		tp->lost += tcp_skb_pcount(skb);
++       if (ca_ops->skb_marked_lost)
++           ca_ops->skb_marked_lost(sk, skb);
+ }
+ 
+ static void tcp_skb_mark_lost(struct tcp_sock *tp, struct sk_buff *skb)

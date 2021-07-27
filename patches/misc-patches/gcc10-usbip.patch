@@ -1,0 +1,20 @@
+---
+ tools/usb/usbip/libsrc/usbip_host_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/usb/usbip/libsrc/usbip_host_common.c b/tools/usb/usbip/libsrc/usbip_host_common.c
+index d1d8ba2a4a40..ca78aa368476 100644
+--- a/tools/usb/usbip/libsrc/usbip_host_common.c
++++ b/tools/usb/usbip/libsrc/usbip_host_common.c
+@@ -23,7 +23,7 @@
+ #include "list.h"
+ #include "sysfs_utils.h"
+ 
+-struct udev *udev_context;
++extern struct udev *udev_context;
+ 
+ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
+ {
+-- 
+2.27.0
+

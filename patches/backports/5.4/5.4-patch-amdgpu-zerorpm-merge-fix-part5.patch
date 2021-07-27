@@ -1,0 +1,11 @@
+--- ./drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2021-07-25 07:56:14.796290883 -0700
++++ ./drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2021-07-25 07:58:40.463974355 -0700
+@@ -4302,6 +4302,8 @@
+ 		else
+ 			smum_send_msg_to_smc_with_parameter(hwmgr,
+ 					(PPSMC_Msg)PPSMC_MSG_SetVBITimeout, data->frame_time_x2);
++
++        data->last_sent_vbi_timeout = data->frame_time_x2;
+ 	}
+ 
+ 	return (smum_send_msg_to_smc(hwmgr, (PPSMC_Msg)PPSMC_HasDisplay) == 0) ?  0 : -EINVAL;

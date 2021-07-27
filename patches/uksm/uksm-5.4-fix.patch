@@ -1,0 +1,10 @@
+--- ./mm/memory.c	2020-12-07 21:55:54.520008186 -0800
++++ ./mm/memory.c	2020-12-07 21:55:54.520008186 -0800
+@@ -2199,6 +2199,7 @@
+ 
+ 	if (likely(src)) {
+ 		copy_user_highpage(dst, src, addr, vma);
++       uksm_cow_page(vma, src);
+ 		return true;
+ 	}
+ 

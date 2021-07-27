@@ -1,0 +1,65 @@
+--- ./block/bfq-iosched.c	2021-07-14 17:15:52.335940315 -0700
++++ ./block/bfq-iosched.c	2021-07-14 17:18:13.437954873 -0700
+@@ -1954,56 +1954,12 @@
+ 		 * confirmed no later than during the next
+ 		 * I/O-plugging interval for bfqq.
+ 		 */
+-		if (bfqd->last_completed_rq_bfqq &&
+-		    ktime_get_ns() - bfqd->last_completion <
+-		    4 * NSEC_PER_MSEC) {
+-			if (bfqd->last_completed_rq_bfqq != bfqq &&
+-			    bfqd->last_completed_rq_bfqq !=
+-			    bfqq->waker_bfqq) {
+-				/*
+-				 * First synchronization detected with
+-				 * a candidate waker queue, or with a
+-				 * different candidate waker queue
+-				 * from the current one.
+-				 */
+-				bfqq->waker_bfqq = bfqd->last_completed_rq_bfqq;
+-
+-				/*
+-				 * If the waker queue disappears, then
+-				 * bfqq->waker_bfqq must be reset. To
+-				 * this goal, we maintain in each
+-				 * waker queue a list, woken_list, of
+-				 * all the queues that reference the
+-				 * waker queue through their
+-				 * waker_bfqq pointer. When the waker
+-				 * queue exits, the waker_bfqq pointer
+-				 * of all the queues in the woken_list
+-				 * is reset.
+-				 *
+-				 * In addition, if bfqq is already in
+-				 * the woken_list of a waker queue,
+-				 * then, before being inserted into
+-				 * the woken_list of a new waker
+-				 * queue, bfqq must be removed from
+-				 * the woken_list of the old waker
+-				 * queue.
+-				 */
+-				if (!hlist_unhashed(&bfqq->woken_list_node))
+-					hlist_del_init(&bfqq->woken_list_node);
+-				hlist_add_head(&bfqq->woken_list_node,
+-				    &bfqd->last_completed_rq_bfqq->woken_list);
+-
+-				bfq_clear_bfqq_has_waker(bfqq);
+-			} else if (bfqd->last_completed_rq_bfqq ==
+-				   bfqq->waker_bfqq &&
+-				   !bfq_bfqq_has_waker(bfqq)) {
+-				/*
+-				 * synchronization with waker_bfqq
+-				 * seen for the second time
+-				 */
+-				bfq_mark_bfqq_has_waker(bfqq);
+-			}
+-		}
++        if (!bfqd->last_completed_rq_bfqq ||
++         bfqd->last_completed_rq_bfqq == bfqq ||
++         bfq_bfqq_has_short_ttime(bfqq) ||
++         now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
++         bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
++         return;
+ 
+ 		/*
+ 		 * Periodically reset inject limit, to make sure that

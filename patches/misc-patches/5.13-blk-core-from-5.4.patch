@@ -1,0 +1,11 @@
+--- ./block/blk-core.c	2021-07-11 14:16:36.993081729 -0700
++++ ./block/blk-core.c	2021-07-11 14:16:42.152175013 -0700
+@@ -507,6 +507,8 @@
+ 	q->backing_dev_info->name = "block";
+ 	q->node = node_id;
+ 
++    atomic_set(&q->nr_active_requests_shared_sbitmap, 0);
++
+ 	timer_setup(&q->backing_dev_info->laptop_mode_wb_timer,
+ 		    laptop_mode_timer_fn, 0);
+ 	timer_setup(&q->timeout, blk_rq_timed_out_timer, 0);

@@ -1,0 +1,40 @@
+From: Lewis Huang <Lewis.Huang at amd.com>
+
+[Why]
+I2C write command always send mot = true will cause sink state incorrect.
+
+[How]
+1. Remove default i2c write mot = true.
+2. Deciding mot flag by is_end_of_payload flag.
+
+Signed-off-by: Lewis Huang <Lewis.Huang at amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu at amd.com>
+Acked-by: Leo Li <sunpeng.li at amd.com>
+---
+ drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+index f70137d67c82..588a07b525a0 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+@@ -523,7 +523,7 @@ bool dal_ddc_service_query_ddc_data(
+ 
+ 		if (write_size != 0) {
+ 			payload.write = true;
+-			payload.mot = true;
++			payload.mot = false;
+ 			payload.length = write_size;
+ 			payload.data = write_buf;
+ 
+@@ -592,7 +592,7 @@ bool dal_ddc_submit_aux_command(struct ddc_service *ddc,
+ 		current_payload.i2c_over_aux = payload->i2c_over_aux;
+ 		current_payload.length = is_end_of_payload ?
+ 			payload->length - retrieved : DEFAULT_AUX_MAX_DATA_SIZE;
+-		current_payload.mot = payload->mot ? payload->mot : !is_end_of_payload;
++		current_payload.mot = !is_end_of_payload;
+ 		current_payload.reply = payload->reply;
+ 		current_payload.write = payload->write;
+ 
+-- 
+2.22.0

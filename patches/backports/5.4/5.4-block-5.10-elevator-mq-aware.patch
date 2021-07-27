@@ -1,0 +1,11 @@
+--- ./include/linux/elevator.h	2021-07-15 08:55:00.839349083 -0700
++++ ./include/linux/elevator.h	2021-07-15 08:52:26.187762397 -0700
+@@ -174,6 +174,8 @@
+ #define ELEVATOR_F_ZBD_SEQ_WRITE	(1U << 0)
+ /* Elevator is suitable for single hardware queue devices */
+ #define ELEVATOR_F_SINGLE_HW_QUEUE	(1U << 1)
++/* Supports scheduling on multiple hardware queues */
++#define ELEVATOR_F_MQ_AWARE         (1U << 1)
+ 
+ #endif /* CONFIG_BLOCK */
+ #endif

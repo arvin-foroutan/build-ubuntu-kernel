@@ -1,0 +1,13 @@
+--- ./block/blk-mq.c	2021-07-15 08:57:07.250601725 -0700
++++ ./block/blk-mq.c	2021-07-15 09:01:20.875029635 -0700
+@@ -574,9 +574,8 @@
+ static void __blk_mq_complete_request_remote(void *data)
+ {
+ 	struct request *rq = data;
+-	struct request_queue *q = rq->q;
+ 
+-	q->mq_ops->complete(rq);
++   blk_mq_trigger_softirq(rq);
+ }
+ 
+ static void __blk_mq_complete_request(struct request *rq)

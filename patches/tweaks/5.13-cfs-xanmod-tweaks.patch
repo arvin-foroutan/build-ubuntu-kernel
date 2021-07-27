@@ -1,0 +1,22 @@
+--- ./kernel/sched/fair.c	2021-07-07 05:24:58.000000000 -0700
++++ ./kernel/sched/fair.c	2021-07-10 07:01:17.426396223 -0700
+@@ -6844,14 +6594,6 @@
+ 
+ 	if (wake_flags & WF_TTWU) {
+ 		record_wakee(p);
+-
+-		if (sched_energy_enabled()) {
+-			new_cpu = find_energy_efficient_cpu(p, prev_cpu);
+-			if (new_cpu >= 0)
+-				return new_cpu;
+-			new_cpu = prev_cpu;
+-		}
+-
+ 		want_affine = !wake_wide(p) && cpumask_test_cpu(cpu, p->cpus_ptr);
+ 	}
+ 
+@@ -11490,3 +11232,4 @@
+         return rq ? rq->nr_running : -1;
+ }
+ EXPORT_SYMBOL_GPL(sched_trace_rq_nr_running);
++

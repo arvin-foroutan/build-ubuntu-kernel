@@ -1,0 +1,24 @@
+From: Aric Cyr <aric.cyr at amd.com>
+
+Signed-off-by: Aric Cyr <aric.cyr at amd.com>
+Acked-by: Leo Li <sunpeng.li at amd.com>
+---
+ drivers/gpu/drm/amd/display/dc/dc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
+index 3b848d4aca8c..d21e8fc0179e 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc.h
++++ b/drivers/gpu/drm/amd/display/dc/dc.h
+@@ -39,7 +39,7 @@
+ #include "inc/hw/dmcu.h"
+ #include "dml/display_mode_lib.h"
+ 
+-#define DC_VER "3.2.49"
++#define DC_VER "3.2.50"
+ 
+ #define MAX_SURFACES 3
+ #define MAX_PLANES 6
+-- 
+2.22.0
+

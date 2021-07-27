@@ -1,0 +1,16 @@
+--- ./block/bfq-iosched.c	2021-07-15 04:42:23.379298513 -0700
++++ ./block/bfq-iosched.c	2021-07-15 04:55:27.119495179 -0700
+@@ -5928,10 +5928,12 @@
+ 	struct bfq_queue *bfqq;
+ 	bool idle_timer_disabled = false;
+ 	unsigned int cmd_flags;
++   LIST_HEAD(free);
+ 
+ 	spin_lock_irq(&bfqd->lock);
+-	if (blk_mq_sched_try_insert_merge(q, rq)) {
++   if (blk_mq_sched_try_insert_merge(q, rq, &free)) {
+ 		spin_unlock_irq(&bfqd->lock);
++       blk_mq_free_requests(&free);
+ 		return;
+ 	}
+ 

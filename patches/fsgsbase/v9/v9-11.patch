@@ -1,0 +1,72 @@
+---
+
+Changes from v8:
+* Rebased on the precedent helper changes; removed the interrupt
+  condition check and IRQ disablement from save_fsgs() and
+  x86_fsgsbase_load().
+
+Changes from v7:
+* Used appropriate GS base read/write functions depending on interrupt
+  conditions. This fixes the bug in v7.
+* Massaged changelog by Thomas
+* Used '[FS|GS] base' consistently, instead of '[FS|GS]BASE'
+---
+ arch/x86/kernel/process_64.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
+index 295aa0c..56c0e5b 100644
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -200,8 +200,18 @@ static __always_inline void save_fsgs(struct task_struct *task)
+ {
+ 	savesegment(fs, task->thread.fsindex);
+ 	savesegment(gs, task->thread.gsindex);
+-	save_base_legacy(task, task->thread.fsindex, FS);
+-	save_base_legacy(task, task->thread.gsindex, GS);
++	if (static_cpu_has(X86_FEATURE_FSGSBASE)) {
++		/*
++		 * If FSGSBASE is enabled, we can't make any useful guesses
++		 * about the base, and user code expects us to save the current
++		 * value.  Fortunately, reading the base directly is efficient.
++		 */
++		task->thread.fsbase = rdfsbase();
++		task->thread.gsbase = x86_gsbase_read_cpu_inactive();
++	} else {
++		save_base_legacy(task, task->thread.fsindex, FS);
++		save_base_legacy(task, task->thread.gsindex, GS);
++	}
+ }
+ 
+ #if IS_ENABLED(CONFIG_KVM)
+@@ -280,10 +290,22 @@ static __always_inline void load_seg_legacy(unsigned short prev_index,
+ static __always_inline void x86_fsgsbase_load(struct thread_struct *prev,
+ 					      struct thread_struct *next)
+ {
+-	load_seg_legacy(prev->fsindex, prev->fsbase,
+-			next->fsindex, next->fsbase, FS);
+-	load_seg_legacy(prev->gsindex, prev->gsbase,
+-			next->gsindex, next->gsbase, GS);
++	if (static_cpu_has(X86_FEATURE_FSGSBASE)) {
++		/* Update the FS and GS selectors if they could have changed. */
++		if (unlikely(prev->fsindex || next->fsindex))
++			loadseg(FS, next->fsindex);
++		if (unlikely(prev->gsindex || next->gsindex))
++			loadseg(GS, next->gsindex);
++
++		/* Update the bases. */
++		wrfsbase(next->fsbase);
++		x86_gsbase_write_cpu_inactive(next->gsbase);
++	} else {
++		load_seg_legacy(prev->fsindex, prev->fsbase,
++				next->fsindex, next->fsbase, FS);
++		load_seg_legacy(prev->gsindex, prev->gsbase,
++				next->gsindex, next->gsbase, GS);
++	}
+ }
+ 
+ static unsigned long x86_fsgsbase_read_task(struct task_struct *task,
+-- 
+2.7.4
+
+  

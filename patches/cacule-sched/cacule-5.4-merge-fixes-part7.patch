@@ -1,0 +1,11 @@
+--- ./kernel/sched/fair.c	2021-07-20 11:56:26.955279743 -0700
++++ ./kernel/sched/fair.c	2021-07-20 11:58:13.619634619 -0700
+@@ -122,8 +122,6 @@
+ unsigned int __read_mostly interactivity_threshold	= 1000;
+ #endif
+ 
+-#endif
+-
+ #ifdef CONFIG_CFS_BANDWIDTH
+ /*
+  * Amount of runtime to allocate from global (tg) to local (per-cfs_rq) pool

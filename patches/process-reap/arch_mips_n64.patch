@@ -1,0 +1,7 @@
+--- ./arch/mips/kernel/syscalls/syscall_n64.tbl	2021-07-11 03:52:08.000000000 -0700
++++ ./arch/mips/kernel/syscalls/syscall_n64.tbl	2021-07-12 18:18:49.201818767 -0700
+@@ -350,3 +350,4 @@
+ 433	n64	fspick				sys_fspick
+ 434	n64	pidfd_open			sys_pidfd_open
+ 435	n64	clone3				__sys_clone3
++436	n64	process_reap		sys_process_reap
