@@ -598,9 +598,6 @@ else
 fi
 cd -
 
-echo "*** Cleaning up patch files and kernel build script... ✓"
-rm -f *.patch && rm -f build_kernel*.sh
-
 echo "*** Running fakeroot debian/rules clean... ✓"
 fakeroot debian/rules clean
 
