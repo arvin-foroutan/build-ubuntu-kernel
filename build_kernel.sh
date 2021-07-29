@@ -548,7 +548,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
 fi
 
 # CacULE scheduler enabled by default. To disable, pass KERNEL_SCHEDULER=cfs
-if [ ${KERNEL_SCHEDULER} = "cacule" ]; then
+if [ ${KERNEL_SCHEDULER} = "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     echo "*** Copying and applying CacULE patch.. ✓"
     if [ "${KERNEL_BASE_VER}" = "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/cacule-5.4*.patch .;
