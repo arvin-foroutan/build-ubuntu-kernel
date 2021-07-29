@@ -52,6 +52,17 @@ if [[ -d ${KERNEL_BUILD_DIR} ]]; then
     rm -rf ${KERNEL_BUILD_DIR};
 fi
 
+if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
+    # Note: You can use this copied over script to make your own customized changes
+    # as time goes on, and then pull from the GitHub repo separately in another dir
+    # to see what's changed. Another option is to ignore this copied script and just
+    # use the cloned one from GitHub, but stashing your changes with "git stash" and then
+    # "git pull origin master" to get latest script, and then "git stash apply" to
+    # apply your own changes on top of the script
+    echo "*** Copying over the build script to allow for custom editing... ✓"
+    cp -r ./build_kernel.sh ${KERNEL_MAIN_DIR};
+fi
+
 echo "*** Creating new build dir... ✓";
 mkdir -pv ${KERNEL_BUILD_DIR};
 cd ${KERNEL_BUILD_DIR};
