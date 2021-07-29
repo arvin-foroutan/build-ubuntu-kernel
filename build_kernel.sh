@@ -558,7 +558,7 @@ fi
 # 5.4.136-0504136+customidle-generic
 # 5.4.136-0504136+customfull-generic
 # 5.4.136-0504136+customrt-generic
-# Note: A hyphen between label and type (e.g. customidle -> custom-idle causes problems with some parsers)
+# Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
 # Because the final version name becomes: 5.4.136-0504136+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓"
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
@@ -583,21 +583,8 @@ chmod a+x debian/scripts/*
 chmod a+x debian/scripts/misc/*
 
 echo "*** Create symlink for kernel ABI... ✓"
-cd ./debian.master/abi
-
-ABI_VERSION=''
-if [ ${KERNEL_BASE_VER} = "5.4" ]; then
-    ABI_VERSION=5.4.0-25.29
-else
-    ABI_VERSION=5.7.0-5.6
-fi
-
-if [ ${KERNEL_VERSION_LABEL} != "custom" ]; then
-    ln -sv ${ABI_VERSION} ${KERNEL_PATCH_VER}${KERNEL_SUB_VER}${KERNEL_VERSION_LABEL}-0.0
-else
-    ln -sv ${ABI_VERSION} ${KERNEL_PATCH_VER}-0.0
-fi
-cd -
+[[ ${KERNEL_BASE_VER} == "5.4" ]] && ABI_VERSION=5.4.0-25.29 || ABI_VERSION=5.7.0-5.6;
+ln -rsv ./debian.master/abi/${ABI_VERSION} ./debian.master/abi/${KERNEL_PATCH_VER}-0.0
 
 echo "*** Running fakeroot debian/rules clean... ✓"
 fakeroot debian/rules clean
