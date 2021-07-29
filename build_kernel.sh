@@ -554,13 +554,14 @@ if [ ${KERNEL_SCHEDULER} = "cacule" ]; then
     fi
 fi
 
-# For example, 5.4.133-0504133+custom-generic
+# Examples:
+# 5.4.136-0504136+customidle-generic
+# 5.4.136-0504136+customfull-generic
+# 5.4.136-0504136+customrt-generic
+# Note: A hyphen between label and type (e.g. customidle -> custom-idle causes problems with some parsers)
+# Because the final version name becomes: 5.4.136-0504136+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓"
-if [ ${KERNEL_VERSION_LABEL} != "custom" ] || [ ${KERNEL_TYPE} != "idle" ]; then
-    sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
-else
-    sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}/g" ./debian.master/changelog;
-fi
+sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
 # For whatever reason, this errors for me, may not error for you
 echo "*** Disabling ZFS during install which appears to be causing problems... ✓"
