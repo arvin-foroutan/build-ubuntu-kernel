@@ -99,14 +99,20 @@ patch -p1 < ./0004-debian-changelog.patch;
 patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
 echo "*** Successfully applied Ubuntu patches... ✓";
 
-# Populate the patches dir with xanmod and lucjan patches
 if ! [[ -d ${PATCH_PATH}/lucjan-patches ]]; then
     echo "*** Fetching lucjan patches... ✓";
     git clone https://github.com/sirlucjan/kernel-patches.git ${PATCH_PATH}/lucjan-patches;
+else
+    echo "*** Found lucjan-patches, pulling latest... ✓";
+    git -C ${PATCH_PATH}/lucjan-patches pull https://github.com/sirlucjan/kernel-patches.git;
 fi
+
 if ! [[ -d ${PATCH_PATH}/xanmod-patches ]]; then
     echo "*** Fetching xanmod patches... ✓";
     git clone https://github.com/xanmod/linux-patches.git ${PATCH_PATH}/xanmod-patches;
+else
+    echo "*** Found xanmod-patches, pulling latest... ✓";
+    git -C ${PATCH_PATH}/xanmod-patches pull https://github.com/xanmod/linux-patches.git;
 fi
 
 # Allow support for rt (real-time) kernels
