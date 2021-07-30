@@ -677,7 +677,7 @@ case $yno in
 esac
 
 # Install the compiled kernel
-COMPILED_KERNEL_VER=${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}-${KERNEL_TYPE}
+COMPILED_KERNEL_VER=${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}
 TIME_BUILT=$(date +%s)
 
 echo "*** Finished compiling kernel, installing... ✓";
@@ -714,4 +714,4 @@ cd;
 ls -al ${COMPILED_KERNELS_DIR};
 ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT};
 echo "*** All done. ✓";
-echo "*** You can now reboot and select ${COMPILED_KERNEL_VER} in GRUB.";
+echo "*** You can now reboot and select ${COMPILED_KERNEL_VER}-generic in GRUB.";
