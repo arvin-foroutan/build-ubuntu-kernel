@@ -696,12 +696,12 @@ fi
 # Move our new compiled *.deb's for our kernel into our compiled directory
 mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 
-# VirtualBox requires this missing module.lds for 5.4 support
+# The latest VirtualBox (6.1.25-r145887) requires this missing module.lds to work
 # To use: Pass VBOX_SUPPORT=yes to the build script
 VBOX_SUPPORT=${VBOX_SUPPORT:-"no"}
 if [ ${VBOX_SUPPORT} = "yes" ]; then
-    echo "*** Enabling VirtualBox support for 5.4 kernel... ✓";
-    sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-5.4-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
+    echo "*** Enabling VirtualBox support... ✓";
+    sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
     sudo /sbin/vboxconfig;
 fi
 
