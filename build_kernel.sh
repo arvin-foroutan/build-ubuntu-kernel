@@ -35,12 +35,6 @@ if ! [[ -d ${KERNEL_SOURCES_DIR} ]]; then
     mkdir -pv ${KERNEL_SOURCES_DIR};
 fi
 
-if ! [[ -d ${PATCH_PATH} ]]; then
-    echo "*** Copying over the custom patches folder... ✓";
-    mkdir -pv ${CUSTOM_PATCH_PATH};
-    cp -r ./patches/* ${CUSTOM_PATCH_PATH};
-fi
-
 if ! [[ -d ${CONFIG_PATH} ]]; then
     echo "*** Copying over the custom config folder... ✓";
     mkdir -pv ${CONFIG_PATH};
@@ -62,6 +56,10 @@ if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
     echo "*** Copying over the build script to allow for custom editing... ✓";
     cp -r ./build_kernel.sh ${KERNEL_MAIN_DIR};
 fi
+
+echo "*** Copying over the custom patches folder, update if it already exists... ✓";
+mkdir -pv ${CUSTOM_PATCH_PATH};
+cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
 
 echo "*** Creating new build dir... ✓";
 mkdir -pv ${KERNEL_BUILD_DIR};
