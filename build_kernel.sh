@@ -42,7 +42,7 @@ if ! [[ -d ${PATCH_PATH} ]]; then
 fi
 
 if ! [[ -d ${CONFIG_PATH} ]]; then
-    echo "*** Copying over the custom config folder... ✓"
+    echo "*** Copying over the custom config folder... ✓";
     mkdir -pv ${CONFIG_PATH};
     cp -r ./configs/* ${CONFIG_PATH};
 fi
@@ -59,7 +59,7 @@ if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
     # use the cloned one from GitHub, but stashing your changes with "git stash" and then
     # "git pull origin master" to get latest script, and then "git stash apply" to
     # apply your own changes on top of the script
-    echo "*** Copying over the build script to allow for custom editing... ✓"
+    echo "*** Copying over the build script to allow for custom editing... ✓";
     cp -r ./build_kernel.sh ${KERNEL_MAIN_DIR};
 fi
 
@@ -89,7 +89,7 @@ patch -p1 < ./0003-UBUNTU-SAUCE-tools-hv-lsvmbus-add-manual-page.patch;
 # Update the version in the changelog to latest version since the patches
 # are no longer maintained and because we want to keep our kernel as Ubuntu-like
 # as possible (with ABI and all)
-echo "*** Updating version number in changelog... ✓"
+echo "*** Updating version number in changelog... ✓";
 if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     sed -i "s/5.4.45-050445/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
 else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
@@ -97,22 +97,22 @@ else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
 fi
 patch -p1 < ./0004-debian-changelog.patch;
 patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
-echo "*** Successfully applied Ubuntu patches... ✓"
+echo "*** Successfully applied Ubuntu patches... ✓";
 
 # Populate the patches dir with xanmod and lucjan patches
 if ! [[ -d ${PATCH_PATH}/lucjan-patches ]]; then
-    echo "*** Fetching lucjan patches... ✓"
+    echo "*** Fetching lucjan patches... ✓";
     git clone https://github.com/sirlucjan/kernel-patches.git ${PATCH_PATH}/lucjan-patches;
 fi
 if ! [[ -d ${PATCH_PATH}/xanmod-patches ]]; then
-    echo "*** Fetching xanmod patches... ✓"
+    echo "*** Fetching xanmod patches... ✓";
     git clone https://github.com/xanmod/linux-patches.git ${PATCH_PATH}/xanmod-patches;
 fi
 
 # Allow support for rt (real-time) kernels
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} = "rt" ]; then
-    echo "*** Copying and applying rt patches... ✓"
+    echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} = "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.129-rt61.patch .;
         patch -p1 < ./patch-5.4.129-rt61.patch;
@@ -124,7 +124,7 @@ fi
 
 # Build the 5.4 LTS kernel. Supported until 2025
 if [ ${KERNEL_BASE_VER} = "5.4" ]; then
-    echo "*** Copying and applying freesync patches from 5.10.. ✓"
+    echo "*** Copying and applying freesync patches from 5.10.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/amdgpu/freesync-refresh/*.patch .;
     patch -p1 < ./01_freesync_refresh.patch;
     patch -p1 < ./02_freesync_refresh.patch;
@@ -132,7 +132,7 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./04_freesync_refresh.patch;
     patch -p1 < ./05_freesync_refresh.patch;
     patch -p1 < ./06_freesync_refresh.patch;
-    echo "*** Copying and applying fsgsbase patches.. ✓"
+    echo "*** Copying and applying fsgsbase patches.. ✓";
     #https://lkml.org/lkml/2019/10/4/725 - v9 is for 5.4 and earlier
     cp -v ${CUSTOM_PATCH_PATH}/fsgsbase/v9/v9*.patch .;
     for i in {1..17}; do
@@ -143,39 +143,39 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
     patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
     patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O-.patch;
-    echo "*** Copying and applying block 5.6 patches.. ✓"
+    echo "*** Copying and applying block 5.6 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.6/block-patches-v3-sep/*.patch .;
     patch -p1 < ./0004-blk-mq-remove-the-bio-argument-to-prepare_request.patch;
     patch -p1 < ./0005-block-Flag-elevators-suitable-for-single-queue.patch;
-    echo "*** Copying and applying block 5.7 patches.. ✓"
+    echo "*** Copying and applying block 5.7 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.7/block-patches-v5-sep/*.patch .;
     patch -p1 < ./0006-block-bfq-iosched-fix-duplicated-word.patch;
     patch -p1 < ./0007-block-bio-delete-duplicated-words.patch;
     patch -p1 < ./0008-block-elevator-delete-duplicated-word-and-fix-typos.patch;
     patch -p1 < ./0009-block-blk-timeout-delete-duplicated-word.patch;
-    echo "*** Copying and applying block 5.8 patches.. ✓"
+    echo "*** Copying and applying block 5.8 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.8/block-patches-v6-sep/*.patch .;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro*.patch .;
     patch -p1 < ./5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro-part1.patch;
     patch -p1 < ./5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro-part2.patch;
     patch -p1 < ./0012-block-bfq-Disable-low_latency-when-blk_iolatency-is-.patch;
-    echo "*** Copying and applying block 5.10 patches.. ✓"
+    echo "*** Copying and applying block 5.10 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.10-elevator-mq-aware.patch .;
     patch -p1 <./5.4-block-5.10-elevator-mq-aware.patch;
-    echo "*** Copying and applying block 5.12 patches.. ✓"
+    echo "*** Copying and applying block 5.12 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks*.patch .;
     patch -p1 < ./5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks.patch;
     patch -p1 < ./5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks-part2.patch;
-    echo "*** Copying and applying BFQ 5.4 patches.. ✓"
+    echo "*** Copying and applying BFQ 5.4 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-sep/*.patch .;
     patch -p1 < ./0001-blkcg-Make-bfq-disable-iocost-when-enabled.patch;
     patch -p1 < ./0002-block-bfq-present-a-double-cgroups-interface.patch;
     patch -p1 < ./0003-block-bfq-Skip-tracing-hooks-if-possible.patch;
-    echo "*** Copying and applying BFQ 5.7 patches.. ✓"
+    echo "*** Copying and applying BFQ 5.7 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.7/bfq-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-bfq-Fix-check-detecting-whether-waker-queue-should-b.patch;
     patch -p1 < ./0002-bfq-Allow-short_ttime-queues-to-have-waker.patch;
-    echo "*** Copying and applying BFQ 5.10 patches.. ✓"
+    echo "*** Copying and applying BFQ 5.10 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.10/bfq-patches-v5-sep/*.patch .;
     patch -p1 < ./0003-block-bfq-increase-time-window-for-waker-detection.patch;
     patch -p1 < ./0004-block-bfq-do-not-raise-non-default-weights.patch;
@@ -205,7 +205,7 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
     patch -p1 < ./0024-bfq-Remove-stale-comment.patch;
     patch -p1 < ./0025-Revert-bfq-Remove-stale-comment.patch;
-    echo "*** Copying and applying BFQ 5.11 patches.. ✓"
+    echo "*** Copying and applying BFQ 5.11 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.11/bfq-patches-v7-sep/*.patch .;
     patch -p1 < ./0023-block-bfq-update-comments-and-default-value-in-docs-.patch;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-0027-Revert-block-bfq-make-shared-queues-inherit-wakers*.patch .;
@@ -221,7 +221,7 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0037-block-bfq-fix-the-timeout-calculation-in-bfq_bfqq_ch.patch;
     patch -p1 < ./0038-blk-mq-bypass-IO-scheduler-s-limit_depth-for-passthr.patch;
     patch -p1 < ./0039-bfq-mq-deadline-remove-redundant-check-for-passthrou.patch;
-    echo "*** Copying and applying BFQ 5.12 patches.. ✓"
+    echo "*** Copying and applying BFQ 5.12 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.12/bfq-patches-v15-sep/*.patch .;
     patch -p1 < ./0024-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0030-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
@@ -231,22 +231,22 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0034-block-bfq-avoid-delayed-merge-of-async-queues.patch;
     patch -p1 < ./0035-block-bfq-check-waker-only-for-queues-with-no-in-fli.patch;
     patch -p1 < ./0036-block-bfq-reset-waker-pointer-with-shared-queues.patch;
-    echo "*** Copying and applying Valve fsync/futex patches.. ✓"
+    echo "*** Copying and applying Valve fsync/futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.10/futex-patches/0001-futex-patches.patch .;
     patch -p1 < ./0001-futex-patches.patch;
-    echo "*** Copying and applying misc fixes patches.. ✓"
+    echo "*** Copying and applying misc fixes patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/fixes-miscellaneous-v5/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
-    echo "*** Copying and applying cve patches.. ✓"
+    echo "*** Copying and applying cve patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cve-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-consolemap-Fix-a-memory-leaking-bug-in-drivers-tty-v.patch;
-    echo "*** Copying and applying exfat patches.. ✓"
+    echo "*** Copying and applying exfat patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/exfat-patches/*.patch .;
     patch -p1 < ./0001-exfat-patches.patch;
-    echo "*** Copying and applying SCSI patches.. ✓"
+    echo "*** Copying and applying SCSI patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/scsi-patches/*.patch .;
     patch -p1 < ./0001-scsi-patches.patch;
-    echo "*** Copying and applying ll patches.. ✓"
+    echo "*** Copying and applying ll patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0002-LL-elevator-set-default-scheduler-to-bfq-for-blk-mq.patch;
@@ -257,7 +257,7 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     echo "*** Copying and applying cfs xanmod energy tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.4-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.4-cfs-xanmod-tweaks.patch;
-    echo "*** Copying and applying intel_cpufreq patches.. ✓"
+    echo "*** Copying and applying intel_cpufreq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.6/xanmod-patches/*.patch .;
     patch -p1 < ./0001-cpufreq-intel_pstate-Set-default-cpufreq_driver-to-i.patch;
     # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
@@ -273,22 +273,22 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
     patch -p1 < ./enable-background-reclaim-hugepages.patch;
-    echo "*** Copying and applying graysky's GCC patch.. ✓"
+    echo "*** Copying and applying graysky's GCC patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc9-5.4.patch .;
     patch -p1 < ./graysky-gcc9-5.4.patch;
-    echo "*** Copying and applying O3 patches.. ✓"
+    echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/O3-optimization/O3-v5.4+.patch .;
     patch -p1 < ./O3-v5.4+.patch;
-    echo "*** Copying and applying O3 fix patch.. ✓"
+    echo "*** Copying and applying O3 fix patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/O3-optimization/0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch .;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
-    echo "*** Copying and applying arch 5.7 patches.. ✓"
+    echo "*** Copying and applying arch 5.7 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.7/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0004-virt-vbox-Add-support-for-the-new-VBG_IOCTL_ACQUIRE_.patch;
-    echo "*** Copying and applying arch 5.9 patches.. ✓"
+    echo "*** Copying and applying arch 5.9 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.9/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0004-HID-quirks-Add-Apple-Magic-Trackpad-2-to-hid_have_sp.patch;
-    echo "*** Copying and applying arch 5.12 patches.. ✓"
+    echo "*** Copying and applying arch 5.12 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.12/arch-patches-v7-sep/*.patch .;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.12-arch-0002-x86-setup-Consolidate-early-memory-reservations.patch .;
     patch -p1 < ./5.4-from-5.12-arch-0002-x86-setup-Consolidate-early-memory-reservations.patch;
@@ -298,13 +298,13 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.12-arch-reserve_bios_regions.patch .;
     patch -p1 < ./5.4-from-5.12-arch-reserve_bios_regions.patch;
     patch -p1 < ./0007-x86-crash-remove-crash_reserve_low_1M.patch;
-    echo "*** Copying and applying Clear Linux patches.. ✓"
+    echo "*** Copying and applying Clear Linux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/clearlinux-patches-v6-sep/*.patch .;
     patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
     patch -p1 < ./0009-raid6-add-Kconfig-option-to-skip-raid6-benchmarking.patch;
     patch -p1 < ./0016-Add-boot-option-to-allow-unsigned-modules.patch;
     patch -p1 < ./0020-use-lfence-instead-of-rep-and-nop.patch;
-    echo "*** Copying and applying Clear Linux patches from 5.10.. ✓"
+    echo "*** Copying and applying Clear Linux patches from 5.10.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/clearlinux/*.patch .;
     patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
     patch -p1 < ./0002-Increase-the-ext4-default-commit-age.patch;
@@ -344,10 +344,10 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
         patch -p1 < ./0012-drm-i915-Limit-audio-CDCLK-2-BCLK-constraint-back-to.patch;
         patch -p1 < ./0016-drm-amdgpu-Add-DC-feature-mask-to-disable-fractional.patch;
         sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-        echo "*** Copying and applying arch-rt 5.4 patches.. ✓"
+        echo "*** Copying and applying arch-rt 5.4 patches.. ✓";
     else
         patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-        echo "*** Copying and applying arch 5.4 patches.. ✓"
+        echo "*** Copying and applying arch 5.4 patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/arch-patches-v25-sep/*.patch .;
         patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
         patch -p1 < ./0005-iwlwifi-pcie-restore-support-for-Killer-Qu-C0-NICs.patch;
@@ -451,7 +451,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     echo "*** Copying and applying cpu graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cpu-patches/*.patch .;
     patch -p1 < ./0001-cpu-patches.patch;
-    echo "*** Copying and applying fixes misc patches.. ✓"
+    echo "*** Copying and applying fixes misc patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/5.13-fixes-miscellaneous-all-in-one.patch .;
     patch -p1 < ./5.13-fixes-miscellaneous-all-in-one.patch;
     if ! [ ${KERNEL_TYPE} = "rt" ]; then
@@ -495,10 +495,10 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zen-patches-sep/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch
-    patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch
-    patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch
-    echo "*** Copying and applying ll patches.. ✓"
+    patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
+    patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
+    patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
+    echo "*** Copying and applying ll patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
@@ -549,7 +549,7 @@ fi
 
 # CacULE scheduler enabled by default. To disable, pass KERNEL_SCHEDULER=cfs
 if [ ${KERNEL_SCHEDULER} = "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
-    echo "*** Copying and applying CacULE patch.. ✓"
+    echo "*** Copying and applying CacULE patch.. ✓";
     if [ "${KERNEL_BASE_VER}" = "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/cacule-5.4*.patch .;
         patch -p1 < ./cacule-5.4.patch;
@@ -571,15 +571,15 @@ fi
 # 5.4.136-0504136+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
 # Because the final version name becomes: 5.4.136-0504136+custom-idle-generic, so just keep it combined
-echo "*** Updating version in changelog (necessary for Ubuntu)... ✓"
+echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
 # For whatever reason, this errors for me, may not error for you
-echo "*** Disabling ZFS during install which appears to be causing problems... ✓"
+echo "*** Disabling ZFS during install which appears to be causing problems... ✓";
 sed -i 's/do_zfs/#do_zfs/g' ./debian.master/rules.d/amd64.mk;
 
 # Disable virtualbox dkms
-echo "*** Disabling zfs, vbox, wireguard dkms... ✓"
+echo "*** Disabling zfs, vbox, wireguard dkms... ✓";
 sed -i 's/do_dkms_vbox    = true/do_dkms_vbox    = false/g' ./debian.master/rules.d/amd64.mk;
 sed -i 's/do_dkms_nvidia  = true/do_dkms_nvidia  = false/g' ./debian.master/rules.d/amd64.mk;
 sed -i 's/do_dkms_wireguard = true/do_dkms_wireguard = false/g' ./debian.master/rules.d/amd64.mk;
@@ -588,23 +588,23 @@ sed -i 's/do_dkms_wireguard = true/do_dkms_wireguard = false/g' ./debian.master/
 echo "*** Removing unnecessary arch's and building just for amd64... ✓";
 sed -i 's/archs="amd64 i386 armhf arm64 ppc64el s390x"/archs="amd64"/g' ./debian.master/etc/kernelconfig;
 
-echo "*** Making scripts executable... ✓"
-chmod a+x debian/rules
-chmod a+x debian/scripts/*
-chmod a+x debian/scripts/misc/*
+echo "*** Making scripts executable... ✓";
+chmod a+x debian/rules;
+chmod a+x debian/scripts/*;
+chmod a+x debian/scripts/misc/*;
 
-echo "*** Create symlink for kernel ABI... ✓"
+echo "*** Create symlink for kernel ABI... ✓";
 [[ ${KERNEL_BASE_VER} == "5.4" ]] && ABI_VERSION=5.4.0-25.29 || ABI_VERSION=5.7.0-5.6;
-ln -rsv ./debian.master/abi/${ABI_VERSION} ./debian.master/abi/${KERNEL_PATCH_VER}-0.0
+ln -rsv ./debian.master/abi/${ABI_VERSION} ./debian.master/abi/${KERNEL_PATCH_VER}-0.0;
 
-echo "*** Running fakeroot debian/rules clean... ✓"
-fakeroot debian/rules clean
+echo "*** Running fakeroot debian/rules clean... ✓";
+fakeroot debian/rules clean;
 
-echo "*** Copying over our custom configs... ✓"
-/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.amd64 ./debian.master/config/amd64
-/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.generic ./debian.master/config/amd64
-/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.lowlatency ./debian.master/config/amd64
-/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.ubuntu ./debian.master/config
+echo "*** Copying over our custom configs... ✓";
+/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.amd64 ./debian.master/config/amd64;
+/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.generic ./debian.master/config/amd64;
+/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.lowlatency ./debian.master/config/amd64;
+/bin/cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.ubuntu ./debian.master/config;
 
 AMDGPU_BUILTIN=${AMDGPU_BUILTIN:-"no"}
 if [ ${AMDGPU_BUILTIN} = "yes" ]; then
@@ -613,37 +613,37 @@ if [ ${AMDGPU_BUILTIN} = "yes" ]; then
     # For example, for Navi: ls amdgpu/navi* and populate EXTRA_FIRMWARE with Navi blobs. This will be done
     # automatically in a future version. For now, just do Polaris.
     echo "Updating config to build-in amdgpu into the kernel... ✓";
-    sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR=""/CONFIG_EXTRA_FIRMWARE_DIR="\/lib\/firmware\/"/g' ./debian.master/config/config.common.ubuntu
-    sed -i 's/CONFIG_EXTRA_FIRMWARE=""/CONFIG_EXTRA_FIRMWARE="amdgpu\/polaris10_ce_2.bin amdgpu\/polaris10_ce.bin amdgpu\/polaris10_k2_smc.bin amdgpu\/polaris10_k_mc.bin amdgpu\/polaris10_k_smc.bin amdgpu\/polaris10_mc.bin amdgpu\/polaris10_me_2.bin amdgpu\/polaris10_me.bin amdgpu\/polaris10_mec2_2.bin amdgpu\/polaris10_mec_2.bin amdgpu\/polaris10_mec2.bin amdgpu\/polaris10_mec.bin amdgpu\/polaris10_pfp_2.bin amdgpu\/polaris10_pfp.bin amdgpu\/polaris10_rlc.bin amdgpu\/polaris10_sdma1.bin amdgpu\/polaris10_sdma.bin amdgpu\/polaris10_smc.bin amdgpu\/polaris10_smc_sk.bin amdgpu\/polaris10_uvd.bin amdgpu\/polaris10_vce.bin amdgpu\/polaris11_ce_2.bin amdgpu\/polaris11_ce.bin amdgpu\/polaris11_k2_smc.bin amdgpu\/polaris11_k_mc.bin amdgpu\/polaris11_k_smc.bin amdgpu\/polaris11_mc.bin amdgpu\/polaris11_me_2.bin amdgpu\/polaris11_me.bin amdgpu\/polaris11_mec2_2.bin amdgpu\/polaris11_mec_2.bin amdgpu\/polaris11_mec2.bin amdgpu\/polaris11_mec.bin amdgpu\/polaris11_pfp_2.bin amdgpu\/polaris11_pfp.bin amdgpu\/polaris11_rlc.bin amdgpu\/polaris11_sdma1.bin amdgpu\/polaris11_sdma.bin amdgpu\/polaris11_smc.bin amdgpu\/polaris11_smc_sk.bin amdgpu\/polaris11_uvd.bin amdgpu\/polaris11_vce.bin amdgpu\/polaris12_32_mc.bin amdgpu\/polaris12_ce_2.bin amdgpu\/polaris12_ce.bin amdgpu\/polaris12_k_mc.bin amdgpu\/polaris12_k_smc.bin amdgpu\/polaris12_mc.bin amdgpu\/polaris12_me_2.bin amdgpu\/polaris12_me.bin amdgpu\/polaris12_mec2_2.bin amdgpu\/polaris12_mec_2.bin amdgpu\/polaris12_mec2.bin amdgpu\/polaris12_mec.bin amdgpu\/polaris12_pfp_2.bin amdgpu\/polaris12_pfp.bin amdgpu\/polaris12_rlc.bin amdgpu\/polaris12_sdma1.bin amdgpu\/polaris12_sdma.bin amdgpu\/polaris12_smc.bin amdgpu\/polaris12_uvd.bin amdgpu\/polaris12_vce.bin"/g' ./debian.master/config/amd64/config.flavour.generic
+    sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR=""/CONFIG_EXTRA_FIRMWARE_DIR="\/lib\/firmware\/"/g' ./debian.master/config/config.common.ubuntu;
+    sed -i 's/CONFIG_EXTRA_FIRMWARE=""/CONFIG_EXTRA_FIRMWARE="amdgpu\/polaris10_ce_2.bin amdgpu\/polaris10_ce.bin amdgpu\/polaris10_k2_smc.bin amdgpu\/polaris10_k_mc.bin amdgpu\/polaris10_k_smc.bin amdgpu\/polaris10_mc.bin amdgpu\/polaris10_me_2.bin amdgpu\/polaris10_me.bin amdgpu\/polaris10_mec2_2.bin amdgpu\/polaris10_mec_2.bin amdgpu\/polaris10_mec2.bin amdgpu\/polaris10_mec.bin amdgpu\/polaris10_pfp_2.bin amdgpu\/polaris10_pfp.bin amdgpu\/polaris10_rlc.bin amdgpu\/polaris10_sdma1.bin amdgpu\/polaris10_sdma.bin amdgpu\/polaris10_smc.bin amdgpu\/polaris10_smc_sk.bin amdgpu\/polaris10_uvd.bin amdgpu\/polaris10_vce.bin amdgpu\/polaris11_ce_2.bin amdgpu\/polaris11_ce.bin amdgpu\/polaris11_k2_smc.bin amdgpu\/polaris11_k_mc.bin amdgpu\/polaris11_k_smc.bin amdgpu\/polaris11_mc.bin amdgpu\/polaris11_me_2.bin amdgpu\/polaris11_me.bin amdgpu\/polaris11_mec2_2.bin amdgpu\/polaris11_mec_2.bin amdgpu\/polaris11_mec2.bin amdgpu\/polaris11_mec.bin amdgpu\/polaris11_pfp_2.bin amdgpu\/polaris11_pfp.bin amdgpu\/polaris11_rlc.bin amdgpu\/polaris11_sdma1.bin amdgpu\/polaris11_sdma.bin amdgpu\/polaris11_smc.bin amdgpu\/polaris11_smc_sk.bin amdgpu\/polaris11_uvd.bin amdgpu\/polaris11_vce.bin amdgpu\/polaris12_32_mc.bin amdgpu\/polaris12_ce_2.bin amdgpu\/polaris12_ce.bin amdgpu\/polaris12_k_mc.bin amdgpu\/polaris12_k_smc.bin amdgpu\/polaris12_mc.bin amdgpu\/polaris12_me_2.bin amdgpu\/polaris12_me.bin amdgpu\/polaris12_mec2_2.bin amdgpu\/polaris12_mec_2.bin amdgpu\/polaris12_mec2.bin amdgpu\/polaris12_mec.bin amdgpu\/polaris12_pfp_2.bin amdgpu\/polaris12_pfp.bin amdgpu\/polaris12_rlc.bin amdgpu\/polaris12_sdma1.bin amdgpu\/polaris12_sdma.bin amdgpu\/polaris12_smc.bin amdgpu\/polaris12_uvd.bin amdgpu\/polaris12_vce.bin"/g' ./debian.master/config/amd64/config.flavour.generic;
 else
     # If AMDGPU_BUILTIN=no (or if it's not passed into the build script, the default) remove it from the config if it
     # was previously set. If it was never set to begin with, sed will quietly error since it didn't find a string match
     echo "Updating config to build amdgpu as a module... ✓";
-    sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR="\/lib\/firmware\/"/CONFIG_EXTRA_FIRMWARE_DIR=""/g' ./debian.master/config/config.common.ubuntu
-    sed -i 's/CONFIG_EXTRA_FIRMWARE="amdgpu\/polaris10_ce_2.bin amdgpu\/polaris10_ce.bin amdgpu\/polaris10_k2_smc.bin amdgpu\/polaris10_k_mc.bin amdgpu\/polaris10_k_smc.bin amdgpu\/polaris10_mc.bin amdgpu\/polaris10_me_2.bin amdgpu\/polaris10_me.bin amdgpu\/polaris10_mec2_2.bin amdgpu\/polaris10_mec_2.bin amdgpu\/polaris10_mec2.bin amdgpu\/polaris10_mec.bin amdgpu\/polaris10_pfp_2.bin amdgpu\/polaris10_pfp.bin amdgpu\/polaris10_rlc.bin amdgpu\/polaris10_sdma1.bin amdgpu\/polaris10_sdma.bin amdgpu\/polaris10_smc.bin amdgpu\/polaris10_smc_sk.bin amdgpu\/polaris10_uvd.bin amdgpu\/polaris10_vce.bin amdgpu\/polaris11_ce_2.bin amdgpu\/polaris11_ce.bin amdgpu\/polaris11_k2_smc.bin amdgpu\/polaris11_k_mc.bin amdgpu\/polaris11_k_smc.bin amdgpu\/polaris11_mc.bin amdgpu\/polaris11_me_2.bin amdgpu\/polaris11_me.bin amdgpu\/polaris11_mec2_2.bin amdgpu\/polaris11_mec_2.bin amdgpu\/polaris11_mec2.bin amdgpu\/polaris11_mec.bin amdgpu\/polaris11_pfp_2.bin amdgpu\/polaris11_pfp.bin amdgpu\/polaris11_rlc.bin amdgpu\/polaris11_sdma1.bin amdgpu\/polaris11_sdma.bin amdgpu\/polaris11_smc.bin amdgpu\/polaris11_smc_sk.bin amdgpu\/polaris11_uvd.bin amdgpu\/polaris11_vce.bin amdgpu\/polaris12_32_mc.bin amdgpu\/polaris12_ce_2.bin amdgpu\/polaris12_ce.bin amdgpu\/polaris12_k_mc.bin amdgpu\/polaris12_k_smc.bin amdgpu\/polaris12_mc.bin amdgpu\/polaris12_me_2.bin amdgpu\/polaris12_me.bin amdgpu\/polaris12_mec2_2.bin amdgpu\/polaris12_mec_2.bin amdgpu\/polaris12_mec2.bin amdgpu\/polaris12_mec.bin amdgpu\/polaris12_pfp_2.bin amdgpu\/polaris12_pfp.bin amdgpu\/polaris12_rlc.bin amdgpu\/polaris12_sdma1.bin amdgpu\/polaris12_sdma.bin amdgpu\/polaris12_smc.bin amdgpu\/polaris12_uvd.bin amdgpu\/polaris12_vce.bin/CONFIG_EXTRA_FIRMWARE=""/g' ./debian.master/config/amd64/config.flavour.generic
+    sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR="\/lib\/firmware\/"/CONFIG_EXTRA_FIRMWARE_DIR=""/g' ./debian.master/config/config.common.ubuntu;
+    sed -i 's/CONFIG_EXTRA_FIRMWARE="amdgpu\/polaris10_ce_2.bin amdgpu\/polaris10_ce.bin amdgpu\/polaris10_k2_smc.bin amdgpu\/polaris10_k_mc.bin amdgpu\/polaris10_k_smc.bin amdgpu\/polaris10_mc.bin amdgpu\/polaris10_me_2.bin amdgpu\/polaris10_me.bin amdgpu\/polaris10_mec2_2.bin amdgpu\/polaris10_mec_2.bin amdgpu\/polaris10_mec2.bin amdgpu\/polaris10_mec.bin amdgpu\/polaris10_pfp_2.bin amdgpu\/polaris10_pfp.bin amdgpu\/polaris10_rlc.bin amdgpu\/polaris10_sdma1.bin amdgpu\/polaris10_sdma.bin amdgpu\/polaris10_smc.bin amdgpu\/polaris10_smc_sk.bin amdgpu\/polaris10_uvd.bin amdgpu\/polaris10_vce.bin amdgpu\/polaris11_ce_2.bin amdgpu\/polaris11_ce.bin amdgpu\/polaris11_k2_smc.bin amdgpu\/polaris11_k_mc.bin amdgpu\/polaris11_k_smc.bin amdgpu\/polaris11_mc.bin amdgpu\/polaris11_me_2.bin amdgpu\/polaris11_me.bin amdgpu\/polaris11_mec2_2.bin amdgpu\/polaris11_mec_2.bin amdgpu\/polaris11_mec2.bin amdgpu\/polaris11_mec.bin amdgpu\/polaris11_pfp_2.bin amdgpu\/polaris11_pfp.bin amdgpu\/polaris11_rlc.bin amdgpu\/polaris11_sdma1.bin amdgpu\/polaris11_sdma.bin amdgpu\/polaris11_smc.bin amdgpu\/polaris11_smc_sk.bin amdgpu\/polaris11_uvd.bin amdgpu\/polaris11_vce.bin amdgpu\/polaris12_32_mc.bin amdgpu\/polaris12_ce_2.bin amdgpu\/polaris12_ce.bin amdgpu\/polaris12_k_mc.bin amdgpu\/polaris12_k_smc.bin amdgpu\/polaris12_mc.bin amdgpu\/polaris12_me_2.bin amdgpu\/polaris12_me.bin amdgpu\/polaris12_mec2_2.bin amdgpu\/polaris12_mec_2.bin amdgpu\/polaris12_mec2.bin amdgpu\/polaris12_mec.bin amdgpu\/polaris12_pfp_2.bin amdgpu\/polaris12_pfp.bin amdgpu\/polaris12_rlc.bin amdgpu\/polaris12_sdma1.bin amdgpu\/polaris12_sdma.bin amdgpu\/polaris12_smc.bin amdgpu\/polaris12_uvd.bin amdgpu\/polaris12_vce.bin/CONFIG_EXTRA_FIRMWARE=""/g' ./debian.master/config/amd64/config.flavour.generic;
 fi
 
-echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you need to run editconfigs? [Y/n]: "
-read yno
+echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you need to run editconfigs? [Y/n]: ";
+read yno;
 case $yno in
     [nN] | [n|N][O|o] )
         echo "Okay, moving on.";
         ;;
     [yY] | [yY][Ee][Ss] )
-        fakeroot debian/rules editconfigs
+        fakeroot debian/rules editconfigs;
         ;;
     *)
-        fakeroot debian/rules editconfigs
+        fakeroot debian/rules editconfigs;
         ;;
 esac
 
-echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Copy over the new config changes? [y/N]: "
-read yno
+echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Copy over the new config changes? [y/N]: ";
+read yno;
 case $yno in
     [yY] | [yY][Ee][Ss] )
-        echo "*** Copying configs... ✓"
-        /bin/cp -fv ./debian.master/config/amd64/config.* ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}
-        /bin/cp -fv ./debian.master/config/config.common.ubuntu ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}
+        echo "*** Copying configs... ✓";
+        /bin/cp -fv ./debian.master/config/amd64/config.* ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
+        /bin/cp -fv ./debian.master/config/config.common.ubuntu ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
         ;;
     [nN] | [n|N][O|o] )
         echo "Okay, moving on.";
@@ -653,58 +653,59 @@ case $yno in
         ;;
 esac
 
-echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you want to start building? [Y/n]: "
-read yno
+echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you want to start building? [Y/n]: ";
+read yno;
 case $yno in
     [nN] | [n|N][O|o] )
         echo "All good. Exiting.";
-        exit 0
+        exit 0;
         ;;
     [yY] | [yY][Ee][Ss] )
-        echo "Starting build... ✓"
-        fakeroot debian/rules binary-headers binary-generic binary-perarch
+        echo "Starting build... ✓";
+        fakeroot debian/rules binary-headers binary-generic binary-perarch;
         ;;
     *)
-        echo "Starting build... ✓"
-        fakeroot debian/rules binary-headers binary-generic binary-perarch
+        echo "Starting build... ✓";
+        fakeroot debian/rules binary-headers binary-generic binary-perarch;
         ;;
 esac
 
 # Install the compiled kernel
-echo "*** Finished compiling kernel, installing... ✓"
-cd ..
 COMPILED_KERNEL_VER=${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}-${KERNEL_TYPE}
 TIME_BUILT=$(date +%s)
-mkdir -pv ${COMPILED_KERNEL_VER}-${TIME_BUILT}
-mv -v *.deb ${COMPILED_KERNEL_VER}-${TIME_BUILT}
-cd ${COMPILED_KERNEL_VER}-${TIME_BUILT}
+
+echo "*** Finished compiling kernel, installing... ✓";
+cd ..;
+mkdir -pv ${COMPILED_KERNEL_VER}-${TIME_BUILT};
+mv -v *.deb ${COMPILED_KERNEL_VER}-${TIME_BUILT};
+cd ${COMPILED_KERNEL_VER}-${TIME_BUILT};
 sudo dpkg -i *.deb;
-cd -
+cd -;
 
 # Create directory for compiled kernels if it doesn't aleady exist
 if ! [[ -d ${COMPILED_KERNELS_DIR} ]]; then
-    echo "*** Compiled kernel directory doesn't exist, creating... ✓"
-    mkdir -pv ${COMPILED_KERNELS_DIR}
+    echo "*** Compiled kernel directory doesn't exist, creating... ✓";
+    mkdir -pv ${COMPILED_KERNELS_DIR};
 fi
 # Move our new compiled *.deb's for our kernel into our compiled directory
-mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR}
+mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 
 # VirtualBox requires this missing module.lds for 5.4 support
 # To use: Pass VBOX_SUPPORT=yes to the build script
 VBOX_SUPPORT=${VBOX_SUPPORT:-"no"}
 if [ ${VBOX_SUPPORT} = "yes" ]; then
     if [ ${KERNEL_BASE_VER} = "5.4" ]; then
-        echo "*** Enabling VirtualBox support for 5.4 kernel... ✓"
+        echo "*** Enabling VirtualBox support for 5.4 kernel... ✓";
         sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-5.4-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
         sudo /sbin/vboxconfig;
     fi
 fi
 
 # Final cleanup
-echo "*** Finished installing kernel, cleaning up build dir... ✓"
-rm -rf ${KERNEL_BUILD_DIR}
-cd
-ls -al ${COMPILED_KERNELS_DIR}
-ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT}
-echo "*** All done. ✓"
-echo "*** You can now reboot and select ${COMPILED_KERNEL_VER} in GRUB."
+echo "*** Finished installing kernel, cleaning up build dir... ✓";
+rm -rf ${KERNEL_BUILD_DIR};
+cd;
+ls -al ${COMPILED_KERNELS_DIR};
+ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT};
+echo "*** All done. ✓";
+echo "*** You can now reboot and select ${COMPILED_KERNEL_VER} in GRUB.";
