@@ -700,11 +700,9 @@ mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 # To use: Pass VBOX_SUPPORT=yes to the build script
 VBOX_SUPPORT=${VBOX_SUPPORT:-"no"}
 if [ ${VBOX_SUPPORT} = "yes" ]; then
-    if [ ${KERNEL_BASE_VER} = "5.4" ]; then
-        echo "*** Enabling VirtualBox support for 5.4 kernel... ✓";
-        sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-5.4-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
-        sudo /sbin/vboxconfig;
-    fi
+    echo "*** Enabling VirtualBox support for 5.4 kernel... ✓";
+    sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-5.4-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
+    sudo /sbin/vboxconfig;
 fi
 
 # Final cleanup
