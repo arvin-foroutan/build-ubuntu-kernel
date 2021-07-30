@@ -527,7 +527,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex-patches/*.patch .;
         patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
         echo "*** Copying and applying futex2 zen patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex2-zen-patches-v4/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex2-zen-patches-v2/*.patch .;
         patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
     fi
     echo "*** Copying and applying lqx patches.. ✓";
