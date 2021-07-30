@@ -1,0 +1,18 @@
+--- ./kernel/sched/fair.c	2021-07-20 12:32:50.532162315 -0700
++++ ./kernel/sched/fair.c	2021-07-20 12:37:18.799626277 -0700
+@@ -6615,6 +6615,7 @@
+ 		want_affine = !wake_wide(p) && !wake_cap(p, cpu, prev_cpu) &&
+ 			      cpumask_test_cpu(cpu, p->cpus_ptr);
+ 	}
++#endif /* CONFIG_CACULE_SCHED */
+ 
+ 	rcu_read_lock();
+ 	for_each_domain(cpu, tmp) {
+@@ -6655,7 +6656,6 @@
+ 
+ 	return new_cpu;
+ }
+-#endif
+ 
+ static void detach_entity_cfs_rq(struct sched_entity *se);
+ 

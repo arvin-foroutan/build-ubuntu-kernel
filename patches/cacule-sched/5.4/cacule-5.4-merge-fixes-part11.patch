@@ -1,0 +1,18 @@
+--- ./kernel/sched/fair.c	2021-07-20 12:23:00.144716217 -0700
++++ ./kernel/sched/fair.c	2021-07-20 12:32:06.465408671 -0700
+@@ -528,6 +528,7 @@
+ /**************************************************************
+  * Scheduling class tree data structure manipulation methods:
+  */
++#if !defined(CONFIG_CACULE_SCHED)
+ static inline u64 max_vruntime(u64 max_vruntime, u64 vruntime)
+ {
+ 	s64 delta = (s64)(vruntime - max_vruntime);
+@@ -583,6 +584,7 @@
+ 	cfs_rq->min_vruntime_copy = cfs_rq->min_vruntime;
+ #endif
+ }
++#endif /* CONFIG_CACULE_SCHED */
+ 
+ #ifdef CONFIG_CACULE_SCHED
+ static unsigned int

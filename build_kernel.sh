@@ -265,9 +265,11 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/5.6/xanmod-patches/*.patch .;
     patch -p1 < ./0001-cpufreq-intel_pstate-Set-default-cpufreq_driver-to-i.patch;
     # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
-    echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-    patch -p1 < ./cfs-zen-tweaks.patch;
+    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
+        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
+        patch -p1 < ./cfs-zen-tweaks.patch;
+    fi
     echo "*** Copying and applying force irq threads patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
     patch -p1 < ./force-irq-threads.patch;
@@ -532,9 +534,11 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lqx-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-    patch -p1 < ./cfs-zen-tweaks.patch;
+    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
+        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
+        patch -p1 < ./cfs-zen-tweaks.patch;
+    fi
     echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
     #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
@@ -557,17 +561,17 @@ fi
 if [ ${KERNEL_SCHEDULER} = "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     echo "*** Copying and applying CacULE patch.. ✓";
     if [ "${KERNEL_BASE_VER}" = "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/cacule-5.4*.patch .;
+        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.4/cacule-5.4*.patch .;
         patch -p1 < ./cacule-5.4.patch;
         for i in {1..16}; do
             patch -p1 < ./cacule-5.4-merge-fixes-part${i}.patch;
         done
     elif [ "${KERNEL_BASE_VER}" = "5.13" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/cacule-5.13*.patch .;
-        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/rdb-5.13*.patch .;
-        patch -p1 < ./cacule-5.13.patch;
-        patch -p1 < ./cacule-5.13-fix-migration-cost-merge.patch;
-        # patch -p1 < ./rdb-5.13.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.13/cacule-5.13*.patch .;
+        patch -p1 < ./cacule-5.13-e72a5d0.patch;
+        # Comment out CacULE RDB support for now
+        # cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.13/rdb-5.13*.patch .;
+        # patch -p1 < ./rdb-5.13-e72a5d0.patch;
     fi
 fi
 
@@ -696,6 +700,9 @@ mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 
 # The latest VirtualBox (6.1.25-r145887) requires this missing module.lds to work
 # To use: Pass VBOX_SUPPORT=yes to the build script
+# Also note: If you're running VirtualBox while the kernel is compiling
+# and it tries to run this command, it will fail. Just a heads up. You can
+# always run it afterwards manually to get VirtualBox support going.
 VBOX_SUPPORT=${VBOX_SUPPORT:-"no"}
 if [ ${VBOX_SUPPORT} = "yes" ]; then
     echo "*** Enabling VirtualBox support... ✓";

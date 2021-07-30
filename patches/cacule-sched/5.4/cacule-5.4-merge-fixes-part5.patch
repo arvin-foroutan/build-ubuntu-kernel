@@ -1,0 +1,10 @@
+--- ./kernel/sched/fair.c	2021-07-20 11:49:09.684843162 -0700
++++ ./kernel/sched/fair.c	2021-07-20 11:51:39.124893272 -0700
+@@ -8157,7 +8157,6 @@
+ {
+ 	return group->sgc->imbalance;
+ }
+-#endif /* CONFIG_CACULE_SCHED */
+ 
+ /*
+  * group_has_capacity returns true if the group has spare capacity that could

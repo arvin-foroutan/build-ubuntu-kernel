@@ -1,0 +1,18 @@
+--- ./kernel/sched/fair.c	2021-07-20 12:19:14.268288462 -0700
++++ ./kernel/sched/fair.c	2021-07-20 12:22:13.045005021 -0700
+@@ -7962,7 +7962,6 @@
+ 
+ static inline void init_sd_lb_stats(struct sd_lb_stats *sds)
+ {
+-#if !defined(CONFIG_CACULE_SCHED)
+ 	/*
+ 	 * Skimp on the clearing to avoid duplicate work. We can avoid clearing
+ 	 * local_stat because update_sg_lb_stats() does a full clear/assignment.
+@@ -8037,7 +8036,6 @@
+ 		update_cpu_capacity(sd, cpu);
+ 		return;
+ 	}
+-#endif /* CONFIG_CACULE_SCHED */
+ 
+ 	capacity = 0;
+ 	min_capacity = ULONG_MAX;
