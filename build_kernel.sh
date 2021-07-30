@@ -398,7 +398,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-bbr2-patches.patch;
     echo "*** Copying and applying bfq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
     if ! [ ${KERNEL_TYPE} = "rt" ]; then
         patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
@@ -410,6 +410,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
     patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
     patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
+    patch -p1 < ./0010-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/block-patches-v2/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
@@ -472,15 +473,16 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lru-patches-v5/*.patch .;
     patch -p1 < ./0001-lru-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ntfs3-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ntfs3-patches-v2/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/pf-patches-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/pf-patches-v7-sep/*.patch .;
     patch -p1 < ./0001-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
     patch -p1 < ./0002-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
     patch -p1 < ./0003-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     patch -p1 < ./0004-Revert-Revert-mm-shmem-fix-shmem_swapin-race-with-sw.patch;
     patch -p1 < ./0005-Revert-Revert-swap-fix-do_swap_page-race-with-swapof.patch;
+    patch -p1 < ./0006-mm-compaction-optimize-proactive-compaction-deferral.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-5.13-merge-v1.0.14.patch;
@@ -497,7 +499,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches/*.patch .;
     patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
     echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v4/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v5/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zen-patches-sep/*.patch .;
@@ -525,7 +527,7 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex-patches/*.patch .;
         patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
         echo "*** Copying and applying futex2 zen patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex2-zen-patches-v2/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex2-zen-patches-v4/*.patch .;
         patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
     fi
     echo "*** Copying and applying lqx patches.. ✓";
