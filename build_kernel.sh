@@ -137,9 +137,7 @@ if [ ${KERNEL_TYPE} = "rt" ]; then
         patch -p1 < ./patch-5.13-rt1.patch;
     elif [ ${KERNEL_BASE_VER} = "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rc3-rt2.patch .;
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/5.14-rc3-rt2-merge-fix.patch .;
         patch -p1 < ./patch-5.14-rc3-rt2.patch;
-        patch -p1 < ./5.14-rc3-rt2-merge-fix.patch;
     fi
 fi
 
