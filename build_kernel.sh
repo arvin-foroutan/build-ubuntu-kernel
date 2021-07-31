@@ -58,20 +58,17 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
     # customized changes as time goes on, and just run ./build_kernel.sh from there.
     # Or just use the default build script from the cloned directory. Up to you
     if [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
+        BACKUP_SCRIPT_NAME=build_kernel-backup.sh
         echo -n "Found existing build script. Overwrite? [y/N]: ";
         read yno;
         case $yno in
             [yY] | [yY][Ee][Ss] )
-                echo "Backing up old build script... ✓";
-                if [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh.bak ]]; then
-                    # Remove previous backup if it exists
-                    rm -f ${KERNEL_MAIN_DIR}/build_kernel.sh.bak;
-                    # Make current one the new backup
-                    cp ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
-                else
-                    # No previous backup found, make a current backup
-                    cp ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
+                if [[ -f ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME} ]]; then
+                    echo "Removing the old backup build script... ✓";
+                    rm -f ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME};
                 fi
+                echo "*** Backing up the current build script... ✓";
+                cp ${KERNEL_MAIN_DIR}/build_kernel.sh ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME};
                 echo "*** Copying over the updated build script... ✓";
                 cp --no-clobber ./build_kernel.sh ${KERNEL_MAIN_DIR};
                 ;;
