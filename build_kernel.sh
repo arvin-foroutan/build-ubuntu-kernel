@@ -41,14 +41,24 @@ mkdir -pv ${CONFIG_PATH};
 # i.e. instead of $ cd build-ubuntu-kernel && ./build_kernel.sh
 # We can now do ./build-ubuntu-kernel/build_kernel.sh, for example
 PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
-cd ${PARENT_PATH}
+cd ${PARENT_PATH};
 
-# Handle the case where we allow for building in $KERNEL_MAIN_DIR (~/kernel_main)
-# as opposed to the location where we cloned the repository.
-# For example, say we want to make a change to the original script, it should be changed in
-# ~/kernel_main/build_kernel.sh, and not the build_kernel.sh in the cloned directory.
-# So, if we are running this script in ~/kernel_main, PARENT_PATH will equal KERNEL_MAIN_DIR
-# and we don't want to do the below since we're already in that directory.
+# Handle the case where we allow for building a modified build script
+# in $KERNEL_MAIN_DIR (~/kernel_main) as opposed to the location where
+# we cloned the repository.
+#
+# Say we want to make a change to the original script, it could be changed
+# in ~/kernel_main/build_kernel.sh, and not the build_kernel.sh in the
+# cloned directory.
+#
+# Another option is to ignore ~/kernel_main.sh, and make your changes in the
+# directory where you cloned the repository, however, stash your changes
+# first (git stash), pull the latest script (git pull origin master), and
+# then apply back your changes (git stash apply). Easy way to stay updated
+# while having your own special sauce.
+
+# For the code below, if we are running this script in ~/kernel_main,
+# $PARENT_PATH will equal $KERNEL_MAIN_DIR so we want to ignore it
 if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
     cp --no-clobber --recursive ./configs/* ${CONFIG_PATH};
     cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
