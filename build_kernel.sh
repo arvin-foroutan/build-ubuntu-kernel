@@ -39,21 +39,43 @@ echo "*** Copying over the custom patches folder, update if it already exists...
 mkdir -pv ${CUSTOM_PATCH_PATH};
 cp -ru ./patches/* ${CUSTOM_PATCH_PATH};
 
-echo "*** Removing previous build dir if it exists, and creating a new one... ✓";
+if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
+    # You can use this copied over script to make your own customized
+    # changes as time goes on. Or just use the default build script
+    echo "*** Copying over the build script to allow for custom editing... ✓";
+    cp ./build_kernel.sh ${KERNEL_MAIN_DIR};
+else
+    # The build script already exists, ask if they want to update. Defaults to no
+    echo -n "Found existing build script. Overwrite? [y/N]: ";
+    read yno;
+    case $yno in
+        [yY] | [yY][Ee][Ss] )
+            echo "Backing up old build script... ✓";
+            if [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh.bak ]]; then
+                # Remove previous backup if it exists
+                rm -f ${KERNEL_MAIN_DIR}/build_kernel.sh.bak;
+                # Make current one the new backup
+                cp -u ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
+            else
+                # No previous backup found, make a current backup
+                cp -u ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
+            fi
+            echo "*** Copying over the updated build script... ✓";
+            cp -u ./build_kernel.sh ${KERNEL_MAIN_DIR};
+            ;;
+        [nN] | [n|N][O|o] )
+            echo "*** Keeping existing build script... ✓";
+            ;;
+        *)
+            echo "*** Keeping existing build script... ✓";
+            ;;
+    esac
+fi
+
+echo "*** Removing previous build dir if it exists... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 mkdir -pv ${KERNEL_BUILD_DIR};
 cd ${KERNEL_BUILD_DIR};
-
-if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
-    # Note: You can use this copied over script to make your own customized changes
-    # as time goes on, and then pull from the GitHub repo separately in another dir
-    # to see what's changed. Another option is to ignore this copied script and just
-    # use the cloned one from GitHub, but stashing your changes with "git stash" and then
-    # "git pull origin master" to get latest script, and then "git stash apply" to
-    # apply your own changes on top of the script.
-    echo "*** Copying over the build script to allow for custom editing... ✓";
-    cp -r ./build_kernel.sh ${KERNEL_MAIN_DIR};
-fi
 
 if ! [[ -f ${KERNEL_SOURCES_DIR}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} ]]; then
     echo "*** No tarball found for linux-${KERNEL_PATCH_VER}, fetching... ✓";
