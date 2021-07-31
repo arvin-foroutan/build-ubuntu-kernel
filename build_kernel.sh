@@ -45,20 +45,22 @@ cd ${PARENT_PATH};
 
 # Handle the case where we allow for building a modified build script
 # in $KERNEL_MAIN_DIR (~/kernel_main) as opposed to the location where
-# we cloned the repository.
+# we cloned the repo.
 #
-# Say we want to make a change to the original script, it could be changed
-# in ~/kernel_main/build_kernel.sh, and not the build_kernel.sh in the
-# cloned directory.
-#
-# Another option is to ignore ~/kernel_main.sh, and make your changes in the
-# directory where you cloned the repository, however, stash your changes
-# first (git stash), pull the latest script (git pull origin master), and
-# then apply back your changes (git stash apply). Easy way to stay updated
-# while having your own special sauce.
-
 # For the code below, if we are running this script in ~/kernel_main,
-# $PARENT_PATH will equal $KERNEL_MAIN_DIR so we want to ignore it
+# $PARENT_PATH will equal $KERNEL_MAIN_DIR, so we can just safely ignore it.
+#
+# Lastly, for making changes to this original script, you can make them in
+# ~/kernel_main/build_kernel.sh, and ignore the build_kernel.sh from the
+# directory where repo was cloned, as it's technically only needed the
+# first time you run the script to set things up. But can also be repeatedly
+# run from the cloned directory or ~/kernel_main.
+#
+# Another option is to ignore ~/kernel_main/build_kernel.sh, and just make your
+# changes in the directory where you cloned the repo, but first stashing
+# your changes with "git stash", then pulling the latest script with
+# "git pull origin master", and then apply back your changes with "git stash apply".
+# Probably the easiest way to stay updated while applying your own special sauce.
 if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
     cp --no-clobber --recursive ./configs/* ${CONFIG_PATH};
     cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
