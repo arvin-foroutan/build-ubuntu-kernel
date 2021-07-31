@@ -31,27 +31,26 @@ KERNEL_SRC_URL=${KERNEL_SRC_URL:-${KERNEL_SRC_URI}/linux-${KERNEL_PATCH_VER}.${K
 PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
 cd ${PARENT_PATH}
 
-echo "*** Creating main directory for our kernel workspace... ✓";
+echo "*** Creating main kernel workspace if it doesn't already exist... ✓";
 mkdir -pv ${KERNEL_MAIN_DIR};
 
-echo "*** Creating sources directory to store our tarballs... ✓";
+echo "*** Creating sources directory if it doesn't already exist... ✓";
 mkdir -pv ${KERNEL_SOURCES_DIR};
 
-echo "*** Copying over the custom config folder... ✓";
-mkdir -pv ${CONFIG_PATH};
-cp -r ./configs/* ${CONFIG_PATH};
-
-echo "*** Copying over the custom patches folder, update if it already exists... ✓";
+echo "*** Creating patches directory if it doesn't already exist... ✓";
 mkdir -pv ${CUSTOM_PATCH_PATH};
-cp -ru ./patches/* ${CUSTOM_PATCH_PATH};
 
+echo "*** Creating configs directory if it doesn't already exist... ✓";
+mkdir -pv ${CONFIG_PATH};
+
+# Allow for modified build_kernel.sh scripts. (housed in $KERNEL_MAIN_DIR)
+# You can use this copied over script in ~/kernel_main to make your own
+# customized changes as time goes on, and just run ./build_kernel.sh from there.
+# Or just use the default build script from the cloned repository. Up to you
 if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
-    # You can use this copied over script to make your own customized
-    # changes as time goes on. Or just use the default build script
     echo "*** Copying over the build script to allow for custom editing... ✓";
-    cp ./build_kernel.sh ${KERNEL_MAIN_DIR};
+    cp --update ./build_kernel.sh ${KERNEL_MAIN_DIR};
 else
-    # The build script already exists, ask if they want to update. Defaults to no
     echo -n "Found existing build script. Overwrite? [y/N]: ";
     read yno;
     case $yno in
@@ -61,13 +60,13 @@ else
                 # Remove previous backup if it exists
                 rm -f ${KERNEL_MAIN_DIR}/build_kernel.sh.bak;
                 # Make current one the new backup
-                cp -u ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
+                cp ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
             else
                 # No previous backup found, make a current backup
-                cp -u ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
+                cp ${KERNEL_MAIN_DIR}/build_kernel.sh{,.bak};
             fi
             echo "*** Copying over the updated build script... ✓";
-            cp -u ./build_kernel.sh ${KERNEL_MAIN_DIR};
+            cp --no-clobber ./build_kernel.sh ${KERNEL_MAIN_DIR};
             ;;
         [nN] | [n|N][O|o] )
             echo "*** Keeping existing build script... ✓";
@@ -76,6 +75,18 @@ else
             echo "*** Keeping existing build script... ✓";
             ;;
     esac
+fi
+
+# Handle the case where we allow for building in KERNEL_MAIN_DIR (~/kernel_main)
+# as opposed to the location where we cloned the repository.
+#
+# For example, say we want to make a change to this script, it should be changed in
+# ~/kernel_main/build_kernel.sh, and not the build_kernel.sh in the cloned repo.
+# So, if we are running this script in ~/kernel_main, PARENT_PATH will equal KERNEL_MAIN_DIR
+# and we don't want to do the below since we're already in that directory.
+if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
+    cp --no-clobber --recursive ./configs/* ${CONFIG_PATH};
+    cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
 fi
 
 echo "*** Removing previous build dir if it exists... ✓";
