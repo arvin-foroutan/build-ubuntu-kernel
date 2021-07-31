@@ -25,6 +25,12 @@ KERNEL_SRC_URI=${KERNEL_SRC_URI:-"https://cdn.kernel.org/pub/linux/kernel/v5.x"}
 KERNEL_SRC_EXT=${KERNEL_SRC_EXT:-"tar.xz"}
 KERNEL_SRC_URL=${KERNEL_SRC_URL:-${KERNEL_SRC_URI}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT}}
 
+# Set the relative path so we can run the script from any directory
+# i.e. instead of $ cd build-ubuntu-kernel && ./build_kernel.sh
+# We can now do ./build-ubuntu-kernel/build_kernel.sh, for example
+PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
+cd ${PARENT_PATH}
+
 echo "*** Creating main directory for our kernel workspace... ✓";
 mkdir -pv ${KERNEL_MAIN_DIR};
 
