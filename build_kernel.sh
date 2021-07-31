@@ -56,12 +56,12 @@ if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
 fi
 
 if ! [[ -f ${KERNEL_SOURCES_DIR}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} ]]; then
-    echo "No tarball found for linux-${KERNEL_PATCH_VER}, fetching... ✓";
+    echo "*** No tarball found for linux-${KERNEL_PATCH_VER}, fetching... ✓";
     wget ${KERNEL_SRC_URL};
     cp ./linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} ${KERNEL_SOURCES_DIR};
 fi
 
-echo "Copying over the source tarball and extracting... ✓";
+echo "*** Copying over the source tarball and extracting... ✓";
 cp -v ${KERNEL_SOURCES_DIR}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} .;
 tar xvf linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT};
 rm -f linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT};
@@ -612,12 +612,12 @@ if [ ${AMDGPU_BUILTIN} = "yes" ]; then
     # cd /lib/firmware, then: ls amdgpu/polaris* and hit tab for it auto-complete to grab all of the files
     # For example, for Navi: ls amdgpu/navi* and populate EXTRA_FIRMWARE with Navi blobs. This will be done
     # automatically in a future version. For now, just do Polaris.
-    echo "Updating config to build-in amdgpu into the kernel... ✓";
+    echo "*** Updating config to build-in amdgpu into the kernel... ✓";
     sed -i 's/CONFIG_EXTRA_FIRMWARE=""/CONFIG_EXTRA_FIRMWARE="amdgpu\/polaris10_ce_2.bin amdgpu\/polaris10_ce.bin amdgpu\/polaris10_k2_smc.bin amdgpu\/polaris10_k_mc.bin amdgpu\/polaris10_k_smc.bin amdgpu\/polaris10_mc.bin amdgpu\/polaris10_me_2.bin amdgpu\/polaris10_me.bin amdgpu\/polaris10_mec2_2.bin amdgpu\/polaris10_mec_2.bin amdgpu\/polaris10_mec2.bin amdgpu\/polaris10_mec.bin amdgpu\/polaris10_pfp_2.bin amdgpu\/polaris10_pfp.bin amdgpu\/polaris10_rlc.bin amdgpu\/polaris10_sdma1.bin amdgpu\/polaris10_sdma.bin amdgpu\/polaris10_smc.bin amdgpu\/polaris10_smc_sk.bin amdgpu\/polaris10_uvd.bin amdgpu\/polaris10_vce.bin amdgpu\/polaris11_ce_2.bin amdgpu\/polaris11_ce.bin amdgpu\/polaris11_k2_smc.bin amdgpu\/polaris11_k_mc.bin amdgpu\/polaris11_k_smc.bin amdgpu\/polaris11_mc.bin amdgpu\/polaris11_me_2.bin amdgpu\/polaris11_me.bin amdgpu\/polaris11_mec2_2.bin amdgpu\/polaris11_mec_2.bin amdgpu\/polaris11_mec2.bin amdgpu\/polaris11_mec.bin amdgpu\/polaris11_pfp_2.bin amdgpu\/polaris11_pfp.bin amdgpu\/polaris11_rlc.bin amdgpu\/polaris11_sdma1.bin amdgpu\/polaris11_sdma.bin amdgpu\/polaris11_smc.bin amdgpu\/polaris11_smc_sk.bin amdgpu\/polaris11_uvd.bin amdgpu\/polaris11_vce.bin amdgpu\/polaris12_32_mc.bin amdgpu\/polaris12_ce_2.bin amdgpu\/polaris12_ce.bin amdgpu\/polaris12_k_mc.bin amdgpu\/polaris12_k_smc.bin amdgpu\/polaris12_mc.bin amdgpu\/polaris12_me_2.bin amdgpu\/polaris12_me.bin amdgpu\/polaris12_mec2_2.bin amdgpu\/polaris12_mec_2.bin amdgpu\/polaris12_mec2.bin amdgpu\/polaris12_mec.bin amdgpu\/polaris12_pfp_2.bin amdgpu\/polaris12_pfp.bin amdgpu\/polaris12_rlc.bin amdgpu\/polaris12_sdma1.bin amdgpu\/polaris12_sdma.bin amdgpu\/polaris12_smc.bin amdgpu\/polaris12_uvd.bin amdgpu\/polaris12_vce.bin"/g' ./debian.master/config/config.common.ubuntu;
 else
     # If AMDGPU_BUILTIN=no (or if it's not passed into the build script, the default) remove it from the config if it
     # was previously set. If it was never set to begin with, sed will quietly error since it didn't find a string match
-    echo "Updating config to build amdgpu as a module... ✓";
+    echo "*** Updating config to build amdgpu as a module... ✓";
     sed -i 's/CONFIG_EXTRA_FIRMWARE="amdgpu\/polaris10_ce_2.bin amdgpu\/polaris10_ce.bin amdgpu\/polaris10_k2_smc.bin amdgpu\/polaris10_k_mc.bin amdgpu\/polaris10_k_smc.bin amdgpu\/polaris10_mc.bin amdgpu\/polaris10_me_2.bin amdgpu\/polaris10_me.bin amdgpu\/polaris10_mec2_2.bin amdgpu\/polaris10_mec_2.bin amdgpu\/polaris10_mec2.bin amdgpu\/polaris10_mec.bin amdgpu\/polaris10_pfp_2.bin amdgpu\/polaris10_pfp.bin amdgpu\/polaris10_rlc.bin amdgpu\/polaris10_sdma1.bin amdgpu\/polaris10_sdma.bin amdgpu\/polaris10_smc.bin amdgpu\/polaris10_smc_sk.bin amdgpu\/polaris10_uvd.bin amdgpu\/polaris10_vce.bin amdgpu\/polaris11_ce_2.bin amdgpu\/polaris11_ce.bin amdgpu\/polaris11_k2_smc.bin amdgpu\/polaris11_k_mc.bin amdgpu\/polaris11_k_smc.bin amdgpu\/polaris11_mc.bin amdgpu\/polaris11_me_2.bin amdgpu\/polaris11_me.bin amdgpu\/polaris11_mec2_2.bin amdgpu\/polaris11_mec_2.bin amdgpu\/polaris11_mec2.bin amdgpu\/polaris11_mec.bin amdgpu\/polaris11_pfp_2.bin amdgpu\/polaris11_pfp.bin amdgpu\/polaris11_rlc.bin amdgpu\/polaris11_sdma1.bin amdgpu\/polaris11_sdma.bin amdgpu\/polaris11_smc.bin amdgpu\/polaris11_smc_sk.bin amdgpu\/polaris11_uvd.bin amdgpu\/polaris11_vce.bin amdgpu\/polaris12_32_mc.bin amdgpu\/polaris12_ce_2.bin amdgpu\/polaris12_ce.bin amdgpu\/polaris12_k_mc.bin amdgpu\/polaris12_k_smc.bin amdgpu\/polaris12_mc.bin amdgpu\/polaris12_me_2.bin amdgpu\/polaris12_me.bin amdgpu\/polaris12_mec2_2.bin amdgpu\/polaris12_mec_2.bin amdgpu\/polaris12_mec2.bin amdgpu\/polaris12_mec.bin amdgpu\/polaris12_pfp_2.bin amdgpu\/polaris12_pfp.bin amdgpu\/polaris12_rlc.bin amdgpu\/polaris12_sdma1.bin amdgpu\/polaris12_sdma.bin amdgpu\/polaris12_smc.bin amdgpu\/polaris12_uvd.bin amdgpu\/polaris12_vce.bin/CONFIG_EXTRA_FIRMWARE=""/g' ./debian.master/config/config.common.ubuntu;
 fi
 
@@ -625,7 +625,7 @@ echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you need to
 read yno;
 case $yno in
     [nN] | [n|N][O|o] )
-        echo "Okay, moving on.";
+        echo "*** Okay, moving on... ✓";
         ;;
     [yY] | [yY][Ee][Ss] )
         fakeroot debian/rules editconfigs;
@@ -644,10 +644,10 @@ case $yno in
         /bin/cp -fv ./debian.master/config/config.common.ubuntu ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
         ;;
     [nN] | [n|N][O|o] )
-        echo "Okay, moving on.";
+        echo "*** Okay, moving on... ✓";
         ;;
     *)
-        echo "Okay, moving on.";
+        echo "*** Okay, moving on... ✓";
         ;;
 esac
 
@@ -655,15 +655,15 @@ echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you want to
 read yno;
 case $yno in
     [nN] | [n|N][O|o] )
-        echo "All good. Exiting.";
+        echo "*** All good. Exiting... ✓";
         exit 0;
         ;;
     [yY] | [yY][Ee][Ss] )
-        echo "Starting build... ✓";
+        echo "*** Starting build... ✓";
         fakeroot debian/rules binary-headers binary-generic binary-perarch;
         ;;
     *)
-        echo "Starting build... ✓";
+        echo "*** Starting build... ✓";
         fakeroot debian/rules binary-headers binary-generic binary-perarch;
         ;;
 esac
