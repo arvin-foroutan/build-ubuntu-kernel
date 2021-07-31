@@ -113,10 +113,15 @@ if [ ${KERNEL_TYPE} = "rt" ]; then
     elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
+    elif [ ${KERNEL_BASE_VER} = "5.14" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rc3-rt2.patch .;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/5.14-rc3-rt2-merge-fix.patch .;
+        patch -p1 < ./patch-5.14-rc3-rt2.patch;
+        patch -p1 < ./5.14-rc3-rt2-merge-fix.patch;
     fi
 fi
 
-# Build the 5.4 LTS kernel. Supported until 2025
+# Apply custom patches to the 5.4 LTS kernel. Supported until 2025.
 if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     echo "*** Copying and applying freesync patches from 5.10.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/amdgpu/freesync-refresh/*.patch .;
@@ -545,7 +550,8 @@ elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
     patch -p1 < ./enable-background-reclaim-hugepages.patch;
 fi
 
-# CacULE scheduler enabled by default. To disable, pass KERNEL_SCHEDULER=cfs
+# CacULE scheduler enabled by default (except for -rt)
+# To disable, pass KERNEL_SCHEDULER=cfs
 if [ ${KERNEL_SCHEDULER} = "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     echo "*** Copying and applying CacULE patch.. ✓";
     if [ "${KERNEL_BASE_VER}" = "5.4" ]; then
@@ -691,8 +697,10 @@ mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 # Also note: If you're running VirtualBox while the kernel is compiling
 # and it tries to run this command, it will fail. Just a heads up. You can
 # always run it afterwards manually to get VirtualBox support going.
+# Another note: -rt kernels can't use VirtualBox, so keep that in mind when
+# deciding on a kernel to use as your daily driver.
 VBOX_SUPPORT=${VBOX_SUPPORT:-"no"}
-if [ ${VBOX_SUPPORT} = "yes" ]; then
+if [ ${VBOX_SUPPORT} = "yes" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     echo "*** Enabling VirtualBox support... ✓";
     sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
     sudo /sbin/vboxconfig;
