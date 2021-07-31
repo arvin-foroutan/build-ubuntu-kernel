@@ -255,11 +255,9 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/5.6/xanmod-patches/*.patch .;
     patch -p1 < ./0001-cpufreq-intel_pstate-Set-default-cpufreq_driver-to-i.patch;
     # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
-    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
-        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-        patch -p1 < ./cfs-zen-tweaks.patch;
-    fi
+    echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
+    patch -p1 < ./cfs-zen-tweaks.patch;
     echo "*** Copying and applying force irq threads patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
     patch -p1 < ./force-irq-threads.patch;
