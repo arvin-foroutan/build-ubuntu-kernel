@@ -25,12 +25,6 @@ KERNEL_SRC_URI=${KERNEL_SRC_URI:-"https://cdn.kernel.org/pub/linux/kernel/v5.x"}
 KERNEL_SRC_EXT=${KERNEL_SRC_EXT:-"tar.xz"}
 KERNEL_SRC_URL=${KERNEL_SRC_URL:-${KERNEL_SRC_URI}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT}}
 
-# Set the relative path so we can run the script from any directory
-# i.e. instead of $ cd build-ubuntu-kernel && ./build_kernel.sh
-# We can now do ./build-ubuntu-kernel/build_kernel.sh, for example
-PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
-cd ${PARENT_PATH}
-
 echo "*** Creating main kernel workspace if it doesn't already exist... ✓";
 mkdir -pv ${KERNEL_MAIN_DIR};
 
@@ -43,14 +37,17 @@ mkdir -pv ${CUSTOM_PATCH_PATH};
 echo "*** Creating configs directory if it doesn't already exist... ✓";
 mkdir -pv ${CONFIG_PATH};
 
-# Allow for modified build_kernel.sh scripts. (housed in $KERNEL_MAIN_DIR)
-# You can use this copied over script in ~/kernel_main to make your own
+# Set the relative path so we can run the script from any directory
+# i.e. instead of $ cd build-ubuntu-kernel && ./build_kernel.sh
+# We can now do ./build-ubuntu-kernel/build_kernel.sh, for example
+PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
+cd ${PARENT_PATH}
+
+# Allow for modified build_kernel.sh scripts, housed in $KERNEL_MAIN_DIR.
+# You can use this copied script on first run in ~/kernel_main to make your own
 # customized changes as time goes on, and just run ./build_kernel.sh from there.
-# Or just use the default build script from the cloned repository. Up to you
-if ! [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
-    echo "*** Copying over the build script to allow for custom editing... ✓";
-    cp --update ./build_kernel.sh ${KERNEL_MAIN_DIR};
-else
+# Or just use the default build script from the cloned directory. Up to you
+if [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
     echo -n "Found existing build script. Overwrite? [y/N]: ";
     read yno;
     case $yno in
@@ -75,13 +72,16 @@ else
             echo "*** Keeping existing build script... ✓";
             ;;
     esac
+else
+    echo "*** Copying build_kernel.sh to ${KERNEL_MAIN_DIR} to allow for custom editing... ✓";
+    cp ./build_kernel.sh ${KERNEL_MAIN_DIR};
 fi
 
-# Handle the case where we allow for building in KERNEL_MAIN_DIR (~/kernel_main)
+# Handle the case where we allow for building in $KERNEL_MAIN_DIR (~/kernel_main)
 # as opposed to the location where we cloned the repository.
 #
 # For example, say we want to make a change to this script, it should be changed in
-# ~/kernel_main/build_kernel.sh, and not the build_kernel.sh in the cloned repo.
+# ~/kernel_main/build_kernel.sh, and not the build_kernel.sh in the cloned directory.
 # So, if we are running this script in ~/kernel_main, PARENT_PATH will equal KERNEL_MAIN_DIR
 # and we don't want to do the below since we're already in that directory.
 if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
@@ -89,7 +89,7 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
     cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
 fi
 
-echo "*** Removing previous build dir if it exists... ✓";
+echo "*** Removing previous build directory if it exists... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 mkdir -pv ${KERNEL_BUILD_DIR};
 cd ${KERNEL_BUILD_DIR};
@@ -113,33 +113,35 @@ cp -v ${CUSTOM_PATCH_PATH}/ubuntu-${KERNEL_BASE_VER}/*.patch .;
 patch -p1 < ./0001-base-packaging.patch;
 patch -p1 < ./0002-UBUNTU-SAUCE-add-vmlinux.strip-to-BOOT_TARGETS1-on-p.patch;
 patch -p1 < ./0003-UBUNTU-SAUCE-tools-hv-lsvmbus-add-manual-page.patch;
+
+echo "*** Updating version number in changelog... ✓";
 # Update the version in the changelog to latest version since the patches
 # are no longer maintained and because we want to keep our kernel as Ubuntu-like
 # as possible (with ABI and all)
-echo "*** Updating version number in changelog... ✓";
 if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     sed -i "s/5.4.45-050445/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
 else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
     sed -i "s/5.7.1-050701/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
 fi
+
 patch -p1 < ./0004-debian-changelog.patch;
 patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
 echo "*** Successfully applied Ubuntu patches... ✓";
 
-if ! [[ -d ${PATCH_PATH}/lucjan-patches ]]; then
-    echo "*** Fetching lucjan patches... ✓";
-    git clone https://github.com/sirlucjan/kernel-patches.git ${PATCH_PATH}/lucjan-patches;
-else
+if [[ -d ${PATCH_PATH}/lucjan-patches ]]; then
     echo "*** Found lucjan-patches, pulling latest... ✓";
     git -C ${PATCH_PATH}/lucjan-patches pull https://github.com/sirlucjan/kernel-patches.git;
+else
+    echo "*** Fetching lucjan patches... ✓";
+    git clone https://github.com/sirlucjan/kernel-patches.git ${PATCH_PATH}/lucjan-patches;
 fi
 
-if ! [[ -d ${PATCH_PATH}/xanmod-patches ]]; then
-    echo "*** Fetching xanmod patches... ✓";
-    git clone https://github.com/xanmod/linux-patches.git ${PATCH_PATH}/xanmod-patches;
-else
+if [[ -d ${PATCH_PATH}/xanmod-patches ]]; then
     echo "*** Found xanmod-patches, pulling latest... ✓";
     git -C ${PATCH_PATH}/xanmod-patches pull https://github.com/xanmod/linux-patches.git;
+else
+    echo "*** Fetching xanmod patches... ✓";
+    git clone https://github.com/xanmod/linux-patches.git ${PATCH_PATH}/xanmod-patches;
 fi
 
 # Allow support for rt (real-time) kernels
