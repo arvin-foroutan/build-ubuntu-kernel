@@ -76,7 +76,7 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
                 echo "*** Backing up the current build script... ✓";
                 cp ${KERNEL_MAIN_DIR}/build_kernel.sh ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME};
                 echo "*** Copying over the updated build script... ✓";
-                cp --no-clobber ./build_kernel.sh ${KERNEL_MAIN_DIR};
+                cp --update ./build_kernel.sh ${KERNEL_MAIN_DIR};
                 ;;
             [nN] | [n|N][O|o] )
                 echo "*** Keeping existing build script... ✓";
