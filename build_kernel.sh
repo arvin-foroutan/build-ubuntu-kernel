@@ -127,7 +127,7 @@ else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
 fi
 patch -p1 < ./0004-debian-changelog.patch;
 
-[[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-25.29 || KERNEL_PATCH_SUB_VER=5.7.0-5.6;
+[[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-5.6;
 patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
 echo "*** Successfully applied Ubuntu patches... ✓";
 
@@ -640,7 +640,8 @@ chmod a+x debian/scripts/*;
 chmod a+x debian/scripts/misc/*;
 
 echo "*** Create symlink for kernel ABI... ✓";
-ln -rsv ./debian.master/abi/${KERNEL_PATCH_SUB_VER} ./debian.master/abi/${KERNEL_PATCH_SUB_VER}-0.0;
+[[ ${KERNEL_BASE_VER} == "5.4" ]] && ABI_VERSION=5.4.0-25.29 || ABI_VERSION=5.7.0-5.6;
+ln -rsv ./debian.master/abi/${ABI_VERSION} ./debian.master/abi/${KERNEL_PATCH_VER}-0.0;
 
 echo "*** Running fakeroot debian/rules clean... ✓";
 fakeroot debian/rules clean;
