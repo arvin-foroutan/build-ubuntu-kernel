@@ -127,7 +127,7 @@ else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
 fi
 patch -p1 < ./0004-debian-changelog.patch;
 
-[[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-5.6;
+[[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
 patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
 echo "*** Successfully applied Ubuntu patches... ✓";
 
