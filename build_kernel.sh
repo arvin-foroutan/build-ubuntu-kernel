@@ -98,8 +98,7 @@ cd ${KERNEL_BUILD_DIR};
 
 if ! [[ -f ${KERNEL_SOURCES_DIR}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} ]]; then
     echo "*** No tarball found for linux-${KERNEL_PATCH_VER}, fetching... ✓";
-    wget ${KERNEL_SRC_URL};
-    cp ./linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} ${KERNEL_SOURCES_DIR};
+    wget ${KERNEL_SRC_URL} -P ${KERNEL_SOURCES_DIR};
 fi
 
 echo "*** Copying over the source tarball and extracting... ✓";
