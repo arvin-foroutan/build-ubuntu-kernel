@@ -2,6 +2,8 @@
 
 # Compile the Linux kernel for Ubuntu.
 
+# Supported kernels: 5.4 LTS, 5.10 LTS, 5.13, 5.14-rc
+
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
@@ -61,8 +63,10 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
     # your changes with "git stash", then pulling the latest script with
     # "git pull origin master", and then apply back your changes with "git stash apply".
     # Probably the easiest way to stay updated while applying your own special sauce.
+
     cp --no-clobber --recursive ./configs/* ${CONFIG_PATH};
     cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
+
     if [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
         BACKUP_SCRIPT_NAME=build_kernel-backup.sh
         echo -n "Found existing build script. Overwrite? [y/N]: ";
@@ -107,29 +111,6 @@ tar xvf linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT};
 rm -f linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT};
 cd linux-${KERNEL_PATCH_VER};
 
-# Deprecated as of 5.4.45 but can still be applied
-# See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
-echo "*** Copying and applying Ubuntu patches... ✓";
-cp -v ${CUSTOM_PATCH_PATH}/ubuntu-${KERNEL_BASE_VER}/*.patch .;
-patch -p1 < ./0001-base-packaging.patch;
-patch -p1 < ./0002-UBUNTU-SAUCE-add-vmlinux.strip-to-BOOT_TARGETS1-on-p.patch;
-patch -p1 < ./0003-UBUNTU-SAUCE-tools-hv-lsvmbus-add-manual-page.patch;
-
-echo "*** Updating version number in changelog... ✓";
-# Update the version in the changelog to latest version since the patches
-# are no longer maintained and because we want to keep our kernel as Ubuntu-like
-# as possible (with ABI and all)
-if [ ${KERNEL_BASE_VER} = "5.4" ]; then
-    sed -i "s/5.4.45-050445/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
-else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
-    sed -i "s/5.7.1-050701/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
-fi
-patch -p1 < ./0004-debian-changelog.patch;
-
-[[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
-patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
-echo "*** Successfully applied Ubuntu patches... ✓";
-
 if [[ -d ${PATCH_PATH}/lucjan-patches ]]; then
     echo "*** Found lucjan-patches, pulling latest... ✓";
     git -C ${PATCH_PATH}/lucjan-patches pull https://github.com/sirlucjan/kernel-patches.git;
@@ -144,6 +125,32 @@ if [[ -d ${PATCH_PATH}/xanmod-patches ]]; then
 else
     echo "*** Fetching xanmod patches... ✓";
     git clone https://github.com/xanmod/linux-patches.git ${PATCH_PATH}/xanmod-patches;
+fi
+
+UBUNTU_PATCHES=${UBUNTU_PATCHES:-"yes"}
+if [ ${UBUNTU_PATCHES} = "yes" ]; then
+    # Deprecated as of 5.4.45 but can still be applied
+    # See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
+    echo "*** Copying and applying Ubuntu patches... ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/ubuntu-${KERNEL_BASE_VER}/*.patch .;
+    patch -p1 < ./0001-base-packaging.patch;
+    patch -p1 < ./0002-UBUNTU-SAUCE-add-vmlinux.strip-to-BOOT_TARGETS1-on-p.patch;
+    patch -p1 < ./0003-UBUNTU-SAUCE-tools-hv-lsvmbus-add-manual-page.patch;
+
+    echo "*** Updating version number in changelog... ✓";
+    # Update the version in the changelog to latest version since the patches
+    # are no longer maintained and because we want to keep our kernel as Ubuntu-like
+    # as possible (with ABI and all)
+    if [ ${KERNEL_BASE_VER} = "5.4" ]; then
+        sed -i "s/5.4.45-050445/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
+    else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
+        sed -i "s/5.7.1-050701/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
+    fi
+    patch -p1 < ./0004-debian-changelog.patch;
+
+    [[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
+    patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
+    echo "*** Successfully applied Ubuntu patches... ✓";
 fi
 
 # Allow support for rt (real-time) kernels
@@ -162,8 +169,368 @@ if [ ${KERNEL_TYPE} = "rt" ]; then
     fi
 fi
 
-# Apply custom patches to the 5.4 LTS kernel. Supported until 2025.
-if [ ${KERNEL_BASE_VER} = "5.4" ]; then
+if [ ${KERNEL_BASE_VER} = "5.13" ]; then
+    echo "*** Copying and applying alsa patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/alsa-patches-v2/*.patch .;
+    patch -p1 < ./0001-alsa-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/arch-patches-v3/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying bbr2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bbr2-patches-v2/*.patch .;
+    patch -p1 < ./0001-bbr2-patches.patch;
+    echo "*** Copying and applying bfq patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v5-sep/*.patch .;
+    patch -p1 < ./0001-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
+    if ! [ ${KERNEL_TYPE} = "rt" ]; then
+        patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
+        patch -p1 < ./0003-block-bfq-boost-throughput-by-extending-queue-mergin.patch;
+    fi
+    patch -p1 < ./0004-block-bfq-check-waker-only-for-queues-with-no-in-fli.patch;
+    patch -p1 < ./0005-block-Do-not-pull-requests-from-the-scheduler-when-w.patch;
+    patch -p1 < ./0006-block-Remove-unnecessary-elevator-operation-checks.patch;
+    patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
+    patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
+    patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
+    patch -p1 < ./0010-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
+    patch -p1 < ./0011-block-bfq-honor-already-setup-queue-merges.patch;
+    echo "*** Copying and applying block patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/block-patches-v2/*.patch .;
+    patch -p1 < ./0001-block-patches.patch;
+    echo "*** Copying and applying cjktty patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cjktty-patches/*.patch .;
+    patch -p1 < ./0001-cjktty-5.13-initial-import-from-https-github.com-zhm.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/clearlinux-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
+    patch -p1 < ./0002-increase-the-ext4-default-commit-age.patch;
+    patch -p1 < ./0003-silence-rapl.patch;
+    patch -p1 < ./0004-pci-pme-wakeups.patch;
+    patch -p1 < ./0005-ksm-wakeups.patch;
+    patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
+    patch -p1 < ./0007-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
+    patch -p1 < ./0008-smpboot-reuse-timer-calibration.patch;
+    patch -p1 < ./0009-initialize-ata-before-graphics.patch;
+    patch -p1 < ./0010-give-rdrand-some-credit.patch;
+    patch -p1 < ./0011-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
+    patch -p1 < ./0012-init-wait-for-partition-and-retry-scan.patch;
+    patch -p1 < ./0013-print-fsync-count-for-bootchart.patch;
+    patch -p1 < ./0014-add-boot-option-to-allow-unsigned-modules.patch;
+    patch -p1 < ./0015-enable-stateless-firmware-loading.patch;
+    patch -p1 < ./0016-migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
+    patch -p1 < ./0017-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
+    patch -p1 < ./0018-use-lfence-instead-of-rep-and-nop.patch;
+    if [ ${KERNEL_TYPE} = "rt" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/clearlinux/0019-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch .;
+        patch -p1 < ./0019-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch;
+    else
+        patch -p1 < ./0019-do-accept-in-LIFO-order-for-cache-efficiency.patch;
+    fi
+    patch -p1 < ./0020-locking-rwsem-spin-faster.patch;
+    patch -p1 < ./0021-ata-libahci-ignore-staggered-spin-up.patch;
+    patch -p1 < ./0022-print-CPU-that-faults.patch;
+    patch -p1 < ./0023-fix-bug-in-ucode-force-reload-revision-check.patch;
+    patch -p1 < ./0024-nvme-workaround.patch;
+    patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
+    patch -p1 < ./0026-Port-microcode-patches.patch;
+    echo "*** Copying and applying cpu graysky patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cpu-patches/*.patch .;
+    patch -p1 < ./0001-cpu-patches.patch;
+    echo "*** Copying and applying fixes misc patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/5.13-fixes-miscellaneous-all-in-one.patch .;
+    patch -p1 < ./5.13-fixes-miscellaneous-all-in-one.patch;
+    echo "*** Copying and applying lrng patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lrng-patches/*.patch .;
+    patch -p1 < ./0001-lrng-patches.patch;
+    echo "*** Copying and applying lru-mm patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lru-patches-v6/*.patch .;
+    patch -p1 < ./0001-lru-patches.patch;
+    echo "*** Copying and applying ntfs3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ntfs3-patches-v2/*.patch .;
+    patch -p1 < ./0001-ntfs3-patches.patch;
+    echo "*** Copying and applying pf patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/pf-patches-v9-sep/*.patch .;
+    patch -p1 < ./0001-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
+    patch -p1 < ./0002-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
+    patch -p1 < ./0003-net-replace-WARN_ONCE-with-pr_warn_once.patch;
+    patch -p1 < ./0004-Revert-Revert-mm-shmem-fix-shmem_swapin-race-with-sw.patch;
+    patch -p1 < ./0005-Revert-Revert-swap-fix-do_swap_page-race-with-swapof.patch;
+    patch -p1 < ./0006-mm-compaction-optimize-proactive-compaction-deferral.patch;
+    patch -p1 < ./0007-mm-compaction-support-triggering-of-proactive-compac.patch;
+    echo "*** Copying and applying spadfs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/spadfs-patches/*.patch .;
+    patch -p1 < ./0001-spadfs-5.13-merge-v1.0.14.patch;
+    echo "*** Copying and applying swap patches.. ✓";
+    cp -v $LUCJAN_PATCH_PATH/$KERNEL_BASE_VER/swap-patches/*.patch .;
+    patch -p1 < ./0001-swap-patches.patch;
+    echo "*** Copying and applying v4l2loopback-patches patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
+    echo "*** Copying and applying writeback patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/writeback-patches/*.patch .;
+    patch -p1 < ./0001-writeback-patches.patch;
+    echo "*** Copying and applying xanmod patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
+    patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
+    echo "*** Copying and applying zstd patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v5/*.patch .;
+    patch -p1 < ./0001-zstd-patches.patch;
+    echo "*** Copying and applying zen patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zen-patches-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
+    patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
+    patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
+    if ! [ ${KERNEL_TYPE} = "rt" ]; then
+        echo "*** Copying and applying btrfs patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/btrfs-patches-v2/*.patch .;
+        patch -p1 < ./0001-btrfs-patches.patch;
+        echo "*** Copying and applying ksm patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ksm-patches/*.patch .;
+        patch -p1 < ./0001-ksm-patches.patch;
+    fi
+    echo "*** Copying and applying ll patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
+    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
+    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
+    if [ ${KERNEL_TYPE} = "rt" ]; then
+        sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
+    else
+        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
+    fi
+    if [ ${KERNEL_TYPE} = "rt" ]; then
+        echo "*** Copying and applying Valve fsync patches.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/5-13-futex-rt.patch .;
+        patch -p1 < ./5-13-futex-rt.patch;
+        echo "*** Copying and applying Valve fsync fix patches.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/futex-rt-fix.patch .;
+        patch -p1 < ./futex-rt-fix.patch;
+    else
+        echo "*** Copying and applying Valve fsync patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex-patches/*.patch .;
+        patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
+        echo "*** Copying and applying futex2 zen patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex2-zen-patches-v2/*.patch .;
+        patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
+    fi
+    echo "*** Copying and applying lqx patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lqx-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
+    patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
+    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
+    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    echo "*** Copying and applying disable memory compaction patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
+    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
+    echo "*** Copying and applying force irq threads patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
+    patch -p1 < ./force-irq-threads.patch;
+    echo "*** Copying and applying increase writeback threshold patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
+    patch -p1 < ./increase-default-writeback-thresholds.patch;
+    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
+    patch -p1 < ./enable-background-reclaim-hugepages.patch;
+    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
+        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
+        patch -p1 < ./cfs-zen-tweaks.patch;
+    fi
+elif [ ${KERNEL_BASE_VER} = "5.10" ]; then # LTS kernel, supported until 2026
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/arch-patches-v14/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying bbr2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bbr2-patches-v3/*.patch .;
+    patch -p1 < ./0001-bbr2-5.10-introduce-BBRv2.patch;
+    echo "*** Copying and applying bfq patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v5-sep/*.patch .;
+    patch -p1 < ./0001-block-bfq-use-half-slice_idle-as-a-threshold-to-chec.patch;
+    patch -p1 < ./0002-block-bfq-set-next_rq-to-waker_bfqq-next_rq-in-waker.patch;
+    patch -p1 < ./0003-block-bfq-increase-time-window-for-waker-detection.patch;
+    patch -p1 < ./0004-block-bfq-do-not-raise-non-default-weights.patch;
+    patch -p1 < ./0005-block-bfq-avoid-spurious-switches-to-soft_rt-of-inte.patch;
+    patch -p1 < ./0006-block-bfq-do-not-expire-a-queue-when-it-is-the-only-.patch;
+    patch -p1 < ./0007-block-bfq-replace-mechanism-for-evaluating-I-O-inten.patch;
+    patch -p1 < ./0008-block-bfq-re-evaluate-convenience-of-I-O-plugging-on.patch;
+    patch -p1 < ./0009-block-bfq-fix-switch-back-from-soft-rt-weitgh-raisin.patch;
+    patch -p1 < ./0010-block-bfq-save-also-weight-raised-service-on-queue-m.patch;
+    patch -p1 < ./0011-block-bfq-save-also-injection-state-on-queue-merging.patch;
+    patch -p1 < ./0012-block-bfq-make-waker-queue-detection-more-robust.patch;
+    patch -p1 < ./0013-bfq-bfq_check_waker-should-be-static.patch;
+    patch -p1 < ./0014-block-bfq-always-inject-I-O-of-queues-blocked-by-wak.patch;
+    patch -p1 < ./0015-block-bfq-put-reqs-of-waker-and-woken-in-dispatch-li.patch;
+    patch -p1 < ./0016-block-bfq-make-shared-queues-inherit-wakers.patch;
+    patch -p1 < ./0017-block-bfq-fix-weight-raising-resume-with-low_latency.patch;
+    patch -p1 < ./0018-block-bfq-keep-shared-queues-out-of-the-waker-mechan.patch;
+    patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
+    patch -p1 < ./0020-bfq-don-t-duplicate-code-for-different-paths.patch;
+    patch -p1 < ./0022-bfq-Use-ttime-local-variable.patch;
+    patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
+    patch -p1 < ./0024-bfq-Remove-stale-comment.patch;
+    patch -p1 < ./0025-Revert-bfq-Remove-stale-comment.patch;
+    echo "*** Copying and applying block patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/block-patches-v3/*.patch .;
+    patch -p1 < ./0001-block-patches.patch;
+    echo "*** Copying and applying btrfs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/btrfs-patches-v14-sep/*.patch .;
+    patch -p1 < ./0001-btrfs-add-a-force_chunk_alloc-to-space_info-s-sysfs.patch;
+    patch -p1 < ./0002-btrfs-restart-snapshot-delete-if-we-have-to-end-the-.patch;
+    patch -p1 < ./0003-btrfs-do-not-evaluate-the-expression-with-CONFIG_BTR.patch;
+    patch -p1 < ./0004-btrfs-remove-unnecessary-attempt-do-drop-extent-maps.patch;
+    patch -p1 < ./0005-btrfs-stop-incrementing-log-batch-when-joining-log-t.patch;
+    patch -p1 < ./0006-btrfs-fix-race-causing-unnecessary-inode-logging-dur.patch;
+    patch -p1 < ./0007-btrfs-fix-race-that-results-in-logging-old-extents-d.patch;
+    patch -p1 < ./0008-btrfs-fix-race-that-causes-unnecessary-logging-of-an.patch;
+    patch -p1 < ./0009-btrfs-fix-race-that-makes-inode-logging-fallback-to-.patch;
+    patch -p1 < ./0010-btrfs-fix-race-leading-to-unnecessary-transaction-co.patch;
+    patch -p1 < ./0011-btrfs-do-not-block-inode-logging-for-so-long-during-.patch;
+    patch -p1 < ./0012-btrfs-return-bool-from-should_end_transaction.patch;
+    patch -p1 < ./0013-btrfs-return-bool-from-btrfs_should_end_transaction.patch;
+    patch -p1 < ./0014-btrfs-do-not-block-on-deleted-bgs-mutex-in-the-clean.patch;
+    patch -p1 < ./0015-btrfs-only-let-one-thread-pre-flush-delayed-refs-in-.patch;
+    patch -p1 < ./0016-btrfs-delayed-refs-pre-flushing-should-only-run-the-.patch;
+    patch -p1 < ./0017-btrfs-only-run-delayed-refs-once-before-committing.patch;
+    patch -p1 < ./0018-btrfs-move-delayed-ref-flushing-for-qgroup-into-qgro.patch;
+    patch -p1 < ./0019-btrfs-remove-bogus-BUG_ON-in-alloc_reserved_tree_blo.patch;
+    patch -p1 < ./0020-btrfs-stop-running-all-delayed-refs-during-snapshot.patch;
+    patch -p1 < ./0021-btrfs-run-delayed-refs-less-often-in-commit_cowonly_.patch;
+    patch -p1 < ./0022-btrfs-make-flush_space-take-a-enum-btrfs_flush_state.patch;
+    patch -p1 < ./0023-btrfs-add-a-trace-point-for-reserve-tickets.patch;
+    patch -p1 < ./0024-btrfs-track-ordered-bytes-instead-of-just-dio-ordere.patch;
+    patch -p1 < ./0025-btrfs-introduce-a-FORCE_COMMIT_TRANS-flush-operation.patch;
+    patch -p1 < ./0026-btrfs-improve-preemptive-background-space-flushing.patch;
+    patch -p1 < ./0027-btrfs-rename-need_do_async_reclaim.patch;
+    patch -p1 < ./0028-btrfs-check-reclaim_size-in-need_preemptive_reclaim.patch;
+    patch -p1 < ./0029-btrfs-rework-btrfs_calc_reclaim_metadata_size.patch;
+    patch -p1 < ./0030-btrfs-simplify-the-logic-in-need_preemptive_flushing.patch;
+    patch -p1 < ./0031-btrfs-implement-space-clamping-for-preemptive-flushi.patch;
+    patch -p1 < ./0032-btrfs-adjust-the-flush-trace-point-to-include-the-so.patch;
+    patch -p1 < ./0033-btrfs-add-a-trace-class-for-dumping-the-current-ENOS.patch;
+    patch -p1 < ./0036-btrfs-remove-unnecessary-directory-inode-item-update.patch;
+    patch -p1 < ./0037-btrfs-stop-setting-nbytes-when-filling-inode-item-fo.patch;
+    patch -p1 < ./0038-btrfs-avoid-logging-new-ancestor-inodes-when-logging.patch;
+    patch -p1 < ./0039-btrfs-skip-logging-directories-already-logged-when-l.patch;
+    patch -p1 < ./0040-btrfs-skip-logging-inodes-already-logged-when-loggin.patch;
+    patch -p1 < ./0041-btrfs-remove-unnecessary-check_parent_dirs_for_sync.patch;
+    patch -p1 < ./0042-btrfs-make-concurrent-fsyncs-wait-less-when-waiting-.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/clearlinux-patches-sep/*.patch .;
+    patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
+    patch -p1 < ./0002-Increase-the-ext4-default-commit-age.patch;
+    patch -p1 < ./0003-silence-rapl.patch;
+    patch -p1 < ./0004-pci-pme-wakeups.patch;
+    patch -p1 < ./0005-ksm-wakeups.patch;
+    patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
+    patch -p1 < ./0007-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
+    patch -p1 < ./0008-smpboot-reuse-timer-calibration.patch;
+    patch -p1 < ./0009-Initialize-ata-before-graphics.patch;
+    patch -p1 < ./0010-give-rdrand-some-credit.patch;
+    patch -p1 < ./0011-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
+    patch -p1 < ./0012-kernel-time-reduce-ntp-wakeups.patch;
+    patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
+    patch -p1 < ./0014-print-fsync-count-for-bootchart.patch;
+    patch -p1 < ./0015-Add-boot-option-to-allow-unsigned-modules.patch;
+    patch -p1 < ./0016-Enable-stateless-firmware-loading.patch;
+    patch -p1 < ./0017-Migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
+    patch -p1 < ./0018-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
+    patch -p1 < ./0019-use-lfence-instead-of-rep-and-nop.patch;
+    patch -p1 < ./0021-locking-rwsem-spin-faster.patch;
+    patch -p1 < ./0022-ata-libahci-ignore-staggered-spin-up.patch;
+    patch -p1 < ./0023-print-CPU-that-faults.patch;
+    patch -p1 < ./0025-nvme-workaround.patch;
+    patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
+    patch -p1 < ./0028-clearlinux-Add-pageflip-patches.patch;
+    echo "*** Copying and applying cpu graysky patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cpu-patches-v2/*.patch .;
+    patch -p1 < ./0001-cpu-patches.patch;
+    echo "*** Copying and applying fixes misc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/fixes-miscellaneous-v11-sep/*.patch .;
+    patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
+    patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
+    patch -p1 < ./0003-kbuild-add-fcf-protection-none-to-retpoline-flags.patch;
+    patch -p1 < ./0004-mm-Disable-watermark-boosting-by-default.patch;
+    patch -p1 < ./0005-mm-Stop-kswapd-early-when-nothing-s-waiting-for-it-t.patch;
+    patch -p1 < ./0006-mm-Fully-disable-watermark-boosting-when-it-isn-t-us.patch;
+    patch -p1 < ./0007-mm-Don-t-stop-kswapd-on-a-per-node-basis-when-there-.patch;
+    patch -p1 < ./0008-kbuild-Disable-stack-conservation-for-GCC.patch;
+    patch -p1 < ./0009-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
+    patch -p1 < ./0010-ZEN-Add-OpenRGB-patches.patch;
+    patch -p1 < ./0012-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
+    patch -p1 < ./0014-fs-Break-generic_file_buffered_read-up-into-multiple.patch;
+    patch -p1 < ./0015-fs-generic_file_buffered_read-now-uses-find_get_page.patch;
+    patch -p1 < ./0016-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
+    patch -p1 < ./0017-mm-Add-become_kswapd-and-restore_kswapd.patch;
+    patch -p1 < ./0018-xfs-fix-an-ABBA-deadlock-in-xfs_rename.patch;
+    patch -p1 < ./0019-xfs-use-memalloc_nofs_-save-restore-in-xfs-transacti.patch;
+    patch -p1 < ./0020-xfs-refactor-the-usage-around-xfs_trans_context_-set.patch;
+    patch -p1 < ./0021-xfs-use-current-journal_info-to-avoid-transaction-re.patch;
+    patch -p1 < ./0022-xfs-set-inode-size-after-creating-symlink.patch;
+    patch -p1 < ./0023-xfs-restore-shutdown-check-in-mapped-write-fault-pat.patch;
+    echo "*** Copying and applying futex misc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex-patches/*.patch .;
+    patch -p1 < ./0001-futex-patches.patch;
+    echo "*** Copying and applying lqx patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lqx-patches-v4/*.patch .;
+    patch -p1 < ./0001-lqx-patches.patch;
+    echo "*** Copying and applying mm patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/mm-patches-v4/*.patch .;
+    patch -p1 < ./0001-mm-patches.patch;
+    echo "*** Copying and applying ntfs3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ntfs3-patches-v7/*.patch .;
+    patch -p1 < ./0001-ntfs3-patches.patch;
+    echo "*** Copying and applying pf patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/pf-patches-v9-sep/*.patch .;
+    patch -p1 < ./0001-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
+    patch -p1 < ./0002-genirq-i2c-export-generic_dispatch_irq.patch;
+    echo "*** Copying and applying rapl patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/rapl-patches/*.patch .;
+    patch -p1 < ./0001-rapl-patches.patch;
+    echo "*** Copying and applying v4l2loopback patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
+    echo "*** Copying and applying xanmod patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches/*.patch .;
+    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
+    echo "*** Copying and applying zstd patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v3/*.patch .;
+    patch -p1 < ./0001-init-add-support-for-zstd-compressed-modules.patch;
+    echo "*** Copying and applying zstd upstream patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-upstream-patches/*.patch .;
+    patch -p1 < ./0001-zstd-upstream-patches.patch;
+    echo "*** Copying and applying ll patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
+    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
+    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
+    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
+    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
+    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    echo "*** Copying and applying disable memory compaction patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
+    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
+    echo "*** Copying and applying force irq threads patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
+    patch -p1 < ./force-irq-threads.patch;
+    echo "*** Copying and applying increase writeback threshold patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
+    patch -p1 < ./increase-default-writeback-thresholds.patch;
+    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
+    patch -p1 < ./enable-background-reclaim-hugepages.patch;
+    if [ ${KERNEL_TYPE} = "rt" ]; then
+        sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
+    else
+        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
+    fi
+    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
+        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
+        patch -p1 < ./cfs-zen-tweaks.patch;
+    fi
+elif [ ${KERNEL_BASE_VER} = "5.4" ]; then
     echo "*** Copying and applying freesync patches from 5.10.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/amdgpu/freesync-refresh/*.patch .;
     patch -p1 < ./01_freesync_refresh.patch;
@@ -423,387 +790,29 @@ if [ ${KERNEL_BASE_VER} = "5.4" ]; then
     fi
     patch -p1 < ./0006-dcache-cache_pressure-50-decreases-the-rate-at-which.patch;
     patch -p1 < ./0009-cpufreq-tunes-ondemand-and-conservative-governor-for.patch;
-    patch -p1 < ./0010-scripts-disable-the-localversion-tag-of-a-git-repo.patch;
-elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
-    echo "*** Copying and applying alsa patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/alsa-patches-v2/*.patch .;
-    patch -p1 < ./0001-alsa-patches.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bbr2-patches-v2/*.patch .;
-    patch -p1 < ./0001-bbr2-patches.patch;
-    echo "*** Copying and applying bfq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v4-sep/*.patch .;
-    patch -p1 < ./0001-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
-    if ! [ ${KERNEL_TYPE} = "rt" ]; then
-        patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
-        patch -p1 < ./0003-block-bfq-boost-throughput-by-extending-queue-mergin.patch;
-    fi
-    patch -p1 < ./0004-block-bfq-check-waker-only-for-queues-with-no-in-fli.patch;
-    patch -p1 < ./0005-block-Do-not-pull-requests-from-the-scheduler-when-w.patch;
-    patch -p1 < ./0006-block-Remove-unnecessary-elevator-operation-checks.patch;
-    patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
-    patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
-    patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
-    patch -p1 < ./0010-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
-    echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/block-patches-v2/*.patch .;
-    patch -p1 < ./0001-block-patches.patch;
-    if ! [ ${KERNEL_TYPE} = "rt" ]; then
-        echo "*** Copying and applying btrfs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/btrfs-patches-v2/*.patch .;
-        patch -p1 < ./0001-btrfs-patches.patch;
-    fi
-    echo "*** Copying and applying cjktty patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cjktty-patches/*.patch .;
-    patch -p1 < ./0001-cjktty-5.13-initial-import-from-https-github.com-zhm.patch;
-    echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/clearlinux-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
-    patch -p1 < ./0002-increase-the-ext4-default-commit-age.patch;
-    patch -p1 < ./0003-silence-rapl.patch;
-    patch -p1 < ./0004-pci-pme-wakeups.patch;
-    patch -p1 < ./0005-ksm-wakeups.patch;
-    patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
-    patch -p1 < ./0007-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
-    patch -p1 < ./0008-smpboot-reuse-timer-calibration.patch;
-    patch -p1 < ./0009-initialize-ata-before-graphics.patch;
-    patch -p1 < ./0010-give-rdrand-some-credit.patch;
-    patch -p1 < ./0011-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
-    patch -p1 < ./0012-init-wait-for-partition-and-retry-scan.patch;
-    patch -p1 < ./0013-print-fsync-count-for-bootchart.patch;
-    patch -p1 < ./0014-add-boot-option-to-allow-unsigned-modules.patch;
-    patch -p1 < ./0015-enable-stateless-firmware-loading.patch;
-    patch -p1 < ./0016-migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
-    patch -p1 < ./0017-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
-    patch -p1 < ./0018-use-lfence-instead-of-rep-and-nop.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/clearlinux/0019-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch .;
-        patch -p1 < ./0019-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch;
-    else
-        patch -p1 < ./0019-do-accept-in-LIFO-order-for-cache-efficiency.patch;
-    fi
-    patch -p1 < ./0020-locking-rwsem-spin-faster.patch;
-    patch -p1 < ./0021-ata-libahci-ignore-staggered-spin-up.patch;
-    patch -p1 < ./0022-print-CPU-that-faults.patch;
-    patch -p1 < ./0023-fix-bug-in-ucode-force-reload-revision-check.patch;
-    patch -p1 < ./0024-nvme-workaround.patch;
-    patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
-    patch -p1 < ./0026-Port-microcode-patches.patch;
-    echo "*** Copying and applying cpu graysky patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cpu-patches/*.patch .;
-    patch -p1 < ./0001-cpu-patches.patch;
-    echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/5.13-fixes-miscellaneous-all-in-one.patch .;
-    patch -p1 < ./5.13-fixes-miscellaneous-all-in-one.patch;
-    if ! [ ${KERNEL_TYPE} = "rt" ]; then
-        echo "*** Copying and applying ksm patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ksm-patches/*.patch .;
-        patch -p1 < ./0001-ksm-patches.patch;
-    fi
-    echo "*** Copying and applying lrng patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lrng-patches/*.patch .;
-    patch -p1 < ./0001-lrng-patches.patch;
-    echo "*** Copying and applying lru-mm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lru-patches-v5/*.patch .;
-    patch -p1 < ./0001-lru-patches.patch;
-    echo "*** Copying and applying ntfs3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ntfs3-patches-v2/*.patch .;
-    patch -p1 < ./0001-ntfs3-patches.patch;
-    echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/pf-patches-v9-sep/*.patch .;
-    patch -p1 < ./0001-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
-    patch -p1 < ./0002-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
-    patch -p1 < ./0003-net-replace-WARN_ONCE-with-pr_warn_once.patch;
-    patch -p1 < ./0004-Revert-Revert-mm-shmem-fix-shmem_swapin-race-with-sw.patch;
-    patch -p1 < ./0005-Revert-Revert-swap-fix-do_swap_page-race-with-swapof.patch;
-    patch -p1 < ./0006-mm-compaction-optimize-proactive-compaction-deferral.patch;
-    patch -p1 < ./0007-mm-compaction-support-triggering-of-proactive-compac.patch;
-    echo "*** Copying and applying spadfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/spadfs-patches/*.patch .;
-    patch -p1 < ./0001-spadfs-5.13-merge-v1.0.14.patch;
-    echo "*** Copying and applying swap patches.. ✓";
-    cp -v $LUCJAN_PATCH_PATH/$KERNEL_BASE_VER/swap-patches/*.patch .;
-    patch -p1 < ./0001-swap-patches.patch;
-    echo "*** Copying and applying v4l2loopback-patches patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-patches.patch;
-    echo "*** Copying and applying writeback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/writeback-patches/*.patch .;
-    patch -p1 < ./0001-writeback-patches.patch;
-    echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches/*.patch .;
-    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v5/*.patch .;
-    patch -p1 < ./0001-zstd-patches.patch;
-    echo "*** Copying and applying zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zen-patches-sep/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
-    patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
-    patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
-    echo "*** Copying and applying ll patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
-    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
-    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
-        sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-    else
-        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-    fi
-    if [ ${KERNEL_TYPE} = "rt" ]; then
-        echo "*** Copying and applying Valve fsync patches.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/5-13-futex-rt.patch .;
-        patch -p1 < ./5-13-futex-rt.patch;
-        echo "*** Copying and applying Valve fsync fix patches.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/futex-rt-fix.patch .;
-        patch -p1 < ./futex-rt-fix.patch;
-    else
-        echo "*** Copying and applying Valve fsync patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex-patches/*.patch .;
-        patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
-        echo "*** Copying and applying futex2 zen patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex2-zen-patches-v2/*.patch .;
-        patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
-    fi
-    echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lqx-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
-    patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
-        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-        patch -p1 < ./cfs-zen-tweaks.patch;
-    fi
-    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
-    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
-    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
-    echo "*** Copying and applying disable memory compaction patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
-    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
-    echo "*** Copying and applying force irq threads patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
-    patch -p1 < ./force-irq-threads.patch;
-    echo "*** Copying and applying increase writeback threshold patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
-    patch -p1 < ./increase-default-writeback-thresholds.patch;
-    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
-    patch -p1 < ./enable-background-reclaim-hugepages.patch;
-elif [ ${KERNEL_BASE_VER} = "5.10" ]; then
-    echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/arch-patches-v14/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bbr2-patches-v3/*.patch .;
-    patch -p1 < ./0001-bbr2-5.10-introduce-BBRv2.patch;
-    echo "*** Copying and applying bfq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v5-sep/*.patch .;
-    patch -p1 < ./0001-block-bfq-use-half-slice_idle-as-a-threshold-to-chec.patch;
-    patch -p1 < ./0002-block-bfq-set-next_rq-to-waker_bfqq-next_rq-in-waker.patch;
-    patch -p1 < ./0003-block-bfq-increase-time-window-for-waker-detection.patch;
-    patch -p1 < ./0004-block-bfq-do-not-raise-non-default-weights.patch;
-    patch -p1 < ./0005-block-bfq-avoid-spurious-switches-to-soft_rt-of-inte.patch;
-    patch -p1 < ./0006-block-bfq-do-not-expire-a-queue-when-it-is-the-only-.patch;
-    patch -p1 < ./0007-block-bfq-replace-mechanism-for-evaluating-I-O-inten.patch;
-    patch -p1 < ./0008-block-bfq-re-evaluate-convenience-of-I-O-plugging-on.patch;
-    patch -p1 < ./0009-block-bfq-fix-switch-back-from-soft-rt-weitgh-raisin.patch;
-    patch -p1 < ./0010-block-bfq-save-also-weight-raised-service-on-queue-m.patch;
-    patch -p1 < ./0011-block-bfq-save-also-injection-state-on-queue-merging.patch;
-    patch -p1 < ./0012-block-bfq-make-waker-queue-detection-more-robust.patch;
-    patch -p1 < ./0013-bfq-bfq_check_waker-should-be-static.patch;
-    patch -p1 < ./0014-block-bfq-always-inject-I-O-of-queues-blocked-by-wak.patch;
-    patch -p1 < ./0015-block-bfq-put-reqs-of-waker-and-woken-in-dispatch-li.patch;
-    patch -p1 < ./0016-block-bfq-make-shared-queues-inherit-wakers.patch;
-    patch -p1 < ./0017-block-bfq-fix-weight-raising-resume-with-low_latency.patch;
-    patch -p1 < ./0018-block-bfq-keep-shared-queues-out-of-the-waker-mechan.patch;
-    patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
-    patch -p1 < ./0020-bfq-don-t-duplicate-code-for-different-paths.patch;
-    patch -p1 < ./0022-bfq-Use-ttime-local-variable.patch;
-    patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
-    patch -p1 < ./0024-bfq-Remove-stale-comment.patch;
-    patch -p1 < ./0025-Revert-bfq-Remove-stale-comment.patch;
-    echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/block-patches-v3/*.patch .;
-    patch -p1 < ./0001-block-patches.patch;
-    echo "*** Copying and applying btrfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/btrfs-patches-v14-sep/*.patch .;
-    patch -p1 < ./0001-btrfs-add-a-force_chunk_alloc-to-space_info-s-sysfs.patch;
-    patch -p1 < ./0002-btrfs-restart-snapshot-delete-if-we-have-to-end-the-.patch;
-    patch -p1 < ./0003-btrfs-do-not-evaluate-the-expression-with-CONFIG_BTR.patch;
-    patch -p1 < ./0004-btrfs-remove-unnecessary-attempt-do-drop-extent-maps.patch;
-    patch -p1 < ./0005-btrfs-stop-incrementing-log-batch-when-joining-log-t.patch;
-    patch -p1 < ./0006-btrfs-fix-race-causing-unnecessary-inode-logging-dur.patch;
-    patch -p1 < ./0007-btrfs-fix-race-that-results-in-logging-old-extents-d.patch;
-    patch -p1 < ./0008-btrfs-fix-race-that-causes-unnecessary-logging-of-an.patch;
-    patch -p1 < ./0009-btrfs-fix-race-that-makes-inode-logging-fallback-to-.patch;
-    patch -p1 < ./0010-btrfs-fix-race-leading-to-unnecessary-transaction-co.patch;
-    patch -p1 < ./0011-btrfs-do-not-block-inode-logging-for-so-long-during-.patch;
-    patch -p1 < ./0012-btrfs-return-bool-from-should_end_transaction.patch;
-    patch -p1 < ./0013-btrfs-return-bool-from-btrfs_should_end_transaction.patch;
-    patch -p1 < ./0014-btrfs-do-not-block-on-deleted-bgs-mutex-in-the-clean.patch;
-    patch -p1 < ./0015-btrfs-only-let-one-thread-pre-flush-delayed-refs-in-.patch;
-    patch -p1 < ./0016-btrfs-delayed-refs-pre-flushing-should-only-run-the-.patch;
-    patch -p1 < ./0017-btrfs-only-run-delayed-refs-once-before-committing.patch;
-    patch -p1 < ./0018-btrfs-move-delayed-ref-flushing-for-qgroup-into-qgro.patch;
-    patch -p1 < ./0019-btrfs-remove-bogus-BUG_ON-in-alloc_reserved_tree_blo.patch;
-    patch -p1 < ./0020-btrfs-stop-running-all-delayed-refs-during-snapshot.patch;
-    patch -p1 < ./0021-btrfs-run-delayed-refs-less-often-in-commit_cowonly_.patch;
-    patch -p1 < ./0022-btrfs-make-flush_space-take-a-enum-btrfs_flush_state.patch;
-    patch -p1 < ./0023-btrfs-add-a-trace-point-for-reserve-tickets.patch;
-    patch -p1 < ./0024-btrfs-track-ordered-bytes-instead-of-just-dio-ordere.patch;
-    patch -p1 < ./0025-btrfs-introduce-a-FORCE_COMMIT_TRANS-flush-operation.patch;
-    patch -p1 < ./0026-btrfs-improve-preemptive-background-space-flushing.patch;
-    patch -p1 < ./0027-btrfs-rename-need_do_async_reclaim.patch;
-    patch -p1 < ./0028-btrfs-check-reclaim_size-in-need_preemptive_reclaim.patch;
-    patch -p1 < ./0029-btrfs-rework-btrfs_calc_reclaim_metadata_size.patch;
-    patch -p1 < ./0030-btrfs-simplify-the-logic-in-need_preemptive_flushing.patch;
-    patch -p1 < ./0031-btrfs-implement-space-clamping-for-preemptive-flushi.patch;
-    patch -p1 < ./0032-btrfs-adjust-the-flush-trace-point-to-include-the-so.patch;
-    patch -p1 < ./0033-btrfs-add-a-trace-class-for-dumping-the-current-ENOS.patch;
-    patch -p1 < ./0036-btrfs-remove-unnecessary-directory-inode-item-update.patch;
-    patch -p1 < ./0037-btrfs-stop-setting-nbytes-when-filling-inode-item-fo.patch;
-    patch -p1 < ./0038-btrfs-avoid-logging-new-ancestor-inodes-when-logging.patch;
-    patch -p1 < ./0039-btrfs-skip-logging-directories-already-logged-when-l.patch;
-    patch -p1 < ./0040-btrfs-skip-logging-inodes-already-logged-when-loggin.patch;
-    patch -p1 < ./0041-btrfs-remove-unnecessary-check_parent_dirs_for_sync.patch;
-    patch -p1 < ./0042-btrfs-make-concurrent-fsyncs-wait-less-when-waiting-.patch;
-    echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/clearlinux-patches-sep/*.patch .;
-    patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
-    patch -p1 < ./0002-Increase-the-ext4-default-commit-age.patch;
-    patch -p1 < ./0003-silence-rapl.patch;
-    patch -p1 < ./0004-pci-pme-wakeups.patch;
-    patch -p1 < ./0005-ksm-wakeups.patch;
-    patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
-    patch -p1 < ./0007-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
-    patch -p1 < ./0008-smpboot-reuse-timer-calibration.patch;
-    patch -p1 < ./0009-Initialize-ata-before-graphics.patch;
-    patch -p1 < ./0010-give-rdrand-some-credit.patch;
-    patch -p1 < ./0011-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
-    patch -p1 < ./0012-kernel-time-reduce-ntp-wakeups.patch;
-    patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
-    patch -p1 < ./0014-print-fsync-count-for-bootchart.patch;
-    patch -p1 < ./0015-Add-boot-option-to-allow-unsigned-modules.patch;
-    patch -p1 < ./0016-Enable-stateless-firmware-loading.patch;
-    patch -p1 < ./0017-Migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
-    patch -p1 < ./0018-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
-    patch -p1 < ./0019-use-lfence-instead-of-rep-and-nop.patch;
-    patch -p1 < ./0021-locking-rwsem-spin-faster.patch;
-    patch -p1 < ./0022-ata-libahci-ignore-staggered-spin-up.patch;
-    patch -p1 < ./0023-print-CPU-that-faults.patch;
-    patch -p1 < ./0025-nvme-workaround.patch;
-    patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
-    patch -p1 < ./0028-clearlinux-Add-pageflip-patches.patch;
-    echo "*** Copying and applying cpu graysky patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/cpu-patches-v2/*.patch .;
-    patch -p1 < ./0001-cpu-patches.patch;
-    echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/fixes-miscellaneous-v11-sep/*.patch .;
-    patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
-    patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
-    patch -p1 < ./0003-kbuild-add-fcf-protection-none-to-retpoline-flags.patch;
-    patch -p1 < ./0004-mm-Disable-watermark-boosting-by-default.patch;
-    patch -p1 < ./0005-mm-Stop-kswapd-early-when-nothing-s-waiting-for-it-t.patch;
-    patch -p1 < ./0006-mm-Fully-disable-watermark-boosting-when-it-isn-t-us.patch;
-    patch -p1 < ./0007-mm-Don-t-stop-kswapd-on-a-per-node-basis-when-there-.patch;
-    patch -p1 < ./0008-kbuild-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0009-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
-    patch -p1 < ./0010-ZEN-Add-OpenRGB-patches.patch;
-    patch -p1 < ./0012-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
-    patch -p1 < ./0014-fs-Break-generic_file_buffered_read-up-into-multiple.patch;
-    patch -p1 < ./0015-fs-generic_file_buffered_read-now-uses-find_get_page.patch;
-    patch -p1 < ./0016-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
-    patch -p1 < ./0017-mm-Add-become_kswapd-and-restore_kswapd.patch;
-    patch -p1 < ./0018-xfs-fix-an-ABBA-deadlock-in-xfs_rename.patch;
-    patch -p1 < ./0019-xfs-use-memalloc_nofs_-save-restore-in-xfs-transacti.patch;
-    patch -p1 < ./0020-xfs-refactor-the-usage-around-xfs_trans_context_-set.patch;
-    patch -p1 < ./0021-xfs-use-current-journal_info-to-avoid-transaction-re.patch;
-    patch -p1 < ./0022-xfs-set-inode-size-after-creating-symlink.patch;
-    patch -p1 < ./0023-xfs-restore-shutdown-check-in-mapped-write-fault-pat.patch;
-    echo "*** Copying and applying futex misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/futex-patches/*.patch .;
-    patch -p1 < ./0001-futex-patches.patch;
-    echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lqx-patches-v4/*.patch .;
-    patch -p1 < ./0001-lqx-patches.patch;
-    echo "*** Copying and applying mm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/mm-patches-v4/*.patch .;
-    patch -p1 < ./0001-mm-patches.patch;
-    echo "*** Copying and applying ntfs3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ntfs3-patches-v7/*.patch .;
-    patch -p1 < ./0001-ntfs3-patches.patch;
-    echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/pf-patches-v9-sep/*.patch .;
-    patch -p1 < ./0001-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
-    patch -p1 < ./0002-genirq-i2c-export-generic_dispatch_irq.patch;
-    echo "*** Copying and applying rapl patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/rapl-patches/*.patch .;
-    patch -p1 < ./0001-rapl-patches.patch;
-    echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/v4l2loopback-patches-v2/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-patches.patch;
-    echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches/*.patch .;
-    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v3/*.patch .;
-    patch -p1 < ./0001-init-add-support-for-zstd-compressed-modules.patch;
-    echo "*** Copying and applying zstd upstream patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-upstream-patches/*.patch .;
-    patch -p1 < ./0001-zstd-upstream-patches.patch;
-    echo "*** Copying and applying ll patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
-    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
-    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
-        sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-    else
-        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-    fi
-    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
-        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-        patch -p1 < ./cfs-zen-tweaks.patch;
-    fi
-    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
-    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
-    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
-    echo "*** Copying and applying disable memory compaction patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
-    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
-    echo "*** Copying and applying force irq threads patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
-    patch -p1 < ./force-irq-threads.patch;
-    echo "*** Copying and applying increase writeback threshold patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
-    patch -p1 < ./increase-default-writeback-thresholds.patch;
-    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
-    patch -p1 < ./enable-background-reclaim-hugepages.patch;
+    patch -p1 < ./0010-scripts-disable-the-localversion-tag-of-a-git-repo.patch; # LTS kernel, supported until 2025
 fi
 
 # CacULE scheduler enabled by default (except for -rt)
 # To disable, pass KERNEL_SCHEDULER=cfs
 if [ ${KERNEL_SCHEDULER} = "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
-    echo "*** Copying and applying CacULE patch.. ✓";
-    if [ "${KERNEL_BASE_VER}" = "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.4/cacule-5.4*.patch .;
-        patch -p1 < ./cacule-5.4.patch;
-        for i in {1..16}; do
-            patch -p1 < ./cacule-5.4-merge-fixes-part${i}.patch;
-        done
-    elif [ "${KERNEL_BASE_VER}" = "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.10/cacule-5.10*.patch .;
-        patch -p1 < ./cacule-5.10-96e950e.patch;
-    elif [ "${KERNEL_BASE_VER}" = "5.13" ]; then
+    if [ "${KERNEL_BASE_VER}" = "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.13/cacule-5.13*.patch .;
         patch -p1 < ./cacule-5.13-e72a5d0.patch;
         # Comment out CacULE RDB support for now
         # cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.13/rdb-5.13*.patch .;
         # patch -p1 < ./rdb-5.13-e72a5d0.patch;
+    elif [ "${KERNEL_BASE_VER}" = "5.10" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.10/cacule-5.10*.patch .;
+        patch -p1 < ./cacule-5.10-96e950e.patch;
+    elif [ "${KERNEL_BASE_VER}" = "5.4" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.4/cacule-5.4*.patch .;
+        patch -p1 < ./cacule-5.4.patch;
+        for i in {1..16}; do
+            patch -p1 < ./cacule-5.4-merge-fixes-part${i}.patch;
+        done
     fi
+    echo "*** Copying and applying CacULE patch.. ✓";
 fi
 
 # Examples:
@@ -924,16 +933,14 @@ case $yno in
         ;;
 esac
 
-echo "*** Finished compiling kernel, installing... ✓";
-sudo dpkg -i ../*.deb;
-
-echo "*** Moving the kernel into the compiled kernels directory... ✓";
+echo "*** Finished compiling the kernel, installing... ✓";
 COMPILED_KERNEL_VER=${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}
 TIME_BUILT=$(date +%s)
+sudo dpkg -i ../*.deb;
 mkdir -pv ${COMPILED_KERNELS_DIR};
-mkdir -pv ${COMPILED_KERNEL_VER}-${TIME_BUILT};
-mv -v *.deb ${COMPILED_KERNEL_VER}-${TIME_BUILT};
-mv -v ${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
+mkdir -pv ../${COMPILED_KERNEL_VER}-${TIME_BUILT};
+mv -v ../*.deb ../${COMPILED_KERNEL_VER}-${TIME_BUILT};
+mv -v ../${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 
 # The latest VirtualBox (6.1.25-r145887) requires this missing module.lds to work
 # To use: Pass VBOX_SUPPORT=yes to the build script
