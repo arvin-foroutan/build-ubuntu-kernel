@@ -239,6 +239,9 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     echo "*** Copying and applying fixes misc patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/5.13-fixes-miscellaneous-all-in-one.patch .;
     patch -p1 < ./5.13-fixes-miscellaneous-all-in-one.patch;
+    echo "*** Copying and applying ksmbd patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/ksmbd-patches/*.patch .;
+    patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lrng patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/lrng-patches/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
