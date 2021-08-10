@@ -180,7 +180,7 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-bbr2-patches.patch;
     echo "*** Copying and applying bfq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v5-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/bfq-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
     if ! [ ${KERNEL_TYPE} = "rt" ]; then
         patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
@@ -194,6 +194,8 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0010-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     patch -p1 < ./0011-block-bfq-honor-already-setup-queue-merges.patch;
+    patch -p1 < ./0012-Revert-block-return-ELEVATOR_DISCARD_MERGE-if-possib.patch;
+    patch -p1 < ./0013-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/block-patches-v2/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
