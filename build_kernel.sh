@@ -275,9 +275,10 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/writeback-patches/*.patch .;
     patch -p1 < ./0001-writeback-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/xanmod-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
+    patch -p1 < ./0003-netfilter-New-full-cone-SNAT-upstream.patch;
     echo "*** Copying and applying zstd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/$KERNEL_BASE_VER/zstd-patches-v5/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
