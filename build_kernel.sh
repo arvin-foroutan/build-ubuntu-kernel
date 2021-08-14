@@ -128,7 +128,7 @@ else
 fi
 
 UBUNTU_PATCHES=${UBUNTU_PATCHES:-"yes"}
-if [ ${UBUNTU_PATCHES} = "yes" ]; then
+if [ ${UBUNTU_PATCHES} == "yes" ]; then
     # Deprecated as of 5.4.45 but can still be applied
     # See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
     echo "*** Copying and applying Ubuntu patches... ✓";
@@ -141,7 +141,7 @@ if [ ${UBUNTU_PATCHES} = "yes" ]; then
     # Update the version in the changelog to latest version since the patches
     # are no longer maintained and because we want to keep our kernel as Ubuntu-like
     # as possible (with ABI and all)
-    if [ ${KERNEL_BASE_VER} = "5.4" ]; then
+    if [ ${KERNEL_BASE_VER} == "5.4" ]; then
         sed -i "s/5.4.45-050445/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
     else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
         sed -i "s/5.7.1-050701/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
@@ -155,21 +155,21 @@ fi
 
 # Allow support for rt (real-time) kernels
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
-if [ ${KERNEL_TYPE} = "rt" ]; then
+if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} = "5.4" ]; then
+    if [ ${KERNEL_BASE_VER} == "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.129-rt61.patch .;
         patch -p1 < ./patch-5.4.129-rt61.patch;
-    elif [ ${KERNEL_BASE_VER} = "5.13" ]; then
+    elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
-    elif [ ${KERNEL_BASE_VER} = "5.14" ]; then
+    elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rc3-rt2.patch .;
         patch -p1 < ./patch-5.14-rc3-rt2.patch;
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} = "5.13" ]; then
+if [ ${KERNEL_BASE_VER} == "5.13" ]; then
     echo "*** Copying and applying alsa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/alsa-patches-v2/*.patch .;
     patch -p1 < ./0001-alsa-patches.patch;
@@ -184,7 +184,7 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     echo "*** Copying and applying bfq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
-    if ! [ ${KERNEL_TYPE} = "rt" ]; then
+    if ! [ ${KERNEL_TYPE} == "rt" ]; then
         patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
         patch -p1 < ./0003-block-bfq-boost-throughput-by-extending-queue-mergin.patch;
     fi
@@ -224,7 +224,7 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     patch -p1 < ./0016-migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
     patch -p1 < ./0017-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
     patch -p1 < ./0018-use-lfence-instead-of-rep-and-nop.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/clearlinux/0019-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch .;
         patch -p1 < ./0019-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch;
     else
@@ -289,7 +289,7 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
-    if ! [ ${KERNEL_TYPE} = "rt" ]; then
+    if ! [ ${KERNEL_TYPE} == "rt" ]; then
         echo "*** Copying and applying btrfs patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
         patch -p1 < ./0001-btrfs-patches.patch;
@@ -301,12 +301,12 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
         sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     else
         patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
     fi
-    if [ ${KERNEL_TYPE} = "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
         echo "*** Copying and applying Valve fsync patches.. ✓";
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/5-13-futex-rt.patch .;
         patch -p1 < ./5-13-futex-rt.patch;
@@ -346,7 +346,7 @@ if [ ${KERNEL_BASE_VER} = "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
         patch -p1 < ./cfs-zen-tweaks.patch;
     fi
-elif [ ${KERNEL_BASE_VER} = "5.10" ]; then # LTS kernel, supported until 2026
+elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v14/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
@@ -528,7 +528,7 @@ elif [ ${KERNEL_BASE_VER} = "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
     patch -p1 < ./enable-background-reclaim-hugepages.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
         sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     else
         patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
@@ -538,7 +538,7 @@ elif [ ${KERNEL_BASE_VER} = "5.10" ]; then # LTS kernel, supported until 2026
         cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
         patch -p1 < ./cfs-zen-tweaks.patch;
     fi
-elif [ ${KERNEL_BASE_VER} = "5.4" ]; then
+elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
     echo "*** Copying and applying freesync patches from 5.10.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/amdgpu/freesync-refresh/*.patch .;
     patch -p1 < ./01_freesync_refresh.patch;
@@ -737,7 +737,7 @@ elif [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0016-Enable-stateless-firmware-loading.patch;
     patch -p1 < ./0017-Migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
     patch -p1 < ./0018-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
         patch -p1 < ./0020-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch;
         patch -p1 < ./include-linux-wait-h-merge-fix-rt.patch;
     else
@@ -749,7 +749,7 @@ elif [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0023-print-CPU-that-faults.patch;
     patch -p1 < ./0025-nvme-workaround.patch;
     patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
-    if [ ${KERNEL_TYPE} = "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-rt-v3-sep/*.patch .;
         patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
         patch -p1 < ./0007-iwlwifi-pcie-restore-support-for-Killer-Qu-C0-NICs.patch;
@@ -793,7 +793,7 @@ elif [ ${KERNEL_BASE_VER} = "5.4" ]; then
     patch -p1 < ./0001-modules-disinherit-taint-proprietary-module.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
-    if ! [ ${KERNEL_TYPE} = "rt" ]; then
+    if ! [ ${KERNEL_TYPE} == "rt" ]; then
         patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
     fi
     patch -p1 < ./0006-dcache-cache_pressure-50-decreases-the-rate-at-which.patch;
@@ -803,7 +803,7 @@ fi
 
 # CacULE scheduler enabled by default (except for -rt)
 # To disable, pass KERNEL_SCHEDULER=cfs
-if [ ${KERNEL_SCHEDULER} = "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
+if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     if [ "${KERNEL_BASE_VER}" = "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.13/cacule-5.13*.patch .;
         patch -p1 < ./cacule-5.13-e72a5d0.patch;
@@ -833,25 +833,25 @@ echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
 ZFS_SUPPORT=${ZFS_SUPPORT:-"no"}
-if [ ${ZFS_SUPPORT} = "no" ]; then
+if [ ${ZFS_SUPPORT} == "no" ]; then
     echo "*** Disabling zfs by default (can cause issues during compilation)... ✓";
     sed -i 's/do_zfs/#do_zfs/g' ./debian.master/rules.d/amd64.mk;
 fi
 
 DKMS_VBOX=${DKMS_VBOX:-"no"}
-if [ ${DKMS_VBOX} = "no" ]; then
+if [ ${DKMS_VBOX} == "no" ]; then
     echo "*** Disabling dkms for vbox... ✓";
     sed -i 's/do_dkms_vbox    = true/do_dkms_vbox    = false/g' ./debian.master/rules.d/amd64.mk;
 fi
 
 DKMS_NVIDIA=${DKMS_NVIDIA:-"no"}
-if [ ${DKMS_NVIDIA} = "no" ]; then
+if [ ${DKMS_NVIDIA} == "no" ]; then
     echo "*** Disabling dkms for nvidia... ✓";
     sed -i 's/do_dkms_nvidia  = true/do_dkms_nvidia  = false/g' ./debian.master/rules.d/amd64.mk;
 fi
 
 DKMS_WIREGUARD=${DKMS_WIREGUARD:-"no"}
-if [ ${DKMS_WIREGUARD} = "no" ]; then
+if [ ${DKMS_WIREGUARD} == "no" ]; then
     echo "*** Disabling dkms for wireguard... ✓";
     sed -i 's/do_dkms_wireguard = true/do_dkms_wireguard = false/g' ./debian.master/rules.d/amd64.mk;
 fi
@@ -879,7 +879,7 @@ cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.lo
 cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.ubuntu ./debian.master/config;
 
 AMDGPU_BUILTIN=${AMDGPU_BUILTIN:-"no"}
-if [ ${AMDGPU_BUILTIN} = "yes" ]; then
+if [ ${AMDGPU_BUILTIN} == "yes" ]; then
     # Currently supports: Polaris, Navi, Vega, Raven, Renoir
     #
     # Note: this long string is generated by:
@@ -960,7 +960,7 @@ mv -v ../${COMPILED_KERNEL_VER}-${TIME_BUILT} ${COMPILED_KERNELS_DIR};
 # Another note: -rt kernels can't use VirtualBox, so keep that in mind when
 # deciding on a kernel to use as your daily driver.
 VBOX_SUPPORT=${VBOX_SUPPORT:-"no"}
-if [ ${VBOX_SUPPORT} = "yes" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
+if [ ${VBOX_SUPPORT} == "yes" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     echo "*** Enabling VirtualBox support... ✓";
     sudo cp -v ${CUSTOM_PATCH_PATH}/virtualbox-support/module.lds /usr/src/linux-headers-${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}-generic/scripts/module.lds;
     sudo /sbin/vboxconfig;
