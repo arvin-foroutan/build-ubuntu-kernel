@@ -237,7 +237,7 @@ if [ ${KERNEL_BASE_VER} == "5.13" ]; then
     patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     patch -p1 < ./0026-Port-microcode-patches.patch;
     echo "*** Copying and applying cpu graysky patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-v2/*.patch .;
     patch -p1 < ./0001-cpu-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/5.13-fixes-miscellaneous-all-in-one.patch .;
