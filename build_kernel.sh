@@ -255,7 +255,7 @@ if [ ${KERNEL_BASE_VER} == "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v2/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v9-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v10-sep/*.patch .;
     patch -p1 < ./0001-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
     patch -p1 < ./0002-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
     patch -p1 < ./0003-net-replace-WARN_ONCE-with-pr_warn_once.patch;
@@ -263,6 +263,7 @@ if [ ${KERNEL_BASE_VER} == "5.13" ]; then
     patch -p1 < ./0005-Revert-Revert-swap-fix-do_swap_page-race-with-swapof.patch;
     patch -p1 < ./0006-mm-compaction-optimize-proactive-compaction-deferral.patch;
     patch -p1 < ./0007-mm-compaction-support-triggering-of-proactive-compac.patch;
+    patch -p1 < ./0008-x86-ACPI-State-Optimize-C3-entry-on-AMD-CPUs.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-5.13-merge-v1.0.14.patch;
