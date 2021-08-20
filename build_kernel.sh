@@ -7,8 +7,8 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.141"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504141"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.142"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504142"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cacule"} # cacule, cfs
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -823,11 +823,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.4.141-0504141+customidle-generic
-# 5.4.141-0504141+customfull-generic
-# 5.4.141-0504141+customrt-generic
+# 5.4.142-0504142+customidle-generic
+# 5.4.142-0504142+customfull-generic
+# 5.4.142-0504142+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.4.141-0504141+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.4.142-0504142+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
