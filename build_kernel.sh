@@ -249,7 +249,7 @@ if [ ${KERNEL_BASE_VER} == "5.13" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying lru-mm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-v7/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-v8/*.patch .;
     patch -p1 < ./0001-lru-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v2/*.patch .;
