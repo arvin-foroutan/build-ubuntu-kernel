@@ -805,10 +805,10 @@ fi
 if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     if [ "${KERNEL_BASE_VER}" = "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.13/cacule-5.13*.patch .;
-        patch -p1 < ./cacule-5.13-e72a5d0.patch;
+        patch -p1 < ./cacule-5.13-bb77376.patch;
     elif [ "${KERNEL_BASE_VER}" = "5.10" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.10/cacule-5.10*.patch .;
-        patch -p1 < ./cacule-5.10-96e950e.patch;
+        patch -p1 < ./cacule-5.10-bb77376.patch;
     elif [ "${KERNEL_BASE_VER}" = "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.4/cacule-5.4*.patch .;
         patch -p1 < ./cacule-5.4.patch;
