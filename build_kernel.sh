@@ -389,7 +389,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0003-btrfs-do-not-evaluate-the-expression-with-CONFIG_BTR.patch;
     patch -p1 < ./0004-btrfs-remove-unnecessary-attempt-do-drop-extent-maps.patch;
     patch -p1 < ./0005-btrfs-stop-incrementing-log-batch-when-joining-log-t.patch;
-    patch -p1 < ./0006-btrfs-fix-race-causing-unnecessary-inode-logging-dur.patch;
     patch -p1 < ./0007-btrfs-fix-race-that-results-in-logging-old-extents-d.patch;
     patch -p1 < ./0008-btrfs-fix-race-that-causes-unnecessary-logging-of-an.patch;
     patch -p1 < ./0009-btrfs-fix-race-that-makes-inode-logging-fallback-to-.patch;
