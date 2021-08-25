@@ -158,14 +158,17 @@ fi
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.129-rt61.patch .;
-        patch -p1 < ./patch-5.4.129-rt61.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.138-rt62.patch .;
+        patch -p1 < ./patch-5.4.138-rt62.patch;
+    elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.59-rt51.patch .;
+        patch -p1 < ./patch-5.10.59-rt51.patch;
     elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
     elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rc3-rt2.patch .;
-        patch -p1 < ./patch-5.14-rc3-rt2.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rc7-rt13.patch .;
+        patch -p1 < ./patch-5.14-rc7-rt13.patch;
     fi
 fi
 
@@ -736,13 +739,8 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0016-Enable-stateless-firmware-loading.patch;
     patch -p1 < ./0017-Migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
     patch -p1 < ./0018-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
-    if [ ${KERNEL_TYPE} == "rt" ]; then
-        patch -p1 < ./0020-do-accept-in-LIFO-order-for-cache-efficiency-rt.patch;
-        patch -p1 < ./include-linux-wait-h-merge-fix-rt.patch;
-    else
-        patch -p1 < ./0020-do-accept-in-LIFO-order-for-cache-efficiency.patch;
-        patch -p1 < ./include-linux-wait-h-merge-fix.patch;
-    fi
+    patch -p1 < ./0020-do-accept-in-LIFO-order-for-cache-efficiency.patch;
+    patch -p1 < ./include-linux-wait-h-merge-fix.patch;
     patch -p1 < ./0021-locking-rwsem-spin-faster.patch;
     patch -p1 < ./0022-ata-libahci-ignore-staggered-spin-up.patch;
     patch -p1 < ./0023-print-CPU-that-faults.patch;
