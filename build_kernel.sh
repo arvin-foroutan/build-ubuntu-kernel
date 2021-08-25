@@ -852,9 +852,9 @@ if [ ${DKMS_WIREGUARD} == "no" ]; then
     sed -i 's/do_dkms_wireguard = true/do_dkms_wireguard = false/g' ./debian.master/rules.d/amd64.mk;
 fi
 
-# Build only for amd64 (saves lots of time here when compiling)
-echo "*** Removing unnecessary arch's and building just for amd64... ✓";
-sed -i 's/archs="amd64 i386 armhf arm64 ppc64el s390x"/archs="amd64"/g' ./debian.master/etc/kernelconfig;
+BUILD_ARCHS=${BUILD_ARCHS:-"amd64"}
+echo "*** Removing unnecessary arch's and building for ${BUILD_ARCHS}... ✓";
+sed -i 's/archs="amd64 i386 armhf arm64 ppc64el s390x"/archs="${BUILD_ARCHS}"/g' ./debian.master/etc/kernelconfig;
 
 echo "*** Making scripts executable... ✓";
 chmod a+x debian/rules;
