@@ -537,7 +537,7 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
         cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
         patch -p1 < ./cfs-zen-tweaks.patch;
     fi
-elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
+elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     echo "*** Copying and applying freesync patches from 5.10.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/amdgpu/freesync-refresh/*.patch .;
     patch -p1 < ./01_freesync_refresh.patch;
@@ -964,8 +964,18 @@ fi
 
 echo "*** Finished installing kernel, cleaning up build dir... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
+
+# Keep an eye out for the following directories, as they build up over time.
+# Also note: Running 'sudo update-grub2' will list your installed kernels,
+# and you can manually delete the ones that have uninstall as time goes on.
+#
+# To uninstall a kernel: $ sudo apt purge *5.4.142-0504142+customidle-generic*
+# However, you still need to manually remove the old ones that build up below.
+ls -al /usr/src;
+ls -al /lib/modules;
 ls -al ${COMPILED_KERNELS_DIR};
 ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT};
+
 cd;
 echo "*** All done. ✓";
 echo "*** You can now reboot and select ${COMPILED_KERNEL_VER}-generic in GRUB.";
