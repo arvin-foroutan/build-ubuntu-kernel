@@ -854,7 +854,7 @@ fi
 
 BUILD_ARCHS=${BUILD_ARCHS:-"amd64"}
 echo "*** Removing unnecessary arch's and building for ${BUILD_ARCHS}... ✓";
-sed -i 's/archs="amd64 i386 armhf arm64 ppc64el s390x"/archs="${BUILD_ARCHS}"/g' ./debian.master/etc/kernelconfig;
+sed -i "s/archs=\"amd64 i386 armhf arm64 ppc64el s390x\"/archs=\"${BUILD_ARCHS}\"/g" ./debian.master/etc/kernelconfig;
 
 echo "*** Making scripts executable... ✓";
 chmod a+x debian/rules;
