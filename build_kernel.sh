@@ -157,18 +157,18 @@ fi
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.138-rt62.patch .;
-        patch -p1 < ./patch-5.4.138-rt62.patch;
-    elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.59-rt51.patch .;
-        patch -p1 < ./patch-5.10.59-rt51.patch;
+    if [ ${KERNEL_BASE_VER} == "5.14" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rt15.patch .;
+        patch -p1 < ./patch-5.14-rt15.patch;
     elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
-    elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rc7-rt13.patch .;
-        patch -p1 < ./patch-5.14-rc7-rt13.patch;
+    elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.59-rt52.patch .;
+        patch -p1 < ./patch-5.10.59-rt52.patch;
+    elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.143-rt63.patch .;
+        patch -p1 < ./patch-5.4.143-rt63.patch;
     fi
 fi
 

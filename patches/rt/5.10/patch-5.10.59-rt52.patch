@@ -1388,10 +1388,10 @@ index 062b21f30f94..0ea2df6554e5 100644
  
  /*
 diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 50852992752b..aafe59f680e8 100644
+index e62005317ce2..fe94a3e1f849 100644
 --- a/arch/arm64/kernel/signal.c
 +++ b/arch/arm64/kernel/signal.c
-@@ -918,7 +918,7 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
+@@ -919,7 +919,7 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
  		/* Check valid user FS if needed */
  		addr_limit_user_check();
  
@@ -4644,10 +4644,10 @@ index 440eed558558..7cfc4e6b7c94 100644
  }
 +#endif
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 800914e9e12b..296555d617ec 100644
+index 6ab42cdcb8a4..2fd39b56e417 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7941,6 +7941,14 @@ int kvm_arch_init(void *opaque)
+@@ -7948,6 +7948,14 @@ int kvm_arch_init(void *opaque)
  		goto out;
  	}
  
@@ -5472,7 +5472,7 @@ index 9811c40956e5..17c9d825188b 100644
  	if (!test_and_set_bit_lock(0, &ctx->flushing_completions)) {
  		context_tasklet((unsigned long)&ctx->context);
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 4b7ee3fa9224..abb18c958e3b 100644
+index 847f33ffc4ae..ae79c3300129 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
 @@ -66,7 +66,7 @@ struct mm_struct efi_mm = {
@@ -5545,10 +5545,10 @@ index 12f7128b777f..a65061e3e1d3 100644
  	if (intel_vgpu_active(dev_priv))
  		return;
 diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index bd3046e5a934..1850f13e9d19 100644
+index 0c083af5a59d..2abf043d3d9d 100644
 --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
 +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1081,7 +1081,7 @@ static void reloc_cache_reset(struct reloc_cache *cache, struct i915_execbuffer
+@@ -1080,7 +1080,7 @@ static void reloc_cache_reset(struct reloc_cache *cache, struct i915_execbuffer
  		struct i915_ggtt *ggtt = cache_to_ggtt(cache);
  
  		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
@@ -5557,7 +5557,7 @@ index bd3046e5a934..1850f13e9d19 100644
  
  		if (drm_mm_node_allocated(&cache->node)) {
  			ggtt->vm.clear_range(&ggtt->vm,
-@@ -1147,7 +1147,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
+@@ -1146,7 +1146,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
  
  	if (cache->vaddr) {
  		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
@@ -5566,7 +5566,7 @@ index bd3046e5a934..1850f13e9d19 100644
  	} else {
  		struct i915_vma *vma;
  		int err;
-@@ -1195,8 +1195,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
+@@ -1194,8 +1194,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
  		offset += page << PAGE_SHIFT;
  	}
  
@@ -7280,10 +7280,10 @@ index 988bf6bcce42..bcd26d672539 100644
  		if (ier & UART_IER_MSI)
  			value |= UART_MCR_MDCE | UART_MCR_FCM;
 diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index f7d3023f860f..8133713dcf5e 100644
+index fb65dc601b23..5bc734c70da4 100644
 --- a/drivers/tty/serial/8250/8250_mtk.c
 +++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -213,12 +213,37 @@ static void mtk8250_shutdown(struct uart_port *port)
+@@ -218,12 +218,37 @@ static void mtk8250_shutdown(struct uart_port *port)
  
  static void mtk8250_disable_intrs(struct uart_8250_port *up, int mask)
  {
@@ -7324,10 +7324,10 @@ index f7d3023f860f..8133713dcf5e 100644
  
  static void mtk8250_set_flow_ctrl(struct uart_8250_port *up, int mode)
 diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 6d9c494bed7d..ae9c7e55bcbb 100644
+index 3de0a16e055a..c060bd1b07b4 100644
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
-@@ -757,7 +757,7 @@ static void serial8250_set_sleep(struct uart_8250_port *p, int sleep)
+@@ -761,7 +761,7 @@ static void serial8250_set_sleep(struct uart_8250_port *p, int sleep)
  			serial_out(p, UART_EFR, UART_EFR_ECB);
  			serial_out(p, UART_LCR, 0);
  		}
@@ -7336,7 +7336,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  		if (p->capabilities & UART_CAP_EFR) {
  			serial_out(p, UART_LCR, UART_LCR_CONF_MODE_B);
  			serial_out(p, UART_EFR, efr);
-@@ -1429,7 +1429,7 @@ static void serial8250_stop_rx(struct uart_port *port)
+@@ -1435,7 +1435,7 @@ static void serial8250_stop_rx(struct uart_port *port)
  
  	up->ier &= ~(UART_IER_RLSI | UART_IER_RDI);
  	up->port.read_status_mask &= ~UART_LSR_DR;
@@ -7345,7 +7345,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  
  	serial8250_rpm_put(up);
  }
-@@ -1459,7 +1459,7 @@ void serial8250_em485_stop_tx(struct uart_8250_port *p)
+@@ -1465,7 +1465,7 @@ void serial8250_em485_stop_tx(struct uart_8250_port *p)
  		serial8250_clear_and_reinit_fifos(p);
  
  		p->ier |= UART_IER_RLSI | UART_IER_RDI;
@@ -7354,7 +7354,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  	}
  }
  EXPORT_SYMBOL_GPL(serial8250_em485_stop_tx);
-@@ -1687,7 +1687,7 @@ static void serial8250_disable_ms(struct uart_port *port)
+@@ -1693,7 +1693,7 @@ static void serial8250_disable_ms(struct uart_port *port)
  	mctrl_gpio_disable_ms(up->gpios);
  
  	up->ier &= ~UART_IER_MSI;
@@ -7363,7 +7363,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  }
  
  static void serial8250_enable_ms(struct uart_port *port)
-@@ -1703,7 +1703,7 @@ static void serial8250_enable_ms(struct uart_port *port)
+@@ -1709,7 +1709,7 @@ static void serial8250_enable_ms(struct uart_port *port)
  	up->ier |= UART_IER_MSI;
  
  	serial8250_rpm_get(up);
@@ -7372,7 +7372,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  	serial8250_rpm_put(up);
  }
  
-@@ -2130,14 +2130,7 @@ static void serial8250_put_poll_char(struct uart_port *port,
+@@ -2136,14 +2136,7 @@ static void serial8250_put_poll_char(struct uart_port *port,
  	struct uart_8250_port *up = up_to_u8250p(port);
  
  	serial8250_rpm_get(up);
@@ -7388,7 +7388,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  
  	wait_for_xmitr(up, BOTH_EMPTY);
  	/*
-@@ -2150,7 +2143,7 @@ static void serial8250_put_poll_char(struct uart_port *port,
+@@ -2156,7 +2149,7 @@ static void serial8250_put_poll_char(struct uart_port *port,
  	 *	and restore the IER
  	 */
  	wait_for_xmitr(up, BOTH_EMPTY);
@@ -7397,7 +7397,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  	serial8250_rpm_put(up);
  }
  
-@@ -2453,7 +2446,7 @@ void serial8250_do_shutdown(struct uart_port *port)
+@@ -2459,7 +2452,7 @@ void serial8250_do_shutdown(struct uart_port *port)
  	 */
  	spin_lock_irqsave(&port->lock, flags);
  	up->ier = 0;
@@ -7406,7 +7406,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  	spin_unlock_irqrestore(&port->lock, flags);
  
  	synchronize_irq(port->irq);
-@@ -2796,7 +2789,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -2802,7 +2795,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
  	if (up->capabilities & UART_CAP_RTOIE)
  		up->ier |= UART_IER_RTOIE;
  
@@ -7415,7 +7415,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  
  	if (up->capabilities & UART_CAP_EFR) {
  		unsigned char efr = 0;
-@@ -3262,7 +3255,7 @@ EXPORT_SYMBOL_GPL(serial8250_set_defaults);
+@@ -3268,7 +3261,7 @@ EXPORT_SYMBOL_GPL(serial8250_set_defaults);
  
  #ifdef CONFIG_SERIAL_8250_CONSOLE
  
@@ -7424,7 +7424,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  {
  	struct uart_8250_port *up = up_to_u8250p(port);
  
-@@ -3270,6 +3263,18 @@ static void serial8250_console_putchar(struct uart_port *port, int ch)
+@@ -3276,6 +3269,18 @@ static void serial8250_console_putchar(struct uart_port *port, int ch)
  	serial_port_out(port, UART_TX, ch);
  }
  
@@ -7443,7 +7443,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  /*
   *	Restore serial console when h/w power-off detected
   */
-@@ -3291,6 +3296,32 @@ static void serial8250_console_restore(struct uart_8250_port *up)
+@@ -3297,6 +3302,32 @@ static void serial8250_console_restore(struct uart_8250_port *up)
  	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
  }
  
@@ -7476,7 +7476,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  /*
   *	Print a string to the serial port trying not to disturb
   *	any possible real use of the port...
-@@ -3307,24 +3338,12 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
+@@ -3313,24 +3344,12 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
  	struct uart_port *port = &up->port;
  	unsigned long flags;
  	unsigned int ier;
@@ -7503,7 +7503,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  
  	/* check scratch reg to see if port powered off during system sleep */
  	if (up->canary && (up->canary != serial_port_in(port, UART_SCR))) {
-@@ -3338,7 +3357,9 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
+@@ -3344,7 +3363,9 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
  		mdelay(port->rs485.delay_rts_before_send);
  	}
  
@@ -7513,7 +7513,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  
  	/*
  	 *	Finally, wait for transmitter to become empty
-@@ -3351,8 +3372,7 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
+@@ -3357,8 +3378,7 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
  		if (em485->tx_stopped)
  			up->rs485_stop_tx(up);
  	}
@@ -7523,7 +7523,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  
  	/*
  	 *	The receive handling will happen properly because the
-@@ -3364,8 +3384,7 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
+@@ -3370,8 +3390,7 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
  	if (up->msr_saved_flags)
  		serial8250_modem_status(up);
  
@@ -7533,7 +7533,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  }
  
  static unsigned int probe_baud(struct uart_port *port)
-@@ -3385,6 +3404,7 @@ static unsigned int probe_baud(struct uart_port *port)
+@@ -3391,6 +3410,7 @@ static unsigned int probe_baud(struct uart_port *port)
  
  int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
  {
@@ -7541,7 +7541,7 @@ index 6d9c494bed7d..ae9c7e55bcbb 100644
  	int baud = 9600;
  	int bits = 8;
  	int parity = 'n';
-@@ -3394,6 +3414,8 @@ int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
+@@ -3400,6 +3420,8 @@ int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
  	if (!port->iobase && !port->membase)
  		return -ENODEV;
  
@@ -7810,7 +7810,7 @@ index 4c9d0c36545d..5a6e15a7eed7 100644
  	if (unlikely(IS_DEADDIR(dir_inode)))
  		return ERR_PTR(-ENOENT);
 diff --git a/fs/namespace.c b/fs/namespace.c
-index c7fbb50a5aaa..5e261e50625a 100644
+index 175312428cdf..e8a1e90b4d34 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -14,6 +14,7 @@
@@ -7896,7 +7896,7 @@ index 18a4588c35be..decaa7768044 100644
  
  static inline void task_core_dumping(struct seq_file *m, struct mm_struct *mm)
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index df9b17dd92cb..9373c2d0b2d1 100644
+index 5d52aea8d7e7..d89526cfedf2 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
 @@ -96,6 +96,7 @@
@@ -10950,7 +10950,7 @@ index b256f9c65661..ebf6c515a7b2 100644
  /* Test if 'sig' is valid signal. Use this instead of testing _NSIG directly */
  static inline int valid_signal(unsigned long sig)
 diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index a828cf99c521..2e4f80cd41df 100644
+index 2d01b2bbb746..4277cbc5c6f5 100644
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
 @@ -295,6 +295,7 @@ struct sk_buff_head {
@@ -11958,7 +11958,7 @@ index 000000000000..67710bace741
 +
 +#endif
 diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
-index b59d73d529ba..e816b6a3ef2b 100644
+index 22e1bc72b979..9b376b87bd54 100644
 --- a/include/net/netns/xfrm.h
 +++ b/include/net/netns/xfrm.h
 @@ -73,7 +73,7 @@ struct netns_xfrm {
@@ -11967,9 +11967,9 @@ index b59d73d529ba..e816b6a3ef2b 100644
  	spinlock_t		xfrm_state_lock;
 -	seqcount_t		xfrm_state_hash_generation;
 +	seqcount_spinlock_t	xfrm_state_hash_generation;
+ 	seqcount_spinlock_t	xfrm_policy_hash_generation;
  
  	spinlock_t xfrm_policy_lock;
- 	struct mutex xfrm_cfg_mutex;
 diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
 index f8631ad3c868..9854155a3e88 100644
 --- a/include/net/sch_generic.h
@@ -15350,10 +15350,10 @@ index 000000000000..3d2d1f14b513
 +EXPORT_SYMBOL(__rt_rwlock_init);
 diff --git a/kernel/locking/rwsem-rt.c b/kernel/locking/rwsem-rt.c
 new file mode 100644
-index 000000000000..274172d5bb3a
+index 000000000000..b61edc4dcb73
 --- /dev/null
 +++ b/kernel/locking/rwsem-rt.c
-@@ -0,0 +1,318 @@
+@@ -0,0 +1,317 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +#include <linux/rwsem.h>
 +#include <linux/sched/debug.h>
@@ -15554,7 +15554,6 @@ index 000000000000..274172d5bb3a
 +	if (!atomic_dec_and_test(&sem->readers))
 +		return;
 +
-+	might_sleep();
 +	raw_spin_lock_irq(&m->wait_lock);
 +	/*
 +	 * Wake the writer, i.e. the rtmutex owner. It might release the
@@ -16006,7 +16005,7 @@ index 3a8fd491758c..000000000000
 -static inline bool printk_percpu_data_ready(void) { return false; }
 -#endif /* CONFIG_PRINTK */
 diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index d0df95346ab3..f56fd2e34cc7 100644
+index d0df95346ab3..53d90278494b 100644
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
 @@ -44,6 +44,9 @@
@@ -17976,7 +17975,7 @@ index d0df95346ab3..f56fd2e34cc7 100644
   * @syslog: include the "<4>" prefixes
   * @buf: buffer to copy the line to
   * @size: maximum size of the buffer
-@@ -3365,116 +3331,254 @@ EXPORT_SYMBOL_GPL(kmsg_dump_get_line);
+@@ -3365,116 +3331,256 @@ EXPORT_SYMBOL_GPL(kmsg_dump_get_line);
   * A return value of FALSE indicates that there are no more records to
   * read.
   */
@@ -18259,7 +18258,9 @@ index d0df95346ab3..f56fd2e34cc7 100644
 -	logbuf_unlock_irqrestore(flags);
 -}
 -EXPORT_SYMBOL_GPL(kmsg_dump_rewind);
-+	may_sleep = (preemptible() && !in_softirq());
++	may_sleep = (preemptible() &&
++		     !in_softirq() &&
++		     system_state >= SYSTEM_RUNNING);
  
 -#endif
 +	seq = prb_next_seq(prb);
@@ -18979,7 +18980,7 @@ index 849f0aa99333..dd94a602a6d2 100644
  
  #ifdef CONFIG_DEBUG_LOCK_ALLOC
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 679562d2f55d..46b0440ab817 100644
+index 84c105902027..b815467e959b 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -64,7 +64,11 @@ const_debug unsigned int sysctl_sched_features =
@@ -19121,7 +19122,7 @@ index 679562d2f55d..46b0440ab817 100644
  void resched_cpu(int cpu)
  {
  	struct rq *rq = cpu_rq(cpu);
-@@ -1694,6 +1763,82 @@ void check_preempt_curr(struct rq *rq, struct task_struct *p, int flags)
+@@ -1692,6 +1761,82 @@ void check_preempt_curr(struct rq *rq, struct task_struct *p, int flags)
  
  #ifdef CONFIG_SMP
  
@@ -19204,7 +19205,7 @@ index 679562d2f55d..46b0440ab817 100644
  /*
   * Per-CPU kthreads are allowed to run on !active && online CPUs, see
   * __set_cpus_allowed_ptr() and select_fallback_rq().
-@@ -1703,7 +1848,7 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
+@@ -1701,7 +1846,7 @@ static inline bool is_cpu_allowed(struct task_struct *p, int cpu)
  	if (!cpumask_test_cpu(cpu, p->cpus_ptr))
  		return false;
  
@@ -19213,7 +19214,7 @@ index 679562d2f55d..46b0440ab817 100644
  		return cpu_online(cpu);
  
  	return cpu_active(cpu);
-@@ -1748,8 +1893,21 @@ static struct rq *move_queued_task(struct rq *rq, struct rq_flags *rf,
+@@ -1746,8 +1891,21 @@ static struct rq *move_queued_task(struct rq *rq, struct rq_flags *rf,
  }
  
  struct migration_arg {
@@ -19237,7 +19238,7 @@ index 679562d2f55d..46b0440ab817 100644
  };
  
  /*
-@@ -1782,15 +1940,17 @@ static struct rq *__migrate_task(struct rq *rq, struct rq_flags *rf,
+@@ -1780,15 +1938,17 @@ static struct rq *__migrate_task(struct rq *rq, struct rq_flags *rf,
  static int migration_cpu_stop(void *data)
  {
  	struct migration_arg *arg = data;
@@ -19256,7 +19257,7 @@ index 679562d2f55d..46b0440ab817 100644
  	/*
  	 * We need to explicitly wake pending tasks before running
  	 * __migrate_task() such that we will not miss enforcing cpus_ptr
-@@ -1800,21 +1960,121 @@ static int migration_cpu_stop(void *data)
+@@ -1798,21 +1958,121 @@ static int migration_cpu_stop(void *data)
  
  	raw_spin_lock(&p->pi_lock);
  	rq_lock(rq, &rf);
@@ -19381,7 +19382,7 @@ index 679562d2f55d..46b0440ab817 100644
  	return 0;
  }
  
-@@ -1822,18 +2082,39 @@ static int migration_cpu_stop(void *data)
+@@ -1820,18 +2080,39 @@ static int migration_cpu_stop(void *data)
   * sched_class::set_cpus_allowed must do the below, but is not required to
   * actually call this function.
   */
@@ -19424,7 +19425,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	queued = task_on_rq_queued(p);
  	running = task_current(rq, p);
-@@ -1849,7 +2130,7 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
+@@ -1847,7 +2128,7 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
  	if (running)
  		put_prev_task(rq, p);
  
@@ -19433,7 +19434,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	if (queued)
  		enqueue_task(rq, p, ENQUEUE_RESTORE | ENQUEUE_NOCLOCK);
-@@ -1857,6 +2138,222 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
+@@ -1855,6 +2136,222 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
  		set_next_task(rq, p);
  }
  
@@ -19656,7 +19657,7 @@ index 679562d2f55d..46b0440ab817 100644
  /*
   * Change a given task's CPU affinity. Migrate the thread to a
   * proper CPU and schedule it away if the CPU it's executing on
-@@ -1867,7 +2364,8 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
+@@ -1865,7 +2362,8 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
   * call is not atomic; no spinlocks may be held.
   */
  static int __set_cpus_allowed_ptr(struct task_struct *p,
@@ -19666,7 +19667,7 @@ index 679562d2f55d..46b0440ab817 100644
  {
  	const struct cpumask *cpu_valid_mask = cpu_active_mask;
  	unsigned int dest_cpu;
-@@ -1878,9 +2376,14 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+@@ -1876,9 +2374,14 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
  	rq = task_rq_lock(p, &rf);
  	update_rq_clock(rq);
  
@@ -19683,7 +19684,7 @@ index 679562d2f55d..46b0440ab817 100644
  		 */
  		cpu_valid_mask = cpu_online_mask;
  	}
-@@ -1889,13 +2392,22 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+@@ -1887,13 +2390,22 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
  	 * Must re-check here, to close a race against __kthread_bind(),
  	 * sched_setaffinity() is not guaranteed to observe the flag.
  	 */
@@ -19709,7 +19710,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	/*
  	 * Picking a ~random cpu helps in cases where we are changing affinity
-@@ -1908,7 +2420,7 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+@@ -1906,7 +2418,7 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
  		goto out;
  	}
  
@@ -19718,7 +19719,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	if (p->flags & PF_KTHREAD) {
  		/*
-@@ -1920,23 +2432,8 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+@@ -1918,23 +2430,8 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
  			p->nr_cpus_allowed != 1);
  	}
  
@@ -19743,7 +19744,7 @@ index 679562d2f55d..46b0440ab817 100644
  out:
  	task_rq_unlock(rq, p, &rf);
  
-@@ -1945,7 +2442,7 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+@@ -1943,7 +2440,7 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
  
  int set_cpus_allowed_ptr(struct task_struct *p, const struct cpumask *new_mask)
  {
@@ -19752,7 +19753,7 @@ index 679562d2f55d..46b0440ab817 100644
  }
  EXPORT_SYMBOL_GPL(set_cpus_allowed_ptr);
  
-@@ -1986,6 +2483,8 @@ void set_task_cpu(struct task_struct *p, unsigned int new_cpu)
+@@ -1984,6 +2481,8 @@ void set_task_cpu(struct task_struct *p, unsigned int new_cpu)
  	 * Clearly, migrating tasks to offline CPUs is a fairly daft thing.
  	 */
  	WARN_ON_ONCE(!cpu_online(new_cpu));
@@ -19761,7 +19762,7 @@ index 679562d2f55d..46b0440ab817 100644
  #endif
  
  	trace_sched_migrate_task(p, new_cpu);
-@@ -2118,6 +2617,18 @@ int migrate_swap(struct task_struct *cur, struct task_struct *p,
+@@ -2116,6 +2615,18 @@ int migrate_swap(struct task_struct *cur, struct task_struct *p,
  }
  #endif /* CONFIG_NUMA_BALANCING */
  
@@ -19780,7 +19781,7 @@ index 679562d2f55d..46b0440ab817 100644
  /*
   * wait_task_inactive - wait for a thread to unschedule.
   *
-@@ -2162,7 +2673,7 @@ unsigned long wait_task_inactive(struct task_struct *p, long match_state)
+@@ -2160,7 +2671,7 @@ unsigned long wait_task_inactive(struct task_struct *p, long match_state)
  		 * is actually now running somewhere else!
  		 */
  		while (task_running(rq, p)) {
@@ -19789,7 +19790,7 @@ index 679562d2f55d..46b0440ab817 100644
  				return 0;
  			cpu_relax();
  		}
-@@ -2177,7 +2688,8 @@ unsigned long wait_task_inactive(struct task_struct *p, long match_state)
+@@ -2175,7 +2686,8 @@ unsigned long wait_task_inactive(struct task_struct *p, long match_state)
  		running = task_running(rq, p);
  		queued = task_on_rq_queued(p);
  		ncsw = 0;
@@ -19799,7 +19800,7 @@ index 679562d2f55d..46b0440ab817 100644
  			ncsw = p->nvcsw | LONG_MIN; /* sets MSB */
  		task_rq_unlock(rq, p, &rf);
  
-@@ -2316,6 +2828,12 @@ static int select_fallback_rq(int cpu, struct task_struct *p)
+@@ -2314,6 +2826,12 @@ static int select_fallback_rq(int cpu, struct task_struct *p)
  			}
  			fallthrough;
  		case possible:
@@ -19812,7 +19813,7 @@ index 679562d2f55d..46b0440ab817 100644
  			do_set_cpus_allowed(p, cpu_possible_mask);
  			state = fail;
  			break;
-@@ -2350,7 +2868,7 @@ int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags)
+@@ -2348,7 +2866,7 @@ int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags)
  {
  	lockdep_assert_held(&p->pi_lock);
  
@@ -19821,7 +19822,7 @@ index 679562d2f55d..46b0440ab817 100644
  		cpu = p->sched_class->select_task_rq(p, cpu, sd_flags, wake_flags);
  	else
  		cpu = cpumask_any(p->cpus_ptr);
-@@ -2373,6 +2891,7 @@ int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags)
+@@ -2371,6 +2889,7 @@ int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags)
  
  void sched_set_stop_task(int cpu, struct task_struct *stop)
  {
@@ -19829,7 +19830,7 @@ index 679562d2f55d..46b0440ab817 100644
  	struct sched_param param = { .sched_priority = MAX_RT_PRIO - 1 };
  	struct task_struct *old_stop = cpu_rq(cpu)->stop;
  
-@@ -2388,6 +2907,20 @@ void sched_set_stop_task(int cpu, struct task_struct *stop)
+@@ -2386,6 +2905,20 @@ void sched_set_stop_task(int cpu, struct task_struct *stop)
  		sched_setscheduler_nocheck(stop, SCHED_FIFO, &param);
  
  		stop->sched_class = &stop_sched_class;
@@ -19850,7 +19851,7 @@ index 679562d2f55d..46b0440ab817 100644
  	}
  
  	cpu_rq(cpu)->stop = stop;
-@@ -2401,15 +2934,23 @@ void sched_set_stop_task(int cpu, struct task_struct *stop)
+@@ -2399,15 +2932,23 @@ void sched_set_stop_task(int cpu, struct task_struct *stop)
  	}
  }
  
@@ -19877,7 +19878,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  static void
  ttwu_stat(struct task_struct *p, int cpu, int wake_flags)
-@@ -2827,7 +3368,7 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
+@@ -2825,7 +3366,7 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
  	int cpu, success = 0;
  
  	preempt_disable();
@@ -19886,7 +19887,7 @@ index 679562d2f55d..46b0440ab817 100644
  		/*
  		 * We're waking current, this means 'p->on_rq' and 'task_cpu(p)
  		 * == smp_processor_id()'. Together this means we can special
-@@ -2857,8 +3398,26 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
+@@ -2855,8 +3396,26 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
  	 */
  	raw_spin_lock_irqsave(&p->pi_lock, flags);
  	smp_mb__after_spinlock();
@@ -19914,7 +19915,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	trace_sched_waking(p);
  
-@@ -3047,6 +3606,18 @@ int wake_up_process(struct task_struct *p)
+@@ -3045,6 +3604,18 @@ int wake_up_process(struct task_struct *p)
  }
  EXPORT_SYMBOL(wake_up_process);
  
@@ -19933,7 +19934,7 @@ index 679562d2f55d..46b0440ab817 100644
  int wake_up_state(struct task_struct *p, unsigned int state)
  {
  	return try_to_wake_up(p, state, 0);
-@@ -3100,6 +3671,7 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
+@@ -3098,6 +3669,7 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
  	init_numa_balancing(clone_flags, p);
  #ifdef CONFIG_SMP
  	p->wake_entry.u_flags = CSD_TYPE_TTWU;
@@ -19941,7 +19942,7 @@ index 679562d2f55d..46b0440ab817 100644
  #endif
  }
  
-@@ -3293,6 +3865,9 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
+@@ -3291,6 +3863,9 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
  	p->on_cpu = 0;
  #endif
  	init_task_preempt_count(p);
@@ -19951,7 +19952,7 @@ index 679562d2f55d..46b0440ab817 100644
  #ifdef CONFIG_SMP
  	plist_node_init(&p->pushable_tasks, MAX_PRIO);
  	RB_CLEAR_NODE(&p->pushable_dl_tasks);
-@@ -3444,49 +4019,133 @@ fire_sched_out_preempt_notifiers(struct task_struct *curr,
+@@ -3442,49 +4017,133 @@ fire_sched_out_preempt_notifiers(struct task_struct *curr,
  
  #else /* !CONFIG_PREEMPT_NOTIFIERS */
  
@@ -20116,7 +20117,7 @@ index 679562d2f55d..46b0440ab817 100644
  static inline void
  prepare_lock_switch(struct rq *rq, struct task_struct *next, struct rq_flags *rf)
  {
-@@ -3512,6 +4171,7 @@ static inline void finish_lock_switch(struct rq *rq)
+@@ -3510,6 +4169,7 @@ static inline void finish_lock_switch(struct rq *rq)
  	 * prev into current:
  	 */
  	spin_acquire(&rq->lock.dep_map, 0, 0, _THIS_IP_);
@@ -20124,7 +20125,7 @@ index 679562d2f55d..46b0440ab817 100644
  	raw_spin_unlock_irq(&rq->lock);
  }
  
-@@ -3527,6 +4187,22 @@ static inline void finish_lock_switch(struct rq *rq)
+@@ -3525,6 +4185,22 @@ static inline void finish_lock_switch(struct rq *rq)
  # define finish_arch_post_lock_switch()	do { } while (0)
  #endif
  
@@ -20147,7 +20148,7 @@ index 679562d2f55d..46b0440ab817 100644
  /**
   * prepare_task_switch - prepare to switch tasks
   * @rq: the runqueue preparing to switch
-@@ -3549,6 +4225,7 @@ prepare_task_switch(struct rq *rq, struct task_struct *prev,
+@@ -3547,6 +4223,7 @@ prepare_task_switch(struct rq *rq, struct task_struct *prev,
  	perf_event_task_sched_out(prev, next);
  	rseq_preempt(prev);
  	fire_sched_out_preempt_notifiers(prev, next);
@@ -20155,7 +20156,7 @@ index 679562d2f55d..46b0440ab817 100644
  	prepare_task(next);
  	prepare_arch_switch(next);
  }
-@@ -3615,6 +4292,7 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+@@ -3613,6 +4290,7 @@ static struct rq *finish_task_switch(struct task_struct *prev)
  	finish_lock_switch(rq);
  	finish_arch_post_lock_switch();
  	kcov_finish_switch(current);
@@ -20163,7 +20164,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	fire_sched_in_preempt_notifiers(current);
  	/*
-@@ -3629,23 +4307,18 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+@@ -3627,23 +4305,18 @@ static struct rq *finish_task_switch(struct task_struct *prev)
  	 *   provided by mmdrop(),
  	 * - a sync_core for SYNC_CORE.
  	 */
@@ -20192,7 +20193,7 @@ index 679562d2f55d..46b0440ab817 100644
  		put_task_struct_rcu_user(prev);
  	}
  
-@@ -3653,43 +4326,6 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+@@ -3651,43 +4324,6 @@ static struct rq *finish_task_switch(struct task_struct *prev)
  	return rq;
  }
  
@@ -20236,7 +20237,7 @@ index 679562d2f55d..46b0440ab817 100644
  /**
   * schedule_tail - first thing a freshly forked thread must call.
   * @prev: the thread we just switched away from.
-@@ -3709,7 +4345,6 @@ asmlinkage __visible void schedule_tail(struct task_struct *prev)
+@@ -3707,7 +4343,6 @@ asmlinkage __visible void schedule_tail(struct task_struct *prev)
  	 */
  
  	rq = finish_task_switch(prev);
@@ -20244,7 +20245,7 @@ index 679562d2f55d..46b0440ab817 100644
  	preempt_enable();
  
  	if (current->set_child_tid)
-@@ -4404,7 +5039,7 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
+@@ -4402,7 +5037,7 @@ pick_next_task(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
   *
   * WARNING: must be called with preemption disabled!
   */
@@ -20253,7 +20254,7 @@ index 679562d2f55d..46b0440ab817 100644
  {
  	struct task_struct *prev, *next;
  	unsigned long *switch_count;
-@@ -4457,7 +5092,7 @@ static void __sched notrace __schedule(bool preempt)
+@@ -4455,7 +5090,7 @@ static void __sched notrace __schedule(bool preempt)
  	 *  - ptrace_{,un}freeze_traced() can change ->state underneath us.
  	 */
  	prev_state = prev->state;
@@ -20262,7 +20263,7 @@ index 679562d2f55d..46b0440ab817 100644
  		if (signal_pending_state(prev_state, prev)) {
  			prev->state = TASK_RUNNING;
  		} else {
-@@ -4492,6 +5127,7 @@ static void __sched notrace __schedule(bool preempt)
+@@ -4490,6 +5125,7 @@ static void __sched notrace __schedule(bool preempt)
  
  	next = pick_next_task(rq, prev, &rf);
  	clear_tsk_need_resched(prev);
@@ -20270,7 +20271,7 @@ index 679562d2f55d..46b0440ab817 100644
  	clear_preempt_need_resched();
  
  	if (likely(prev != next)) {
-@@ -4517,6 +5153,7 @@ static void __sched notrace __schedule(bool preempt)
+@@ -4515,6 +5151,7 @@ static void __sched notrace __schedule(bool preempt)
  		 */
  		++*switch_count;
  
@@ -20278,7 +20279,7 @@ index 679562d2f55d..46b0440ab817 100644
  		psi_sched_switch(prev, next, !task_on_rq_queued(prev));
  
  		trace_sched_switch(preempt, prev, next);
-@@ -4525,10 +5162,11 @@ static void __sched notrace __schedule(bool preempt)
+@@ -4523,10 +5160,11 @@ static void __sched notrace __schedule(bool preempt)
  		rq = context_switch(rq, prev, next, &rf);
  	} else {
  		rq->clock_update_flags &= ~(RQCF_ACT_SKIP|RQCF_REQ_SKIP);
@@ -20293,7 +20294,7 @@ index 679562d2f55d..46b0440ab817 100644
  }
  
  void __noreturn do_task_dead(void)
-@@ -4539,7 +5177,7 @@ void __noreturn do_task_dead(void)
+@@ -4537,7 +5175,7 @@ void __noreturn do_task_dead(void)
  	/* Tell freezer to ignore us: */
  	current->flags |= PF_NOFREEZE;
  
@@ -20302,7 +20303,7 @@ index 679562d2f55d..46b0440ab817 100644
  	BUG();
  
  	/* Avoid "noreturn function does return" - but don't continue if BUG() is a NOP: */
-@@ -4572,9 +5210,6 @@ static inline void sched_submit_work(struct task_struct *tsk)
+@@ -4570,9 +5208,6 @@ static inline void sched_submit_work(struct task_struct *tsk)
  		preempt_enable_no_resched();
  	}
  
@@ -20312,7 +20313,7 @@ index 679562d2f55d..46b0440ab817 100644
  	/*
  	 * If we are going to sleep and we have plugged IO queued,
  	 * make sure to submit it to avoid deadlocks.
-@@ -4600,7 +5235,7 @@ asmlinkage __visible void __sched schedule(void)
+@@ -4598,7 +5233,7 @@ asmlinkage __visible void __sched schedule(void)
  	sched_submit_work(tsk);
  	do {
  		preempt_disable();
@@ -20321,7 +20322,7 @@ index 679562d2f55d..46b0440ab817 100644
  		sched_preempt_enable_no_resched();
  	} while (need_resched());
  	sched_update_worker(tsk);
-@@ -4628,7 +5263,7 @@ void __sched schedule_idle(void)
+@@ -4626,7 +5261,7 @@ void __sched schedule_idle(void)
  	 */
  	WARN_ON_ONCE(current->state);
  	do {
@@ -20330,7 +20331,7 @@ index 679562d2f55d..46b0440ab817 100644
  	} while (need_resched());
  }
  
-@@ -4681,7 +5316,7 @@ static void __sched notrace preempt_schedule_common(void)
+@@ -4679,7 +5314,7 @@ static void __sched notrace preempt_schedule_common(void)
  		 */
  		preempt_disable_notrace();
  		preempt_latency_start(1);
@@ -20339,7 +20340,7 @@ index 679562d2f55d..46b0440ab817 100644
  		preempt_latency_stop(1);
  		preempt_enable_no_resched_notrace();
  
-@@ -4692,6 +5327,30 @@ static void __sched notrace preempt_schedule_common(void)
+@@ -4690,6 +5325,30 @@ static void __sched notrace preempt_schedule_common(void)
  	} while (need_resched());
  }
  
@@ -20370,7 +20371,7 @@ index 679562d2f55d..46b0440ab817 100644
  #ifdef CONFIG_PREEMPTION
  /*
   * This is the entry point to schedule() from in-kernel preemption
-@@ -4705,12 +5364,26 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
+@@ -4703,12 +5362,26 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
  	 */
  	if (likely(!preemptible()))
  		return;
@@ -20398,7 +20399,7 @@ index 679562d2f55d..46b0440ab817 100644
  /**
   * preempt_schedule_notrace - preempt_schedule called by tracing
   *
-@@ -4732,6 +5405,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
+@@ -4730,6 +5403,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
  	if (likely(!preemptible()))
  		return;
  
@@ -20408,7 +20409,7 @@ index 679562d2f55d..46b0440ab817 100644
  	do {
  		/*
  		 * Because the function tracer can trace preempt_count_sub()
-@@ -4754,7 +5430,7 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
+@@ -4752,7 +5428,7 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
  		 * an infinite recursion.
  		 */
  		prev_ctx = exception_enter();
@@ -20417,7 +20418,7 @@ index 679562d2f55d..46b0440ab817 100644
  		exception_exit(prev_ctx);
  
  		preempt_latency_stop(1);
-@@ -4783,7 +5459,7 @@ asmlinkage __visible void __sched preempt_schedule_irq(void)
+@@ -4781,7 +5457,7 @@ asmlinkage __visible void __sched preempt_schedule_irq(void)
  	do {
  		preempt_disable();
  		local_irq_enable();
@@ -20426,7 +20427,7 @@ index 679562d2f55d..46b0440ab817 100644
  		local_irq_disable();
  		sched_preempt_enable_no_resched();
  	} while (need_resched());
-@@ -4940,9 +5616,11 @@ void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task)
+@@ -4947,9 +5623,11 @@ void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task)
  out_unlock:
  	/* Avoid rq from going away on us: */
  	preempt_disable();
@@ -20440,15 +20441,15 @@ index 679562d2f55d..46b0440ab817 100644
  	preempt_enable();
  }
  #else
-@@ -5216,6 +5894,7 @@ static int __sched_setscheduler(struct task_struct *p,
- 	int retval, oldprio, oldpolicy = -1, queued, running;
- 	int new_effective_prio, policy = attr->sched_policy;
+@@ -5192,6 +5870,7 @@ static int __sched_setscheduler(struct task_struct *p,
+ 	int oldpolicy = -1, policy = attr->sched_policy;
+ 	int retval, oldprio, newprio, queued, running;
  	const struct sched_class *prev_class;
 +	struct callback_head *head;
  	struct rq_flags rf;
  	int reset_on_fork;
  	int queue_flags = DEQUEUE_SAVE | DEQUEUE_MOVE | DEQUEUE_NOCLOCK;
-@@ -5454,6 +6133,7 @@ static int __sched_setscheduler(struct task_struct *p,
+@@ -5434,6 +6113,7 @@ static int __sched_setscheduler(struct task_struct *p,
  
  	/* Avoid rq from going away on us: */
  	preempt_disable();
@@ -20456,7 +20457,7 @@ index 679562d2f55d..46b0440ab817 100644
  	task_rq_unlock(rq, p, &rf);
  
  	if (pi) {
-@@ -5462,7 +6142,7 @@ static int __sched_setscheduler(struct task_struct *p,
+@@ -5442,7 +6122,7 @@ static int __sched_setscheduler(struct task_struct *p,
  	}
  
  	/* Run balance callbacks after we've adjusted the PI chain: */
@@ -20465,7 +20466,7 @@ index 679562d2f55d..46b0440ab817 100644
  	preempt_enable();
  
  	return 0;
-@@ -5957,7 +6637,7 @@ long sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
+@@ -5937,7 +6617,7 @@ long sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
  	}
  #endif
  again:
@@ -20474,7 +20475,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	if (!retval) {
  		cpuset_cpus_allowed(p, cpus_allowed);
-@@ -6536,7 +7216,7 @@ void __init init_idle(struct task_struct *idle, int cpu)
+@@ -6516,7 +7196,7 @@ void __init init_idle(struct task_struct *idle, int cpu)
  	 *
  	 * And since this is boot we can forgo the serialization.
  	 */
@@ -20483,7 +20484,7 @@ index 679562d2f55d..46b0440ab817 100644
  #endif
  	/*
  	 * We're having a chicken and egg problem, even though we are
-@@ -6563,7 +7243,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
+@@ -6543,7 +7223,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
  
  	/* Set the preempt count _outside_ the spinlocks! */
  	init_idle_preempt_count(idle, cpu);
@@ -20494,7 +20495,7 @@ index 679562d2f55d..46b0440ab817 100644
  	/*
  	 * The idle tasks have their own, simple scheduling class:
  	 */
-@@ -6668,6 +7350,7 @@ void sched_setnuma(struct task_struct *p, int nid)
+@@ -6648,6 +7330,7 @@ void sched_setnuma(struct task_struct *p, int nid)
  #endif /* CONFIG_NUMA_BALANCING */
  
  #ifdef CONFIG_HOTPLUG_CPU
@@ -20502,7 +20503,7 @@ index 679562d2f55d..46b0440ab817 100644
  /*
   * Ensure that the idle task is using init_mm right before its CPU goes
   * offline.
-@@ -6687,119 +7370,126 @@ void idle_task_exit(void)
+@@ -6667,119 +7350,126 @@ void idle_task_exit(void)
  	/* finish_cpu(), as ran on the BP, will clean up the active_mm state */
  }
  
@@ -20719,7 +20720,7 @@ index 679562d2f55d..46b0440ab817 100644
  #endif /* CONFIG_HOTPLUG_CPU */
  
  void set_rq_online(struct rq *rq)
-@@ -6885,6 +7575,8 @@ int sched_cpu_activate(unsigned int cpu)
+@@ -6865,6 +7555,8 @@ int sched_cpu_activate(unsigned int cpu)
  	struct rq *rq = cpu_rq(cpu);
  	struct rq_flags rf;
  
@@ -20728,7 +20729,7 @@ index 679562d2f55d..46b0440ab817 100644
  #ifdef CONFIG_SCHED_SMT
  	/*
  	 * When going up, increment the number of cores with SMT present.
-@@ -6920,6 +7612,8 @@ int sched_cpu_activate(unsigned int cpu)
+@@ -6900,6 +7592,8 @@ int sched_cpu_activate(unsigned int cpu)
  
  int sched_cpu_deactivate(unsigned int cpu)
  {
@@ -20737,7 +20738,7 @@ index 679562d2f55d..46b0440ab817 100644
  	int ret;
  
  	set_cpu_active(cpu, false);
-@@ -6932,6 +7626,16 @@ int sched_cpu_deactivate(unsigned int cpu)
+@@ -6912,6 +7606,16 @@ int sched_cpu_deactivate(unsigned int cpu)
  	 */
  	synchronize_rcu();
  
@@ -20754,7 +20755,7 @@ index 679562d2f55d..46b0440ab817 100644
  #ifdef CONFIG_SCHED_SMT
  	/*
  	 * When going down, decrement the number of cores with SMT present.
-@@ -6945,6 +7649,7 @@ int sched_cpu_deactivate(unsigned int cpu)
+@@ -6925,6 +7629,7 @@ int sched_cpu_deactivate(unsigned int cpu)
  
  	ret = cpuset_cpu_inactive(cpu);
  	if (ret) {
@@ -20762,7 +20763,7 @@ index 679562d2f55d..46b0440ab817 100644
  		set_cpu_active(cpu, true);
  		return ret;
  	}
-@@ -6968,6 +7673,41 @@ int sched_cpu_starting(unsigned int cpu)
+@@ -6948,6 +7653,41 @@ int sched_cpu_starting(unsigned int cpu)
  }
  
  #ifdef CONFIG_HOTPLUG_CPU
@@ -20804,7 +20805,7 @@ index 679562d2f55d..46b0440ab817 100644
  int sched_cpu_dying(unsigned int cpu)
  {
  	struct rq *rq = cpu_rq(cpu);
-@@ -6977,12 +7717,7 @@ int sched_cpu_dying(unsigned int cpu)
+@@ -6957,12 +7697,7 @@ int sched_cpu_dying(unsigned int cpu)
  	sched_tick_stop(cpu);
  
  	rq_lock_irqsave(rq, &rf);
@@ -20818,7 +20819,7 @@ index 679562d2f55d..46b0440ab817 100644
  	rq_unlock_irqrestore(rq, &rf);
  
  	calc_load_migrate(rq);
-@@ -7189,6 +7924,9 @@ void __init sched_init(void)
+@@ -7169,6 +7904,9 @@ void __init sched_init(void)
  
  		rq_csd_init(rq, &rq->nohz_csd, nohz_csd_func);
  #endif
@@ -20828,7 +20829,7 @@ index 679562d2f55d..46b0440ab817 100644
  #endif /* CONFIG_SMP */
  		hrtick_rq_init(rq);
  		atomic_set(&rq->nr_iowait, 0);
-@@ -7229,7 +7967,7 @@ void __init sched_init(void)
+@@ -7209,7 +7947,7 @@ void __init sched_init(void)
  #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
  static inline int preempt_count_equals(int preempt_offset)
  {
@@ -20837,7 +20838,7 @@ index 679562d2f55d..46b0440ab817 100644
  
  	return (nested == preempt_offset);
  }
-@@ -7326,6 +8064,39 @@ void __cant_sleep(const char *file, int line, int preempt_offset)
+@@ -7306,6 +8044,39 @@ void __cant_sleep(const char *file, int line, int preempt_offset)
  	add_taint(TAINT_WARN, LOCKDEP_STILL_OK);
  }
  EXPORT_SYMBOL_GPL(__cant_sleep);
@@ -21137,7 +21138,7 @@ index 6b98c1fe6e7f..15b312e98e5b 100644
  
  	.task_tick		= task_tick_dl,
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 32c0905bca84..d0b288daf82d 100644
+index 262b02d75007..6dcc229427b8 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
 @@ -4397,7 +4397,7 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
@@ -22536,21 +22537,10 @@ index e8d351b7f9b0..3e3130a7d44e 100644
  			pr_warn("NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #%02x!!!\n",
  				(unsigned int) local_softirq_pending());
 diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index c3ad64fb9d8b..b6477db234e6 100644
+index a3ec21be3b14..af3daf03c917 100644
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
-@@ -1263,8 +1263,10 @@ static inline void timer_base_unlock_expiry(struct timer_base *base)
- static void timer_sync_wait_running(struct timer_base *base)
- {
- 	if (atomic_read(&base->timer_waiters)) {
-+		raw_spin_unlock_irq(&base->lock);
- 		spin_unlock(&base->expiry_lock);
- 		spin_lock(&base->expiry_lock);
-+		raw_spin_lock_irq(&base->lock);
- 	}
- }
- 
-@@ -1283,7 +1285,7 @@ static void del_timer_wait_running(struct timer_list *timer)
+@@ -1287,7 +1287,7 @@ static void del_timer_wait_running(struct timer_list *timer)
  	u32 tf;
  
  	tf = READ_ONCE(timer->flags);
@@ -22559,7 +22549,7 @@ index c3ad64fb9d8b..b6477db234e6 100644
  		struct timer_base *base = get_timer_base(tf);
  
  		/*
-@@ -1367,6 +1369,13 @@ int del_timer_sync(struct timer_list *timer)
+@@ -1371,6 +1371,13 @@ int del_timer_sync(struct timer_list *timer)
  	 */
  	WARN_ON(in_irq() && !(timer->flags & TIMER_IRQSAFE));
  
@@ -22573,24 +22563,7 @@ index c3ad64fb9d8b..b6477db234e6 100644
  	do {
  		ret = try_to_del_timer_sync(timer);
  
-@@ -1448,14 +1457,14 @@ static void expire_timers(struct timer_base *base, struct hlist_head *head)
- 		if (timer->flags & TIMER_IRQSAFE) {
- 			raw_spin_unlock(&base->lock);
- 			call_timer_fn(timer, fn, baseclk);
--			base->running_timer = NULL;
- 			raw_spin_lock(&base->lock);
-+			base->running_timer = NULL;
- 		} else {
- 			raw_spin_unlock_irq(&base->lock);
- 			call_timer_fn(timer, fn, baseclk);
-+			raw_spin_lock_irq(&base->lock);
- 			base->running_timer = NULL;
- 			timer_sync_wait_running(base);
--			raw_spin_lock_irq(&base->lock);
- 		}
- 	}
- }
-@@ -1757,6 +1766,8 @@ static __latent_entropy void run_timer_softirq(struct softirq_action *h)
+@@ -1760,6 +1767,8 @@ static __latent_entropy void run_timer_softirq(struct softirq_action *h)
  {
  	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
  
@@ -22667,7 +22640,7 @@ index f1022945e346..c300ac337573 100644
  		}
  	}
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index ee84891bacfa..89315dd9aacf 100644
+index e4f154119e52..3602857934be 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
 @@ -176,7 +176,7 @@ static union trace_eval_map_item *trace_eval_maps;
@@ -23221,7 +23194,7 @@ index ee84891bacfa..89315dd9aacf 100644
  }
  
  void
-@@ -6651,7 +6660,6 @@ tracing_mark_write(struct file *filp, const char __user *ubuf,
+@@ -6655,7 +6664,6 @@ tracing_mark_write(struct file *filp, const char __user *ubuf,
  	enum event_trigger_type tt = ETT_NONE;
  	struct trace_buffer *buffer;
  	struct print_entry *entry;
@@ -23229,7 +23202,7 @@ index ee84891bacfa..89315dd9aacf 100644
  	ssize_t written;
  	int size;
  	int len;
-@@ -6671,7 +6679,6 @@ tracing_mark_write(struct file *filp, const char __user *ubuf,
+@@ -6675,7 +6683,6 @@ tracing_mark_write(struct file *filp, const char __user *ubuf,
  
  	BUILD_BUG_ON(TRACE_BUF_SIZE >= PAGE_SIZE);
  
@@ -23237,7 +23210,7 @@ index ee84891bacfa..89315dd9aacf 100644
  	size = sizeof(*entry) + cnt + 2; /* add '\0' and possible '\n' */
  
  	/* If less than "<faulted>", then make sure we can still add that */
-@@ -6680,7 +6687,7 @@ tracing_mark_write(struct file *filp, const char __user *ubuf,
+@@ -6684,7 +6691,7 @@ tracing_mark_write(struct file *filp, const char __user *ubuf,
  
  	buffer = tr->array_buffer.buffer;
  	event = __trace_buffer_lock_reserve(buffer, TRACE_PRINT, size,
@@ -23246,7 +23219,7 @@ index ee84891bacfa..89315dd9aacf 100644
  	if (unlikely(!event))
  		/* Ring buffer disabled, return as if not open for write */
  		return -EBADF;
-@@ -6732,7 +6739,6 @@ tracing_mark_raw_write(struct file *filp, const char __user *ubuf,
+@@ -6736,7 +6743,6 @@ tracing_mark_raw_write(struct file *filp, const char __user *ubuf,
  	struct ring_buffer_event *event;
  	struct trace_buffer *buffer;
  	struct raw_data_entry *entry;
@@ -23254,7 +23227,7 @@ index ee84891bacfa..89315dd9aacf 100644
  	ssize_t written;
  	int size;
  	int len;
-@@ -6754,14 +6760,13 @@ tracing_mark_raw_write(struct file *filp, const char __user *ubuf,
+@@ -6758,14 +6764,13 @@ tracing_mark_raw_write(struct file *filp, const char __user *ubuf,
  
  	BUILD_BUG_ON(TRACE_BUF_SIZE >= PAGE_SIZE);
  
@@ -23270,7 +23243,7 @@ index ee84891bacfa..89315dd9aacf 100644
  	if (!event)
  		/* Ring buffer disabled, return as if not open for write */
  		return -EBADF;
-@@ -9312,7 +9317,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
+@@ -9318,7 +9323,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
  	tracing_off();
  
  	local_irq_save(flags);
@@ -23278,7 +23251,7 @@ index ee84891bacfa..89315dd9aacf 100644
  
  	/* Simulate the iterator */
  	trace_init_global_iter(&iter);
-@@ -9392,7 +9396,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
+@@ -9398,7 +9402,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
  		atomic_dec(&per_cpu_ptr(iter.array_buffer->data, cpu)->disabled);
  	}
  	atomic_dec(&dump_running);
@@ -24504,10 +24477,10 @@ index 3cf7128e1ad3..a1ed96a7a462 100644
  
  /* uprobe handler */
 diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index b23f7d1044be..7908f8391173 100644
+index 51d19fc71e61..bcb501a1affb 100644
 --- a/kernel/workqueue.c
 +++ b/kernel/workqueue.c
-@@ -4913,6 +4913,10 @@ static void unbind_workers(int cpu)
+@@ -4919,6 +4919,10 @@ static void unbind_workers(int cpu)
  		pool->flags |= POOL_DISASSOCIATED;
  
  		raw_spin_unlock_irq(&pool->lock);
@@ -24519,7 +24492,7 @@ index b23f7d1044be..7908f8391173 100644
  
  		/*
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 5b7f88a2876d..0dfa263958a9 100644
+index ffccc13d685b..b9bded0e249b 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
 @@ -1329,7 +1329,7 @@ config DEBUG_ATOMIC_SLEEP
@@ -25464,7 +25437,7 @@ index 92bf987d0a41..d1a1a973b03c 100644
  	css_put(&memcg->css);
  }
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index e30d88efd7fb..099321f174cd 100644
+index 0166558d3d64..accab201af7c 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
 @@ -61,6 +61,7 @@
@@ -25817,7 +25790,7 @@ index e30d88efd7fb..099321f174cd 100644
  	return NULL;
  }
  
-@@ -8726,7 +8796,7 @@ void zone_pcp_reset(struct zone *zone)
+@@ -8754,7 +8824,7 @@ void zone_pcp_reset(struct zone *zone)
  	struct per_cpu_pageset *pset;
  
  	/* avoid races with drain_pages()  */
@@ -25826,7 +25799,7 @@ index e30d88efd7fb..099321f174cd 100644
  	if (zone->pageset != &boot_pageset) {
  		for_each_online_cpu(cpu) {
  			pset = per_cpu_ptr(zone->pageset, cpu);
-@@ -8735,7 +8805,7 @@ void zone_pcp_reset(struct zone *zone)
+@@ -8763,7 +8833,7 @@ void zone_pcp_reset(struct zone *zone)
  		free_percpu(zone->pageset);
  		zone->pageset = &boot_pageset;
  	}
@@ -25836,7 +25809,7 @@ index e30d88efd7fb..099321f174cd 100644
  
  #ifdef CONFIG_MEMORY_HOTREMOVE
 diff --git a/mm/shmem.c b/mm/shmem.c
-index 96df61c8af65..3d354eb52eab 100644
+index ae8adca3b56d..01d4fd96fb15 100644
 --- a/mm/shmem.c
 +++ b/mm/shmem.c
 @@ -278,10 +278,10 @@ static int shmem_reserve_inode(struct super_block *sb, ino_t *inop)
@@ -25903,7 +25876,7 @@ index 96df61c8af65..3d354eb52eab 100644
  	}
  	return mpol;
  }
-@@ -3600,9 +3601,10 @@ static int shmem_reconfigure(struct fs_context *fc)
+@@ -3588,9 +3589,10 @@ static int shmem_reconfigure(struct fs_context *fc)
  	struct shmem_options *ctx = fc->fs_private;
  	struct shmem_sb_info *sbinfo = SHMEM_SB(fc->root->d_sb);
  	unsigned long inodes;
@@ -25915,7 +25888,7 @@ index 96df61c8af65..3d354eb52eab 100644
  	inodes = sbinfo->max_inodes - sbinfo->free_inodes;
  	if ((ctx->seen & SHMEM_SEEN_BLOCKS) && ctx->blocks) {
  		if (!sbinfo->max_blocks) {
-@@ -3647,14 +3649,15 @@ static int shmem_reconfigure(struct fs_context *fc)
+@@ -3635,14 +3637,15 @@ static int shmem_reconfigure(struct fs_context *fc)
  	 * Preserve previous mempolicy unless mpol remount option was specified.
  	 */
  	if (ctx->mpol) {
@@ -25934,7 +25907,7 @@ index 96df61c8af65..3d354eb52eab 100644
  	return invalfc(fc, "%s", err);
  }
  
-@@ -3771,7 +3774,7 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
+@@ -3759,7 +3762,7 @@ static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
  	sbinfo->mpol = ctx->mpol;
  	ctx->mpol = NULL;
  
@@ -27361,7 +27334,7 @@ index d6567162c1cf..05b0f041f039 100644
  config BQL
  	bool
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 2fdf30eefc59..bb307889b3f9 100644
+index b9d19fbb1589..b8df85c2e647 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -221,14 +221,14 @@ static inline struct hlist_head *dev_index_hash(struct net *net, int ifindex)
@@ -27458,7 +27431,7 @@ index 2fdf30eefc59..bb307889b3f9 100644
  	trace_netif_rx_ni_exit(err);
  
  	return err;
-@@ -6310,12 +6315,14 @@ static void net_rps_action_and_irq_enable(struct softnet_data *sd)
+@@ -6324,12 +6329,14 @@ static void net_rps_action_and_irq_enable(struct softnet_data *sd)
  		sd->rps_ipi_list = NULL;
  
  		local_irq_enable();
@@ -27473,7 +27446,7 @@ index 2fdf30eefc59..bb307889b3f9 100644
  }
  
  static bool sd_has_rps_ipi_waiting(struct softnet_data *sd)
-@@ -6393,6 +6400,7 @@ void __napi_schedule(struct napi_struct *n)
+@@ -6407,6 +6414,7 @@ void __napi_schedule(struct napi_struct *n)
  	local_irq_save(flags);
  	____napi_schedule(this_cpu_ptr(&softnet_data), n);
  	local_irq_restore(flags);
@@ -27481,7 +27454,7 @@ index 2fdf30eefc59..bb307889b3f9 100644
  }
  EXPORT_SYMBOL(__napi_schedule);
  
-@@ -10931,6 +10939,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
+@@ -10951,6 +10959,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
  
  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
  	local_irq_enable();
@@ -27489,7 +27462,7 @@ index 2fdf30eefc59..bb307889b3f9 100644
  
  #ifdef CONFIG_RPS
  	remsd = oldsd->rps_ipi_list;
-@@ -10944,7 +10953,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
+@@ -10964,7 +10973,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
  		netif_rx_ni(skb);
  		input_queue_head_incr(oldsd);
  	}
@@ -27498,7 +27471,7 @@ index 2fdf30eefc59..bb307889b3f9 100644
  		netif_rx_ni(skb);
  		input_queue_head_incr(oldsd);
  	}
-@@ -11260,7 +11269,7 @@ static int __init net_dev_init(void)
+@@ -11280,7 +11289,7 @@ static int __init net_dev_init(void)
  
  		INIT_WORK(flush, flush_backlog);
  
@@ -27589,7 +27562,7 @@ index e491b083b348..ef432cea2e10 100644
  			 struct gnet_stats_basic_cpu __percpu *cpu,
  			 struct gnet_stats_basic_packed *b)
 diff --git a/net/core/sock.c b/net/core/sock.c
-index 7de51ea15cdf..49dde7ab2652 100644
+index d638c5361ed2..a56dd73b4c76 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
 @@ -3039,12 +3039,11 @@ void lock_sock_nested(struct sock *sk, int subclass)
@@ -27713,7 +27686,7 @@ index 54a8c363bcdd..e6e00f8a7f8f 100644
  		err = -EOPNOTSUPP;
  		if (sch->flags & TCQ_F_MQROOT) {
 diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 854d2b38db85..336132ae35b5 100644
+index 05aa2571a409..1cd1cbf3afb0 100644
 --- a/net/sched/sch_generic.c
 +++ b/net/sched/sch_generic.c
 @@ -578,7 +578,11 @@ struct Qdisc noop_qdisc = {
@@ -27729,7 +27702,7 @@ index 854d2b38db85..336132ae35b5 100644
  	.gso_skb = {
  		.next = (struct sk_buff *)&noop_qdisc.gso_skb,
 @@ -889,9 +893,15 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
- 	lockdep_set_class(&sch->busylock,
+ 	lockdep_set_class(&sch->seqlock,
  			  dev->qdisc_tx_busylock ?: &qdisc_tx_busylock);
  
 +#ifdef CONFIG_PREEMPT_RT
