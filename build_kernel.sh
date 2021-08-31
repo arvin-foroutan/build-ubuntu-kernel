@@ -324,7 +324,7 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
     echo "*** Copying and applying bfq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-v7-sep/*.patch .;
     patch -p1 < ./0001-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
-    if ! [ ${KERNEL_TYPE} == "rt" ]; then
+    if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
         patch -p1 < ./0003-block-bfq-boost-throughput-by-extending-queue-mergin.patch;
     fi
@@ -437,7 +437,7 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
-    if ! [ ${KERNEL_TYPE} == "rt" ]; then
+    if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying btrfs patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
         patch -p1 < ./0001-btrfs-patches.patch;
@@ -935,12 +935,12 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0001-modules-disinherit-taint-proprietary-module.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
-    if ! [ ${KERNEL_TYPE} == "rt" ]; then
+    if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
     fi
     patch -p1 < ./0006-dcache-cache_pressure-50-decreases-the-rate-at-which.patch;
     patch -p1 < ./0009-cpufreq-tunes-ondemand-and-conservative-governor-for.patch;
-    patch -p1 < ./0010-scripts-disable-the-localversion-tag-of-a-git-repo.patch; # LTS kernel, supported until 2025
+    patch -p1 < ./0010-scripts-disable-the-localversion-tag-of-a-git-repo.patch;
 fi
 
 # CacULE scheduler enabled by default (except for -rt)
