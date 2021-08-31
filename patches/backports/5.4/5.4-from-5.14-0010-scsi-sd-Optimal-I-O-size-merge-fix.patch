@@ -1,0 +1,10 @@
+--- ./drivers/scsi/sd.h	2021-08-26 05:55:22.000000000 -0700
++++ ./drivers/scsi/sd.h	2021-08-31 01:25:39.658270191 -0700
+@@ -82,6 +82,7 @@
+ #endif
+ 	atomic_t	openers;
+ 	sector_t	capacity;	/* size in logical blocks */
++	u32		min_xfer_blocks;
+ 	u32		max_xfer_blocks;
+ 	u32		opt_xfer_blocks;
+ 	u32		max_ws_blocks;
