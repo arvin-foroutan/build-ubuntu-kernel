@@ -83,8 +83,7 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
                 cp --update ./build_kernel.sh ${KERNEL_MAIN_DIR};
                 ;;
             [nN] | [n|N][O|o] )
-                echo "*** Keeping existing build script... ✓";
-                ;;
+                ;&
             *)
                 echo "*** Keeping existing build script... ✓";
                 ;;
@@ -1063,8 +1062,7 @@ case $yno in
         echo "*** Okay, moving on... ✓";
         ;;
     [yY] | [yY][Ee][Ss] )
-        fakeroot debian/rules editconfigs;
-        ;;
+        ;&
     *)
         fakeroot debian/rules editconfigs;
         ;;
@@ -1079,8 +1077,7 @@ case $yno in
         cp -fv ./debian.master/config/config.common.ubuntu ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
         ;;
     [nN] | [n|N][O|o] )
-        echo "*** Okay, moving on... ✓";
-        ;;
+        ;&
     *)
         echo "*** Okay, moving on... ✓";
         ;;
@@ -1094,9 +1091,7 @@ case $yno in
         exit 0;
         ;;
     [yY] | [yY][Ee][Ss] )
-        echo "*** Starting build... ✓";
-        fakeroot debian/rules binary-headers binary-generic binary-perarch;
-        ;;
+        ;&
     *)
         echo "*** Starting build... ✓";
         fakeroot debian/rules binary-headers binary-generic binary-perarch;
