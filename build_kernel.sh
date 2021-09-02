@@ -176,6 +176,9 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-Bluetooth-btusb-check-conditions-before-enabling-USB.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-20210809.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-bbr2-5.14-introduce-BBRv2.patch;
