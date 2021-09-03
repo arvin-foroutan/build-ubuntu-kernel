@@ -263,10 +263,9 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
     echo "*** Copying and applying zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
-    patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
     echo "*** Copying and applying zstd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
