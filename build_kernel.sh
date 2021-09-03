@@ -349,7 +349,7 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
     patch -p1 < ./0014-Revert-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0015-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v3/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying cjktty patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cjktty-patches/*.patch .;
