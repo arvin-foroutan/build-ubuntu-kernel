@@ -7,8 +7,8 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.143"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504143"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.144"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504144"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cacule"} # cacule, cfs
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -166,8 +166,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.59-rt52.patch .;
         patch -p1 < ./patch-5.10.59-rt52.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.143-rt63.patch .;
-        patch -p1 < ./patch-5.4.143-rt63.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.144-rt63.patch .;
+        patch -p1 < ./patch-5.4.144-rt63.patch;
     fi
 fi
 
@@ -988,11 +988,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.4.143-0504143+customidle-generic
-# 5.4.143-0504143+customfull-generic
-# 5.4.143-0504143+customrt-generic
+# 5.4.144-0504144+customidle-generic
+# 5.4.144-0504144+customfull-generic
+# 5.4.144-0504144+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.4.143-0504143+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.4.144-0504144+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1133,7 +1133,7 @@ rm -rf ${KERNEL_BUILD_DIR};
 # Also note: Running 'sudo update-grub2' will list your installed kernels,
 # and you can manually delete the ones that have uninstall as time goes on.
 #
-# To uninstall a kernel: $ sudo apt purge *5.4.143-0504143+customidle-generic*
+# To uninstall a kernel: $ sudo apt purge *5.4.144-0504144+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
 ls -al /usr/src;
 ls -al /lib/modules;
