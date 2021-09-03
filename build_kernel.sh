@@ -157,8 +157,8 @@ fi
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} == "5.14" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rt15.patch .;
-        patch -p1 < ./patch-5.14-rt15.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14-rt17.patch .;
+        patch -p1 < ./patch-5.14-rt17.patch;
     elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
