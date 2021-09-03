@@ -304,6 +304,12 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
         echo "*** Copying and applying lru patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
+        echo "*** Copying and applying ksm patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksm-patches-sep/*.patch .;
+        patch -p1 < ./0001-mm-ksm-introduce-ksm_madvise_merge-helper.patch;
+        patch -p1 < ./0002-mm-ksm-introduce-ksm_madvise_unmerge-helper.patch;
+        patch -p1 < ./0003-mm-ksm-proc-introduce-remote-merge.patch;
+        patch -p1 < ./0004-mm-ksm-proc-add-remote-KSM-documentation.patch;
     fi
     if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
         # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
