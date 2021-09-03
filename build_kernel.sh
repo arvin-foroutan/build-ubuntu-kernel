@@ -266,7 +266,7 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches-v2/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zstd upstream patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches/*.patch .;
