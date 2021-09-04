@@ -272,12 +272,16 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches/*.patch .;
     patch -p1 < ./0001-zstd-upstream-patches.patch;
     # Misc / Tweaks
+    sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     echo "*** Copying and applying cjktty 5.13 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.13/cjktty-patches/*.patch .;
     patch -p1 < ./0001-cjktty-5.13-initial-import-from-https-github.com-zhm.patch;
     echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
+    patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
@@ -308,13 +312,6 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
         patch -p1 < ./0003-mm-ksm-proc-introduce-remote-merge.patch;
         patch -p1 < ./0004-mm-ksm-proc-add-remote-KSM-documentation.patch;
     fi
-    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
-        # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
-        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-        patch -p1 < ./cfs-zen-tweaks.patch;
-    fi
-    sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
 elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
     echo "*** Copying and applying alsa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/alsa-patches-v2/*.patch .;
