@@ -303,8 +303,8 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
         patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
         echo "*** Copying and applying lru patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches/*.patch .;
-        patch -p1 < ./0001-lru-patches.patch;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-zen-patches-v2/*.patch .;
+        patch -p1 < ./0001-lru-zen-patches.patch;
         echo "*** Copying and applying ksm patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksm-patches-sep/*.patch .;
         patch -p1 < ./0001-mm-ksm-introduce-ksm_madvise_merge-helper.patch;
