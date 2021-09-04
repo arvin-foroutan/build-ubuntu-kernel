@@ -436,24 +436,35 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     patch -p1 < ./0003-ZEN-vhba-Update-to-20210418.patch;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        echo "*** Copying and applying btrfs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
-        patch -p1 < ./0001-btrfs-patches.patch;
-        echo "*** Copying and applying ksm patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksm-patches/*.patch .;
-        patch -p1 < ./0001-ksm-patches.patch;
-    fi
     echo "*** Copying and applying ll patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
+    echo "*** Copying and applying lqx patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
+    patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
+    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
+    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    echo "*** Copying and applying cfs zen tweaks patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
+    patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    echo "*** Copying and applying disable memory compaction patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
+    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
+    echo "*** Copying and applying force irq threads patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
+    patch -p1 < ./force-irq-threads.patch;
+    echo "*** Copying and applying increase writeback threshold patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
+    patch -p1 < ./increase-default-writeback-thresholds.patch;
+    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
+    patch -p1 < ./enable-background-reclaim-hugepages.patch;
     if [ ${KERNEL_TYPE} == "rt" ]; then
         sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-    else
-        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-    fi
-    if [ ${KERNEL_TYPE} == "rt" ]; then
         echo "*** Copying and applying Valve fsync patches.. ✓";
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/5-13-futex-rt.patch .;
         patch -p1 < ./5-13-futex-rt.patch;
@@ -467,31 +478,13 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         echo "*** Copying and applying futex2 zen patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex2-zen-patches-v2/*.patch .;
         patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
-    fi
-    echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
-    patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
-    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
-    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
-    echo "*** Copying and applying disable memory compaction patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
-    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
-    echo "*** Copying and applying force irq threads patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
-    patch -p1 < ./force-irq-threads.patch;
-    echo "*** Copying and applying increase writeback threshold patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
-    patch -p1 < ./increase-default-writeback-thresholds.patch;
-    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
-    patch -p1 < ./enable-background-reclaim-hugepages.patch;
-    if [ ${KERNEL_SCHEDULER} != "cacule" ]; then
-        echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-        patch -p1 < ./cfs-zen-tweaks.patch;
+        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
+        echo "*** Copying and applying btrfs patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
+        patch -p1 < ./0001-btrfs-patches.patch;
+        echo "*** Copying and applying ksm patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksm-patches/*.patch .;
+        patch -p1 < ./0001-ksm-patches.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying arch patches.. ✓";
