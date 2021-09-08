@@ -206,7 +206,7 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches/*.patch .;
     patch -p1 < ./0001-cpu-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v3-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-kbuild-add-fcf-protection-none-to-retpoline-flags.patch;
@@ -218,6 +218,8 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
+    patch -p1 < ./0013-fs-add-a-filemap_fdatawrite_wbc-helper.patch;
+    patch -p1 < ./0014-NFS-Always-provide-aligned-buffers-to-the-RPC-read-l.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
