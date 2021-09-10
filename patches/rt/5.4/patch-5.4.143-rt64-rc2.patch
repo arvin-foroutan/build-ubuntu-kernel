@@ -6563,7 +6563,7 @@ index 2cc9f2168b9e..33610b1bbac7 100644
  			fscrypt_free_bounce_page(bounce_page);
  			end_page_writeback(page);
 diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
-index 0ce39658a620..5508d92e3f8f 100644
+index 0ce39658a620..cba2a226897f 100644
 --- a/fs/fscache/cookie.c
 +++ b/fs/fscache/cookie.c
 @@ -958,3 +958,11 @@ int __fscache_check_consistency(struct fscache_cookie *cookie,
@@ -6575,7 +6575,7 @@ index 0ce39658a620..5508d92e3f8f 100644
 +{
 +	int i;
 +
-+	for (i = 0; i < (1 << fscache_cookie_hash_shift) - 1; i++)
++	for (i = 0; i < ARRAY_SIZE(fscache_cookie_hash); i++)
 +		INIT_HLIST_BL_HEAD(&fscache_cookie_hash[i]);
 +}
 diff --git a/fs/fscache/main.c b/fs/fscache/main.c
