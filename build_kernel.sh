@@ -173,8 +173,10 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-Bluetooth-Move-shutdown-callback-before-flushing-tx-.patch;
+    patch -p1 < ./0003-watchdog-iTCO_wdt-Fix-detection-of-SMI-off-case.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20210906.patch;
