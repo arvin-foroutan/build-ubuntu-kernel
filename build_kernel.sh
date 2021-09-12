@@ -236,13 +236,14 @@ if [ ${KERNEL_BASE_VER} == "5.14" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v5/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v4-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-mm-compaction-optimize-proactive-compaction-deferral.patch;
     patch -p1 < ./0002-mm-compaction-support-triggering-of-proactive-compac.patch;
     patch -p1 < ./0003-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
     patch -p1 < ./0004-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
     patch -p1 < ./0005-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     patch -p1 < ./0006-x86-ACPI-State-Optimize-C3-entry-on-AMD-CPUs.patch;
+    patch -p1 < ./0007-namei-add-mapping-aware-lookup-helper.patch;
     echo "*** Copying and applying security patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/security-patches-sep/*.patch .;
     patch -p1 < ./0001-security-Add-LSM-hook-at-the-point-where-a-task-gets.patch;
