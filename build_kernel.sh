@@ -225,9 +225,6 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
-    # echo "*** (NOW INCLUDED in 5.15) Copying and applying ksmbd patches.. ✓";
-    # cp -v ${LUCJAN_PATCH_PATH}/5.14/ksmbd-patches-v2/*.patch .;
-    # patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/lqx-patches-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
@@ -235,9 +232,6 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     echo "*** Copying and applying lrng patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
-    # echo "*** (NOW INCLUDED in 5.15) Copying and applying ntfs3 patches.. ✓";
-    # cp -v ${LUCJAN_PATCH_PATH}/5.14/ntfs3-patches-v5/*.patch .;
-    # patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/pf-patches-v5-sep/*.patch .;
     patch -p1 < ./0003-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
@@ -247,9 +241,6 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-5.14-merge-v0.12.5.patch;
-    # echo "*** (NOW INCLUDED in 5.15) Copying and applying writeback patches.. ✓";
-    # cp -v ${LUCJAN_PATCH_PATH}/5.14/writeback-patches/*.patch .;
-    # patch -p1 < ./0001-writeback-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/xanmod-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
@@ -289,7 +280,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
 elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v4-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-watchdog-iTCO_wdt-Fix-detection-of-SMI-off-case.patch;
     echo "*** Copying and applying aufs patches.. ✓";
