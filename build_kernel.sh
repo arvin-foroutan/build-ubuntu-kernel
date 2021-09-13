@@ -302,10 +302,9 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches/*.patch .;
     patch -p1 < ./0001-bcachefs-5.14-introduce-bcachefs-patchset.patch;
     echo "*** Copying and applying bfq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-sep/*.patch .;
-    patch -p1 < ./0001-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
-    patch -p1 < ./0002-block-bfq-honor-already-setup-queue-merges.patch;
-    patch -p1 < ./0003-block-bfq-cleanup-the-repeated-declaration.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-block-bfq-honor-already-setup-queue-merges.patch;
+    patch -p1 < ./0002-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
