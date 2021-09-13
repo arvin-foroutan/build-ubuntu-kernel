@@ -176,7 +176,7 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/bbr2-patches/*.patch .;
