@@ -308,7 +308,11 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
     patch -p1 < ./0004-block-fix-trivial-typos-in-comments.patch;
     patch -p1 < ./0005-block-Add-CONFIG-to-rename-the-mq-deadline-scheduler.patch;
     echo "*** Copying and applying btrfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
+    if [ ${KERNEL_TYPE} == "rt" ]; then
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
+    else
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v4/*.patch .;
+    fi
     patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
