@@ -24,9 +24,10 @@ XANMOD_PATCH_PATH=${XANMOD_PATCH_PATH:-${PATCH_PATH}/xanmod-patches}
 CUSTOM_PATCH_PATH=${CUSTOM_PATCH_PATH:-${PATCH_PATH}/custom-patches}
 KERNEL_SRC_URI=${KERNEL_SRC_URI:-"https://cdn.kernel.org/pub/linux/kernel/v5.x"}
 KERNEL_SRC_EXT=${KERNEL_SRC_EXT:-"tar.xz"}
-KERNEL_SRC_URL=${KERNEL_SRC_URL:-${KERNEL_SRC_URI}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT}}
+KERNEL_SRC_NAME=${KERNEL_SRC_NAME:-"linux-${KERNEL_PATCH_VER}"}
+KERNEL_SRC_URL=${KERNEL_SRC_URL:-${KERNEL_SRC_URI}/${KERNEL_SRC_NAME}.${KERNEL_SRC_EXT}}
 
-echo "*** Creating main kernel workspace if it doesn't already exist... ✓";
+echo "*** Creating kernel workspace if it doesn't already exist... ✓";
 mkdir -pv ${KERNEL_MAIN_DIR};
 
 echo "*** Creating sources directory if it doesn't already exist... ✓";
@@ -85,7 +86,7 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
             [nN] | [n|N][O|o] )
                 ;&
             *)
-                echo "*** Keeping existing build script... ✓";
+                echo "*** Keeping existing build script. ✓";
                 ;;
         esac
     else
@@ -130,13 +131,13 @@ UBUNTU_PATCHES=${UBUNTU_PATCHES:-"yes"}
 if [ ${UBUNTU_PATCHES} == "yes" ]; then
     # Deprecated as of 5.4.45 but can still be applied
     # See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
-    echo "*** Copying and applying Ubuntu patches... ✓";
+    echo "*** Copying and applying Ubuntu patches... 1/3 ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ubuntu-${KERNEL_BASE_VER}/*.patch .;
     patch -p1 < ./0001-base-packaging.patch;
     patch -p1 < ./0002-UBUNTU-SAUCE-add-vmlinux.strip-to-BOOT_TARGETS1-on-p.patch;
     patch -p1 < ./0003-UBUNTU-SAUCE-tools-hv-lsvmbus-add-manual-page.patch;
 
-    echo "*** Updating version number in changelog... ✓";
+    echo "*** Updating version number in changelog... 2/3 ✓";
     # Update the version in the changelog to latest version since the patches
     # are no longer maintained and because we want to keep our kernel as Ubuntu-like
     # as possible (with ABI and all)
@@ -147,9 +148,10 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     fi
     patch -p1 < ./0004-debian-changelog.patch;
 
+    echo "*** Updating patch version number... 3/3 ✓";
     [[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
     patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
-    echo "*** Successfully applied Ubuntu patches... ✓";
+    echo "*** Successfully applied all Ubuntu patches. ✓";
 fi
 
 # Allow support for rt (real-time) kernels
@@ -1088,7 +1090,7 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
             patch -p1 < ./cacule-5.4-merge-fixes-part${i}.patch;
         done
     fi
-    echo "*** Copying and applying CacULE patch.. ✓";
+    echo "*** Copying and applying CacULE kernel scheduler patch.. ✓";
 fi
 
 # Examples:
@@ -1166,7 +1168,7 @@ echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you need to
 read yno;
 case $yno in
     [nN] | [n|N][O|o] )
-        echo "*** Okay, moving on... ✓";
+        echo "*** Okay, moving on. ✓";
         ;;
     [yY] | [yY][Ee][Ss] )
         ;&
@@ -1186,7 +1188,7 @@ case $yno in
     [nN] | [n|N][O|o] )
         ;&
     *)
-        echo "*** Okay, moving on... ✓";
+        echo "*** Okay, moving on. ✓";
         ;;
 esac
 
@@ -1194,7 +1196,7 @@ echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you want to
 read yno;
 case $yno in
     [nN] | [n|N][O|o] )
-        echo "*** All good. Exiting... ✓";
+        echo "*** All good. Exiting. ✓";
         exit 0;
         ;;
     [yY] | [yY][Ee][Ss] )
@@ -1239,9 +1241,13 @@ rm -rf ${KERNEL_BUILD_DIR};
 #
 # To uninstall a kernel: $ sudo apt purge *5.4.147-0504147+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
+echo "ls -al /usr/src"
 ls -al /usr/src;
+echo "ls -al /lib/modules"
 ls -al /lib/modules;
+echo "ls -al ${COMPILED_KERNELS_DIR}"
 ls -al ${COMPILED_KERNELS_DIR};
+echo "ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT}"
 ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT};
 
 cd;
