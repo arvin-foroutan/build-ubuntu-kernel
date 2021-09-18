@@ -1776,6 +1776,23 @@ index 95ff1707b4bd6..cea166e127779 100644
  
  	/* Send VRR Push to terminate Vblank */
  	intel_vrr_send_push(new_crtc_state);
+diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+index 38cc42783dfb2..594dec2f76954 100644
+--- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
++++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+@@ -318,10 +318,9 @@ void __intel_breadcrumbs_park(struct intel_breadcrumbs *b)
+ 	/* Kick the work once more to drain the signalers, and disarm the irq */
+ 	irq_work_sync(&b->irq_work);
+ 	while (READ_ONCE(b->irq_armed) && !atomic_read(&b->active)) {
+-		local_irq_disable();
+-		signal_irq_work(&b->irq_work);
+-		local_irq_enable();
++		irq_work_queue(&b->irq_work);
+ 		cond_resched();
++		irq_work_sync(&b->irq_work);
+ 	}
+ }
+ 
 diff --git a/drivers/gpu/drm/i915/gt/intel_engine_pm.c b/drivers/gpu/drm/i915/gt/intel_engine_pm.c
 index 47f4397095e50..0361ef2fb6147 100644
 --- a/drivers/gpu/drm/i915/gt/intel_engine_pm.c
@@ -1803,6 +1820,69 @@ index 47f4397095e50..0361ef2fb6147 100644
  }
  
  #else
+diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
+index fc77592d88a96..2ec1dd352960b 100644
+--- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
++++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
+@@ -1265,7 +1265,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 	 * and context switches) submission.
+ 	 */
+ 
+-	spin_lock(&engine->active.lock);
++	spin_lock_irq(&engine->active.lock);
+ 
+ 	/*
+ 	 * If the queue is higher priority than the last
+@@ -1365,7 +1365,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 				 * Even if ELSP[1] is occupied and not worthy
+ 				 * of timeslices, our queue might be.
+ 				 */
+-				spin_unlock(&engine->active.lock);
++				spin_unlock_irq(&engine->active.lock);
+ 				return;
+ 			}
+ 		}
+@@ -1391,7 +1391,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 
+ 		if (last && !can_merge_rq(last, rq)) {
+ 			spin_unlock(&ve->base.active.lock);
+-			spin_unlock(&engine->active.lock);
++			spin_unlock_irq(&engine->active.lock);
+ 			return; /* leave this for another sibling */
+ 		}
+ 
+@@ -1552,7 +1552,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 	 * interrupt for secondary ports).
+ 	 */
+ 	execlists->queue_priority_hint = queue_prio(execlists);
+-	spin_unlock(&engine->active.lock);
++	spin_unlock_irq(&engine->active.lock);
+ 
+ 	/*
+ 	 * We can skip poking the HW if we ended up with exactly the same set
+@@ -1578,13 +1578,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 	}
+ }
+ 
+-static void execlists_dequeue_irq(struct intel_engine_cs *engine)
+-{
+-	local_irq_disable(); /* Suspend interrupts across request submission */
+-	execlists_dequeue(engine);
+-	local_irq_enable(); /* flush irq_work (e.g. breadcrumb enabling) */
+-}
+-
+ static void clear_ports(struct i915_request **ports, int count)
+ {
+ 	memset_p((void **)ports, NULL, count);
+@@ -2377,7 +2370,7 @@ static void execlists_submission_tasklet(struct tasklet_struct *t)
+ 	}
+ 
+ 	if (!engine->execlists.pending[0]) {
+-		execlists_dequeue_irq(engine);
++		execlists_dequeue(engine);
+ 		start_timeslice(engine);
+ 	}
+ 
 diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
 index c3816f5c69001..54414b7b62dd6 100644
 --- a/drivers/gpu/drm/i915/i915_irq.c
@@ -2591,6 +2671,18 @@ index 9e81b09ba08e5..0dd0e2223253a 100644
  }
  
  static int __init
+diff --git a/drivers/virt/acrn/irqfd.c b/drivers/virt/acrn/irqfd.c
+index df5184979b282..d4ad211dce7a3 100644
+--- a/drivers/virt/acrn/irqfd.c
++++ b/drivers/virt/acrn/irqfd.c
+@@ -17,7 +17,6 @@
+ #include "acrn_drv.h"
+ 
+ static LIST_HEAD(acrn_irqfd_clients);
+-static DEFINE_MUTEX(acrn_irqfds_mutex);
+ 
+ /**
+  * struct hsm_irqfd - Properties of HSM irqfd
 diff --git a/fs/afs/dir_silly.c b/fs/afs/dir_silly.c
 index dae9a57d7ec0c..9a6a0ec4d1fb5 100644
 --- a/fs/afs/dir_silly.c
@@ -3370,10 +3462,44 @@ index bb5e7b0a42746..7d4768c1ae3da 100644
 +
  #endif
 diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
-index ec2a47a81e423..dbbef90897895 100644
+index ec2a47a81e423..cfc3804ec9a09 100644
 --- a/include/linux/irq_work.h
 +++ b/include/linux/irq_work.h
-@@ -64,4 +64,10 @@ static inline void irq_work_run(void) { }
+@@ -3,6 +3,7 @@
+ #define _LINUX_IRQ_WORK_H
+ 
+ #include <linux/smp_types.h>
++#include <linux/rcuwait.h>
+ 
+ /*
+  * An entry can be in one of four states:
+@@ -16,11 +17,13 @@
+ struct irq_work {
+ 	struct __call_single_node node;
+ 	void (*func)(struct irq_work *);
++	struct rcuwait irqwait;
+ };
+ 
+ #define __IRQ_WORK_INIT(_func, _flags) (struct irq_work){	\
+ 	.node = { .u_flags = (_flags), },			\
+ 	.func = (_func),					\
++	.irqwait = __RCUWAIT_INITIALIZER(irqwait),		\
+ }
+ 
+ #define IRQ_WORK_INIT(_func) __IRQ_WORK_INIT(_func, 0)
+@@ -46,6 +49,11 @@ static inline bool irq_work_is_busy(struct irq_work *work)
+ 	return atomic_read(&work->node.a_flags) & IRQ_WORK_BUSY;
+ }
+ 
++static inline bool irq_work_is_hard(struct irq_work *work)
++{
++       return atomic_read(&work->node.a_flags) & IRQ_WORK_HARD_IRQ;
++}
++
+ bool irq_work_queue(struct irq_work *work);
+ bool irq_work_queue_on(struct irq_work *work, int cpu);
+ 
+@@ -64,4 +72,10 @@ static inline void irq_work_run(void) { }
  static inline void irq_work_single(void *arg) { }
  #endif
  
@@ -8026,7 +8152,7 @@ index c481d84583257..ca4bdc53d6c74 100644
  	printk(KERN_WARNING "Misrouted IRQ fixup and polling support "
  				"enabled\n");
 diff --git a/kernel/irq_work.c b/kernel/irq_work.c
-index db8c248ebc8c8..0ec825dbe9f05 100644
+index db8c248ebc8c8..14c2aba4c9479 100644
 --- a/kernel/irq_work.c
 +++ b/kernel/irq_work.c
 @@ -18,6 +18,7 @@
@@ -8100,7 +8226,18 @@ index db8c248ebc8c8..0ec825dbe9f05 100644
  
  	/* All work should have been flushed before going offline */
  	WARN_ON_ONCE(cpu_is_offline(smp_processor_id()));
-@@ -167,8 +188,12 @@ static void irq_work_run_list(struct llist_head *list)
+@@ -160,6 +181,10 @@ void irq_work_single(void *arg)
+ 	 * else claimed it meanwhile.
+ 	 */
+ 	(void)atomic_cmpxchg(&work->node.a_flags, flags, flags & ~IRQ_WORK_BUSY);
++
++	if ((IS_ENABLED(CONFIG_PREEMPT_RT) && !irq_work_is_hard(work)) ||
++	    !arch_irq_work_has_interrupt())
++		rcuwait_wake_up(&work->irqwait);
+ }
+ 
+ static void irq_work_run_list(struct llist_head *list)
+@@ -167,8 +192,12 @@ static void irq_work_run_list(struct llist_head *list)
  	struct irq_work *work, *tmp;
  	struct llist_node *llnode;
  
@@ -8114,7 +8251,7 @@ index db8c248ebc8c8..0ec825dbe9f05 100644
  	if (llist_empty(list))
  		return;
  
-@@ -184,7 +209,16 @@ static void irq_work_run_list(struct llist_head *list)
+@@ -184,7 +213,16 @@ static void irq_work_run_list(struct llist_head *list)
  void irq_work_run(void)
  {
  	irq_work_run_list(this_cpu_ptr(&raised_list));
@@ -8132,7 +8269,7 @@ index db8c248ebc8c8..0ec825dbe9f05 100644
  }
  EXPORT_SYMBOL_GPL(irq_work_run);
  
-@@ -194,8 +228,17 @@ void irq_work_tick(void)
+@@ -194,8 +232,17 @@ void irq_work_tick(void)
  
  	if (!llist_empty(raised) && !arch_irq_work_has_interrupt())
  		irq_work_run_list(raised);
@@ -8150,6 +8287,21 @@ index db8c248ebc8c8..0ec825dbe9f05 100644
  
  /*
   * Synchronize against the irq_work @entry, ensures the entry is not
+@@ -204,6 +251,14 @@ void irq_work_tick(void)
+ void irq_work_sync(struct irq_work *work)
+ {
+ 	lockdep_assert_irqs_enabled();
++	might_sleep();
++
++	if ((IS_ENABLED(CONFIG_PREEMPT_RT) && !irq_work_is_hard(work)) ||
++	    !arch_irq_work_has_interrupt()) {
++		rcuwait_wait_event(&work->irqwait, !irq_work_is_busy(work),
++				   TASK_UNINTERRUPTIBLE);
++		return;
++	}
+ 
+ 	while (irq_work_is_busy(work))
+ 		cpu_relax();
 diff --git a/kernel/kcov.c b/kernel/kcov.c
 index 80bfe71bbe13e..36ca640c4f8e7 100644
 --- a/kernel/kcov.c
@@ -8396,7 +8548,7 @@ index 3572808223e4b..d51cabf28f382 100644
  obj-$(CONFIG_DEBUG_SPINLOCK) += spinlock_debug.o
  obj-$(CONFIG_QUEUED_RWLOCKS) += qrwlock.o
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index bf1c00c881e48..6f22ad3617c9a 100644
+index bf1c00c881e48..2997bfea10c7e 100644
 --- a/kernel/locking/lockdep.c
 +++ b/kernel/locking/lockdep.c
 @@ -5366,7 +5366,7 @@ int __lock_is_held(const struct lockdep_map *lock, int read)
@@ -8404,7 +8556,7 @@ index bf1c00c881e48..6f22ad3617c9a 100644
  
  		if (match_held_lock(hlock, lock)) {
 -			if (read == -1 || hlock->read == read)
-+			if (read == -1 || hlock->read == !!read)
++			if (read == -1 || !!hlock->read == read)
  				return LOCK_STATE_HELD;
  
  			return LOCK_STATE_NOT_HELD;
@@ -9134,7 +9286,7 @@ index f0c710b1d1927..0b2a79c4013bd 100644
 +# define debug_mutex_init(lock, name, key)		do { } while (0)
 +#endif /* !CONFIG_DEBUG_MUTEXES */
 diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index ad0db322ed3b4..1326cf3f88cae 100644
+index ad0db322ed3b4..3665583361c00 100644
 --- a/kernel/locking/rtmutex.c
 +++ b/kernel/locking/rtmutex.c
 @@ -8,20 +8,58 @@
@@ -9514,7 +9666,7 @@ index ad0db322ed3b4..1326cf3f88cae 100644
 +		 * other configuration and we fail to report; also, see
 +		 * lockdep.
 +		 */
-+		if (IS_ENABLED(CONFIG_PREEMPT_RT) && orig_waiter->ww_ctx)
++		if (IS_ENABLED(CONFIG_PREEMPT_RT) && orig_waiter && orig_waiter->ww_ctx)
 +			ret = 0;
 +
 +		raw_spin_unlock(&lock->wait_lock);
@@ -12036,10 +12188,10 @@ index b9d93087ee669..14235671a1a70 100644
 +#endif /* !CONFIG_PREEMPT_RT */
 diff --git a/kernel/locking/spinlock_rt.c b/kernel/locking/spinlock_rt.c
 new file mode 100644
-index 0000000000000..d2912e44d61fd
+index 0000000000000..839041f8460f9
 --- /dev/null
 +++ b/kernel/locking/spinlock_rt.c
-@@ -0,0 +1,263 @@
+@@ -0,0 +1,257 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * PREEMPT_RT substitution for spin/rw_locks
@@ -12287,12 +12439,6 @@ index 0000000000000..d2912e44d61fd
 +	rwbase_write_unlock(&rwlock->rwbase);
 +}
 +EXPORT_SYMBOL(rt_write_unlock);
-+
-+int __sched rt_rwlock_is_contended(rwlock_t *rwlock)
-+{
-+	return rw_base_is_contended(&rwlock->rwbase);
-+}
-+EXPORT_SYMBOL(rt_rwlock_is_contended);
 +
 +#ifdef CONFIG_DEBUG_LOCK_ALLOC
 +void __rt_rwlock_init(rwlock_t *rwlock, const char *name,
@@ -16495,6 +16641,23 @@ index 7f8dace0964c2..d5cee51819bf7 100644
  
  /*
   * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
+diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+index 912b47aa99d82..d17b0a5ce6ac3 100644
+--- a/kernel/sched/idle.c
++++ b/kernel/sched/idle.c
+@@ -379,10 +379,10 @@ void play_idle_precise(u64 duration_ns, u64 latency_ns)
+ 	cpuidle_use_deepest_state(latency_ns);
+ 
+ 	it.done = 0;
+-	hrtimer_init_on_stack(&it.timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	hrtimer_init_on_stack(&it.timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+ 	it.timer.function = idle_inject_timer_fn;
+ 	hrtimer_start(&it.timer, ns_to_ktime(duration_ns),
+-		      HRTIMER_MODE_REL_PINNED);
++		      HRTIMER_MODE_REL_PINNED_HARD);
+ 
+ 	while (!READ_ONCE(it.done))
+ 		do_idle();
 diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
 index 1652f2bb54b79..ab54b2012469f 100644
 --- a/kernel/sched/psi.c
@@ -18040,7 +18203,7 @@ index 1c673c323baf2..ec2bb0beed757 100644
  EXPORT_SYMBOL(kmem_cache_destroy);
  
 diff --git a/mm/slub.c b/mm/slub.c
-index f77d8cd79ef7f..df1ac8aff86fe 100644
+index f77d8cd79ef7f..3d2025f7163b2 100644
 --- a/mm/slub.c
 +++ b/mm/slub.c
 @@ -46,13 +46,21 @@
@@ -18153,56 +18316,56 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  #ifdef CONFIG_SLUB_DEBUG
  #ifdef CONFIG_SLUB_DEBUG_ON
  DEFINE_STATIC_KEY_TRUE(slub_debug_enabled);
-@@ -359,25 +417,42 @@ static inline unsigned int oo_objects(struct kmem_cache_order_objects x)
+@@ -359,25 +417,44 @@ static inline unsigned int oo_objects(struct kmem_cache_order_objects x)
  /*
   * Per slab locking using the pagelock
   */
 -static __always_inline void slab_lock(struct page *page)
-+static __always_inline void
-+__slab_lock(struct page *page, unsigned long *flags, bool disable_irqs)
++static __always_inline void __slab_lock(struct page *page)
  {
  	VM_BUG_ON_PAGE(PageTail(page), page);
-+	if (disable_irqs)
-+		local_irq_save(*flags);
  	bit_spin_lock(PG_locked, &page->flags);
  }
  
 -static __always_inline void slab_unlock(struct page *page)
-+static __always_inline void
-+__slab_unlock(struct page *page, unsigned long *flags, bool disable_irqs)
++static __always_inline void __slab_unlock(struct page *page)
  {
  	VM_BUG_ON_PAGE(PageTail(page), page);
  	__bit_spin_unlock(PG_locked, &page->flags);
-+	if (disable_irqs)
-+		local_irq_restore(*flags);
  }
  
 -/* Interrupts must be disabled (for the fallback code to work right) */
--static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
-+static __always_inline void
-+slab_lock(struct page *page, unsigned long *flags)
++static __always_inline void slab_lock(struct page *page, unsigned long *flags)
 +{
-+	__slab_lock(page, flags, IS_ENABLED(CONFIG_PREEMPT_RT));
++	if (IS_ENABLED(CONFIG_PREEMPT_RT))
++		local_irq_save(*flags);
++	__slab_lock(page);
 +}
 +
 +static __always_inline void slab_unlock(struct page *page, unsigned long *flags)
 +{
-+	__slab_unlock(page, flags, IS_ENABLED(CONFIG_PREEMPT_RT));
++	__slab_unlock(page);
++	if (IS_ENABLED(CONFIG_PREEMPT_RT))
++		local_irq_restore(*flags);
 +}
 +
-+static inline bool ___cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
++/*
++ * Interrupts must be disabled (for the fallback code to work right), typically
++ * by an _irqsave() lock variant. Except on PREEMPT_RT where locks are different
++ * so we disable interrupts as part of slab_[un]lock().
++ */
+ static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
  		void *freelist_old, unsigned long counters_old,
  		void *freelist_new, unsigned long counters_new,
--		const char *n)
-+		const char *n, bool disable_irqs)
+ 		const char *n)
  {
 -	VM_BUG_ON(!irqs_disabled());
-+	if (!disable_irqs)
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
 +		lockdep_assert_irqs_disabled();
  #if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
      defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
  	if (s->flags & __CMPXCHG_DOUBLE) {
-@@ -388,15 +463,18 @@ static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page
+@@ -388,15 +465,18 @@ static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page
  	} else
  #endif
  	{
@@ -18210,81 +18373,41 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
 +		/* init to 0 to prevent spurious warnings */
 +		unsigned long flags = 0;
 +
-+		__slab_lock(page, &flags, disable_irqs);
++		slab_lock(page, &flags);
  		if (page->freelist == freelist_old &&
  					page->counters == counters_old) {
  			page->freelist = freelist_new;
  			page->counters = counters_new;
 -			slab_unlock(page);
-+			__slab_unlock(page, &flags, disable_irqs);
++			slab_unlock(page, &flags);
  			return true;
  		}
 -		slab_unlock(page);
-+		__slab_unlock(page, &flags, disable_irqs);
++		slab_unlock(page, &flags);
  	}
  
  	cpu_relax();
-@@ -409,50 +487,45 @@ static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page
- 	return false;
- }
+@@ -427,16 +507,16 @@ static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
+ 		unsigned long flags;
  
-+/*
-+ * Interrupts must be disabled (for the fallback code to work right), typically
-+ * by an _irqsave() lock variant. Except on PREEMPT_RT where locks are different
-+ * so we disable interrupts explicitly here.
-+ */
-+static inline bool __cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
-+		void *freelist_old, unsigned long counters_old,
-+		void *freelist_new, unsigned long counters_new,
-+		const char *n)
-+{
-+	return ___cmpxchg_double_slab(s, page, freelist_old, counters_old,
-+				      freelist_new, counters_new, n,
-+				      IS_ENABLED(CONFIG_PREEMPT_RT));
-+}
-+
- static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
- 		void *freelist_old, unsigned long counters_old,
- 		void *freelist_new, unsigned long counters_new,
- 		const char *n)
- {
--#if defined(CONFIG_HAVE_CMPXCHG_DOUBLE) && \
--    defined(CONFIG_HAVE_ALIGNED_STRUCT_PAGE)
--	if (s->flags & __CMPXCHG_DOUBLE) {
--		if (cmpxchg_double(&page->freelist, &page->counters,
--				   freelist_old, counters_old,
--				   freelist_new, counters_new))
--			return true;
--	} else
--#endif
--	{
--		unsigned long flags;
--
--		local_irq_save(flags);
+ 		local_irq_save(flags);
 -		slab_lock(page);
--		if (page->freelist == freelist_old &&
--					page->counters == counters_old) {
--			page->freelist = freelist_new;
--			page->counters = counters_new;
++		__slab_lock(page);
+ 		if (page->freelist == freelist_old &&
+ 					page->counters == counters_old) {
+ 			page->freelist = freelist_new;
+ 			page->counters = counters_new;
 -			slab_unlock(page);
--			local_irq_restore(flags);
--			return true;
--		}
++			__slab_unlock(page);
+ 			local_irq_restore(flags);
+ 			return true;
+ 		}
 -		slab_unlock(page);
--		local_irq_restore(flags);
--	}
--
--	cpu_relax();
--	stat(s, CMPXCHG_DOUBLE_FAIL);
--
--#ifdef SLUB_DEBUG_CMPXCHG
--	pr_info("%s %s: cmpxchg double redo ", n, s->name);
--#endif
--
--	return false;
-+	return ___cmpxchg_double_slab(s, page, freelist_old, counters_old,
-+				      freelist_new, counters_new, n, true);
- }
++		__slab_unlock(page);
+ 		local_irq_restore(flags);
+ 	}
+ 
+@@ -452,7 +532,19 @@ static inline bool cmpxchg_double_slab(struct kmem_cache *s, struct page *page,
  
  #ifdef CONFIG_SLUB_DEBUG
  static unsigned long object_map[BITS_TO_LONGS(MAX_OBJS_PER_PAGE)];
@@ -18305,7 +18428,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  #if IS_ENABLED(CONFIG_KUNIT)
  static bool slab_add_kunit_errors(void)
-@@ -483,17 +556,11 @@ static inline bool slab_add_kunit_errors(void) { return false; }
+@@ -483,17 +575,11 @@ static inline bool slab_add_kunit_errors(void) { return false; }
  static unsigned long *get_map(struct kmem_cache *s, struct page *page)
  	__acquires(&object_map_lock)
  {
@@ -18325,7 +18448,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	return object_map;
  }
-@@ -501,7 +568,7 @@ static unsigned long *get_map(struct kmem_cache *s, struct page *page)
+@@ -501,7 +587,7 @@ static unsigned long *get_map(struct kmem_cache *s, struct page *page)
  static void put_map(unsigned long *map) __releases(&object_map_lock)
  {
  	VM_BUG_ON(map != object_map);
@@ -18334,7 +18457,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  }
  
  static inline unsigned int size_from_object(struct kmem_cache *s)
-@@ -1003,8 +1070,6 @@ static int check_slab(struct kmem_cache *s, struct page *page)
+@@ -1003,8 +1089,6 @@ static int check_slab(struct kmem_cache *s, struct page *page)
  {
  	int maxobj;
  
@@ -18343,7 +18466,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	if (!PageSlab(page)) {
  		slab_err(s, page, "Not a valid slab page");
  		return 0;
-@@ -1265,11 +1330,11 @@ static noinline int free_debug_processing(
+@@ -1265,11 +1349,11 @@ static noinline int free_debug_processing(
  	struct kmem_cache_node *n = get_node(s, page_to_nid(page));
  	void *object = head;
  	int cnt = 0;
@@ -18357,7 +18480,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	if (s->flags & SLAB_CONSISTENCY_CHECKS) {
  		if (!check_slab(s, page))
-@@ -1302,7 +1367,7 @@ static noinline int free_debug_processing(
+@@ -1302,7 +1386,7 @@ static noinline int free_debug_processing(
  		slab_err(s, page, "Bulk freelist count(%d) invalid(%d)\n",
  			 bulk_cnt, cnt);
  
@@ -18366,7 +18489,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	spin_unlock_irqrestore(&n->list_lock, flags);
  	if (!ret)
  		slab_fix(s, "Object at 0x%p not freed", object);
-@@ -1585,20 +1650,8 @@ static __always_inline bool slab_free_hook(struct kmem_cache *s,
+@@ -1585,20 +1669,8 @@ static __always_inline bool slab_free_hook(struct kmem_cache *s,
  {
  	kmemleak_free_recursive(x, s->flags);
  
@@ -18388,7 +18511,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	if (!(s->flags & SLAB_DEBUG_OBJECTS))
  		debug_check_no_obj_freed(x, s->object_size);
  
-@@ -1815,9 +1868,6 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
+@@ -1815,9 +1887,6 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
  
  	flags &= gfp_allowed_mask;
  
@@ -18398,7 +18521,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	flags |= s->allocflags;
  
  	/*
-@@ -1876,8 +1926,6 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
+@@ -1876,8 +1945,6 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
  	page->frozen = 1;
  
  out:
@@ -18407,7 +18530,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	if (!page)
  		return NULL;
  
-@@ -1891,6 +1939,8 @@ static struct page *new_slab(struct kmem_cache *s, gfp_t flags, int node)
+@@ -1891,6 +1958,8 @@ static struct page *new_slab(struct kmem_cache *s, gfp_t flags, int node)
  	if (unlikely(flags & GFP_SLAB_BUG_MASK))
  		flags = kmalloc_fix_flags(flags);
  
@@ -18416,7 +18539,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	return allocate_slab(s,
  		flags & (GFP_RECLAIM_MASK | GFP_CONSTRAINT_MASK), node);
  }
-@@ -2014,18 +2064,24 @@ static inline void *acquire_slab(struct kmem_cache *s,
+@@ -2014,18 +2083,24 @@ static inline void *acquire_slab(struct kmem_cache *s,
  	return freelist;
  }
  
@@ -18442,7 +18565,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	int objects;
  
  	/*
-@@ -2037,11 +2093,11 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
+@@ -2037,11 +2112,11 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
  	if (!n || !n->nr_partial)
  		return NULL;
  
@@ -18456,7 +18579,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  			continue;
  
  		t = acquire_slab(s, n, page, object == NULL, &objects);
-@@ -2050,7 +2106,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
+@@ -2050,7 +2125,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
  
  		available += objects;
  		if (!object) {
@@ -18465,7 +18588,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  			stat(s, ALLOC_FROM_PARTIAL);
  			object = t;
  		} else {
-@@ -2062,7 +2118,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
+@@ -2062,7 +2137,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
  			break;
  
  	}
@@ -18474,7 +18597,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	return object;
  }
  
-@@ -2070,7 +2126,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
+@@ -2070,7 +2145,7 @@ static void *get_partial_node(struct kmem_cache *s, struct kmem_cache_node *n,
   * Get a page from somewhere. Search in increasing NUMA distances.
   */
  static void *get_any_partial(struct kmem_cache *s, gfp_t flags,
@@ -18483,7 +18606,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  {
  #ifdef CONFIG_NUMA
  	struct zonelist *zonelist;
-@@ -2112,7 +2168,7 @@ static void *get_any_partial(struct kmem_cache *s, gfp_t flags,
+@@ -2112,7 +2187,7 @@ static void *get_any_partial(struct kmem_cache *s, gfp_t flags,
  
  			if (n && cpuset_zone_allowed(zone, flags) &&
  					n->nr_partial > s->min_partial) {
@@ -18492,7 +18615,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  				if (object) {
  					/*
  					 * Don't check read_mems_allowed_retry()
-@@ -2134,7 +2190,7 @@ static void *get_any_partial(struct kmem_cache *s, gfp_t flags,
+@@ -2134,7 +2209,7 @@ static void *get_any_partial(struct kmem_cache *s, gfp_t flags,
   * Get a partial page, lock it and return it.
   */
  static void *get_partial(struct kmem_cache *s, gfp_t flags, int node,
@@ -18501,7 +18624,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  {
  	void *object;
  	int searchnode = node;
-@@ -2142,11 +2198,11 @@ static void *get_partial(struct kmem_cache *s, gfp_t flags, int node,
+@@ -2142,11 +2217,11 @@ static void *get_partial(struct kmem_cache *s, gfp_t flags, int node,
  	if (node == NUMA_NO_NODE)
  		searchnode = numa_mem_id();
  
@@ -18515,7 +18638,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  }
  
  #ifdef CONFIG_PREEMPTION
-@@ -2213,16 +2269,23 @@ static inline void note_cmpxchg_failure(const char *n,
+@@ -2213,16 +2288,23 @@ static inline void note_cmpxchg_failure(const char *n,
  static void init_kmem_cache_cpus(struct kmem_cache *s)
  {
  	int cpu;
@@ -18543,7 +18666,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  {
  	enum slab_modes { M_NONE, M_PARTIAL, M_FULL, M_FREE };
  	struct kmem_cache_node *n = get_node(s, page_to_nid(page));
-@@ -2230,6 +2293,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+@@ -2230,6 +2312,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
  	enum slab_modes l = M_NONE, m = M_NONE;
  	void *nextfree, *freelist_iter, *freelist_tail;
  	int tail = DEACTIVATE_TO_HEAD;
@@ -18551,7 +18674,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	struct page new;
  	struct page old;
  
-@@ -2305,7 +2369,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+@@ -2305,7 +2388,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
  			 * that acquire_slab() will see a slab page that
  			 * is frozen
  			 */
@@ -18560,7 +18683,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		}
  	} else {
  		m = M_FULL;
-@@ -2316,7 +2380,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+@@ -2316,7 +2399,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
  			 * slabs from diagnostic functions will not see
  			 * any frozen slabs.
  			 */
@@ -18569,7 +18692,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		}
  	}
  
-@@ -2333,14 +2397,14 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+@@ -2333,14 +2416,14 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
  	}
  
  	l = m;
@@ -18586,7 +18709,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	if (m == M_PARTIAL)
  		stat(s, tail);
-@@ -2351,38 +2415,29 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+@@ -2351,38 +2434,29 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
  		discard_slab(s, page);
  		stat(s, FREE_SLAB);
  	}
@@ -18633,7 +18756,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		}
  
  		do {
-@@ -2411,7 +2466,7 @@ static void unfreeze_partials(struct kmem_cache *s,
+@@ -2411,7 +2485,7 @@ static void unfreeze_partials(struct kmem_cache *s,
  	}
  
  	if (n)
@@ -18642,7 +18765,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	while (discard_page) {
  		page = discard_page;
-@@ -2421,7 +2476,35 @@ static void unfreeze_partials(struct kmem_cache *s,
+@@ -2421,7 +2495,35 @@ static void unfreeze_partials(struct kmem_cache *s,
  		discard_slab(s, page);
  		stat(s, FREE_SLAB);
  	}
@@ -18679,7 +18802,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  }
  
  /*
-@@ -2433,97 +2516,165 @@ static void unfreeze_partials(struct kmem_cache *s,
+@@ -2433,97 +2535,170 @@ static void unfreeze_partials(struct kmem_cache *s,
   */
  static void put_cpu_partial(struct kmem_cache *s, struct page *page, int drain)
  {
@@ -18747,6 +18870,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
 -		local_irq_restore(flags);
  	}
 -	preempt_enable();
+-#endif	/* CONFIG_SLUB_CPU_PARTIAL */
 +
 +	pages++;
 +	pobjects += page->objects - page->inuse;
@@ -18763,80 +18887,75 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
 +		__unfreeze_partials(s, page_to_unfreeze);
 +		stat(s, CPU_PARTIAL_DRAIN);
 +	}
-+}
-+
+ }
+ 
 +#else	/* CONFIG_SLUB_CPU_PARTIAL */
 +
 +static inline void unfreeze_partials(struct kmem_cache *s) { }
 +static inline void unfreeze_partials_cpu(struct kmem_cache *s,
 +				  struct kmem_cache_cpu *c) { }
 +
- #endif	/* CONFIG_SLUB_CPU_PARTIAL */
--}
- 
--static inline void flush_slab(struct kmem_cache *s, struct kmem_cache_cpu *c)
-+static inline void flush_slab(struct kmem_cache *s, struct kmem_cache_cpu *c,
-+			      bool lock)
++#endif	/* CONFIG_SLUB_CPU_PARTIAL */
++
+ static inline void flush_slab(struct kmem_cache *s, struct kmem_cache_cpu *c)
  {
 -	stat(s, CPUSLAB_FLUSH);
 -	deactivate_slab(s, c->page, c->freelist, c);
 +	unsigned long flags;
-+	void *freelist;
 +	struct page *page;
++	void *freelist;
  
-+	if (lock)
-+		local_lock_irqsave(&s->cpu_slab->lock, flags);
++	local_lock_irqsave(&s->cpu_slab->lock, flags);
 +
-+	freelist = c->freelist;
 +	page = c->page;
++	freelist = c->freelist;
 +
 +	c->page = NULL;
 +	c->freelist = NULL;
  	c->tid = next_tid(c->tid);
 +
-+	if (lock)
-+		local_unlock_irqrestore(&s->cpu_slab->lock, flags);
++	local_unlock_irqrestore(&s->cpu_slab->lock, flags);
 +
-+	if (page)
++	if (page) {
 +		deactivate_slab(s, page, freelist);
++		stat(s, CPUSLAB_FLUSH);
++	}
+ }
+ 
++static inline void __flush_cpu_slab(struct kmem_cache *s, int cpu)
++{
++	struct kmem_cache_cpu *c = per_cpu_ptr(s->cpu_slab, cpu);
++	void *freelist = c->freelist;
++	struct page *page = c->page;
 +
-+	stat(s, CPUSLAB_FLUSH);
- }
- 
--/*
-- * Flush cpu slab.
-- *
-- * Called from IPI handler with interrupts disabled.
-- */
- static inline void __flush_cpu_slab(struct kmem_cache *s, int cpu)
- {
- 	struct kmem_cache_cpu *c = per_cpu_ptr(s->cpu_slab, cpu);
- 
- 	if (c->page)
--		flush_slab(s, c);
-+		flush_slab(s, c, false);
- 
--	unfreeze_partials(s, c);
++	c->page = NULL;
++	c->freelist = NULL;
++	c->tid = next_tid(c->tid);
++
++	if (page) {
++		deactivate_slab(s, page, freelist);
++		stat(s, CPUSLAB_FLUSH);
++	}
++
 +	unfreeze_partials_cpu(s, c);
- }
- 
--static void flush_cpu_slab(void *d)
--{
--	struct kmem_cache *s = d;
++}
++
 +struct slub_flush_work {
 +	struct work_struct work;
 +	struct kmem_cache *s;
 +	bool skip;
 +};
- 
--	__flush_cpu_slab(s, smp_processor_id());
-+/*
-+ * Flush cpu slab.
-+ *
++
+ /*
+  * Flush cpu slab.
+  *
+- * Called from IPI handler with interrupts disabled.
 + * Called from CPU work handler with migration disabled.
-+ */
+  */
+-static inline void __flush_cpu_slab(struct kmem_cache *s, int cpu)
 +static void flush_cpu_slab(struct work_struct *w)
-+{
+ {
+-	struct kmem_cache_cpu *c = per_cpu_ptr(s->cpu_slab, cpu);
 +	struct kmem_cache *s;
 +	struct kmem_cache_cpu *c;
 +	struct slub_flush_work *sfw;
@@ -18845,16 +18964,24 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
 +
 +	s = sfw->s;
 +	c = this_cpu_ptr(s->cpu_slab);
-+
-+	if (c->page)
-+		flush_slab(s, c, true);
-+
+ 
+ 	if (c->page)
+ 		flush_slab(s, c);
+ 
+-	unfreeze_partials(s, c);
 +	unfreeze_partials(s);
  }
  
--static bool has_cpu_slab(int cpu, void *info)
+-static void flush_cpu_slab(void *d)
 +static bool has_cpu_slab(int cpu, struct kmem_cache *s)
  {
+-	struct kmem_cache *s = d;
+-
+-	__flush_cpu_slab(s, smp_processor_id());
+-}
+-
+-static bool has_cpu_slab(int cpu, void *info)
+-{
 -	struct kmem_cache *s = info;
  	struct kmem_cache_cpu *c = per_cpu_ptr(s->cpu_slab, cpu);
  
@@ -18903,7 +19030,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  }
  
  /*
-@@ -2533,14 +2684,10 @@ static void flush_all(struct kmem_cache *s)
+@@ -2533,14 +2708,10 @@ static void flush_all(struct kmem_cache *s)
  static int slub_cpu_dead(unsigned int cpu)
  {
  	struct kmem_cache *s;
@@ -18919,7 +19046,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	mutex_unlock(&slab_mutex);
  	return 0;
  }
-@@ -2623,41 +2770,6 @@ slab_out_of_memory(struct kmem_cache *s, gfp_t gfpflags, int nid)
+@@ -2623,41 +2794,6 @@ slab_out_of_memory(struct kmem_cache *s, gfp_t gfpflags, int nid)
  #endif
  }
  
@@ -18961,7 +19088,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  static inline bool pfmemalloc_match(struct page *page, gfp_t gfpflags)
  {
  	if (unlikely(PageSlabPfmemalloc(page)))
-@@ -2666,6 +2778,19 @@ static inline bool pfmemalloc_match(struct page *page, gfp_t gfpflags)
+@@ -2666,6 +2802,19 @@ static inline bool pfmemalloc_match(struct page *page, gfp_t gfpflags)
  	return true;
  }
  
@@ -18981,7 +19108,25 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  /*
   * Check the page->freelist of a page and either transfer the freelist to the
   * per cpu freelist or deactivate the page.
-@@ -2716,7 +2841,7 @@ static inline void *get_freelist(struct kmem_cache *s, struct page *page)
+@@ -2673,8 +2822,6 @@ static inline bool pfmemalloc_match(struct page *page, gfp_t gfpflags)
+  * The page is still frozen if the return value is not NULL.
+  *
+  * If this function returns NULL then the page has been unfrozen.
+- *
+- * This function must be called with interrupt disabled.
+  */
+ static inline void *get_freelist(struct kmem_cache *s, struct page *page)
+ {
+@@ -2682,6 +2829,8 @@ static inline void *get_freelist(struct kmem_cache *s, struct page *page)
+ 	unsigned long counters;
+ 	void *freelist;
+ 
++	lockdep_assert_held(this_cpu_ptr(&s->cpu_slab->lock));
++
+ 	do {
+ 		freelist = page->freelist;
+ 		counters = page->counters;
+@@ -2716,7 +2865,7 @@ static inline void *get_freelist(struct kmem_cache *s, struct page *page)
   * we need to allocate a new slab. This is the slowest path since it involves
   * a call to the page allocator and the setup of a new slab.
   *
@@ -18990,7 +19135,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
   * already disabled (which is the case for bulk allocation).
   */
  static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
-@@ -2724,10 +2849,13 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2724,10 +2873,13 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  {
  	void *freelist;
  	struct page *page;
@@ -19005,7 +19150,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	if (!page) {
  		/*
  		 * if the node is not online or has no normal memory, just
-@@ -2750,8 +2878,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2750,8 +2902,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  			goto redo;
  		} else {
  			stat(s, ALLOC_NODE_MISMATCH);
@@ -19015,7 +19160,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		}
  	}
  
-@@ -2760,12 +2887,15 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2760,12 +2911,15 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  	 * PFMEMALLOC but right now, we are losing the pfmemalloc
  	 * information when the page leaves the per-cpu allocator
  	 */
@@ -19036,7 +19181,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	freelist = c->freelist;
  	if (freelist)
  		goto load_freelist;
-@@ -2774,6 +2904,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2774,6 +2928,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  
  	if (!freelist) {
  		c->page = NULL;
@@ -19044,7 +19189,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		stat(s, DEACTIVATE_BYPASS);
  		goto new_slab;
  	}
-@@ -2781,6 +2912,9 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2781,6 +2936,9 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  	stat(s, ALLOC_REFILL);
  
  load_freelist:
@@ -19054,7 +19199,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	/*
  	 * freelist is pointing to the list of objects to be used.
  	 * page is pointing to the page from which the objects are obtained.
-@@ -2789,59 +2923,141 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2789,59 +2947,141 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  	VM_BUG_ON(!c->page->frozen);
  	c->freelist = get_freepointer(s, freelist);
  	c->tid = next_tid(c->tid);
@@ -19214,7 +19359,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	return p;
  }
  
-@@ -2892,15 +3108,14 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
+@@ -2892,15 +3132,14 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
  	 * reading from one cpu area. That does not matter as long
  	 * as we end up on the original cpu again when doing the cmpxchg.
  	 *
@@ -19237,7 +19382,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	/*
  	 * Irqless object alloc/free algorithm used here depends on sequence
-@@ -2921,7 +3136,15 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
+@@ -2921,7 +3160,15 @@ static __always_inline void *slab_alloc_node(struct kmem_cache *s,
  
  	object = c->freelist;
  	page = c->page;
@@ -19254,7 +19399,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		object = __slab_alloc(s, gfpflags, node, addr, c);
  	} else {
  		void *next_object = get_freepointer_safe(s, object);
-@@ -3174,16 +3397,14 @@ static __always_inline void do_slab_free(struct kmem_cache *s,
+@@ -3174,16 +3421,14 @@ static __always_inline void do_slab_free(struct kmem_cache *s,
  	 * data is retrieved via this pointer. If we are on the same cpu
  	 * during the cmpxchg then the free will succeed.
  	 */
@@ -19274,7 +19419,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		void **freelist = READ_ONCE(c->freelist);
  
  		set_freepointer(s, tail_obj, freelist);
-@@ -3196,6 +3417,31 @@ static __always_inline void do_slab_free(struct kmem_cache *s,
+@@ -3196,6 +3441,31 @@ static __always_inline void do_slab_free(struct kmem_cache *s,
  			note_cmpxchg_failure("slab_free", s, tid);
  			goto redo;
  		}
@@ -19306,7 +19451,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		stat(s, FREE_FASTPATH);
  	} else
  		__slab_free(s, page, head, tail_obj, cnt, addr);
-@@ -3373,8 +3619,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
+@@ -3373,8 +3643,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
  	 * IRQs, which protects against PREEMPT and interrupts
  	 * handlers invoking normal fastpath.
  	 */
@@ -19317,7 +19462,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	for (i = 0; i < size; i++) {
  		void *object = kfence_alloc(s, s->object_size, flags);
-@@ -3395,6 +3641,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
+@@ -3395,6 +3665,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
  			 */
  			c->tid = next_tid(c->tid);
  
@@ -19326,7 +19471,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  			/*
  			 * Invoking slow path likely have side-effect
  			 * of re-populating per CPU c->freelist
-@@ -3407,6 +3655,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
+@@ -3407,6 +3679,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
  			c = this_cpu_ptr(s->cpu_slab);
  			maybe_wipe_obj_freeptr(s, p[i]);
  
@@ -19335,7 +19480,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  			continue; /* goto for-loop */
  		}
  		c->freelist = get_freepointer(s, object);
-@@ -3414,7 +3664,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
+@@ -3414,7 +3688,8 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
  		maybe_wipe_obj_freeptr(s, p[i]);
  	}
  	c->tid = next_tid(c->tid);
@@ -19345,7 +19490,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	/*
  	 * memcg and kmem_cache debug support and memory initialization.
-@@ -3424,7 +3675,7 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
+@@ -3424,7 +3699,7 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
  				slab_want_init_on_alloc(flags, s));
  	return i;
  error:
@@ -19354,11 +19499,13 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	slab_post_alloc_hook(s, objcg, flags, i, p, false);
  	__kmem_cache_free_bulk(s, i, p);
  	return 0;
-@@ -3940,9 +4191,10 @@ static void list_slab_objects(struct kmem_cache *s, struct page *page,
+@@ -3938,11 +4213,12 @@ static void list_slab_objects(struct kmem_cache *s, struct page *page,
+ {
+ #ifdef CONFIG_SLUB_DEBUG
  	void *addr = page_address(page);
++	unsigned long flags;
  	unsigned long *map;
  	void *p;
-+	unsigned long flags;
  
  	slab_err(s, page, text, s->name);
 -	slab_lock(page);
@@ -19366,7 +19513,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	map = get_map(s, page);
  	for_each_object(p, s, addr, page->objects) {
-@@ -3953,7 +4205,7 @@ static void list_slab_objects(struct kmem_cache *s, struct page *page,
+@@ -3953,7 +4229,7 @@ static void list_slab_objects(struct kmem_cache *s, struct page *page,
  		}
  	}
  	put_map(map);
@@ -19375,7 +19522,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  #endif
  }
  
-@@ -4003,7 +4255,7 @@ int __kmem_cache_shutdown(struct kmem_cache *s)
+@@ -4003,7 +4279,7 @@ int __kmem_cache_shutdown(struct kmem_cache *s)
  	int node;
  	struct kmem_cache_node *n;
  
@@ -19384,7 +19531,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	/* Attempt to free all objects */
  	for_each_kmem_cache_node(s, node, n) {
  		free_partial(s, n);
-@@ -4279,7 +4531,7 @@ EXPORT_SYMBOL(kfree);
+@@ -4279,7 +4555,7 @@ EXPORT_SYMBOL(kfree);
   * being allocated from last increasing the chance that the last objects
   * are freed in them.
   */
@@ -19393,7 +19540,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  {
  	int node;
  	int i;
-@@ -4291,7 +4543,6 @@ int __kmem_cache_shrink(struct kmem_cache *s)
+@@ -4291,7 +4567,6 @@ int __kmem_cache_shrink(struct kmem_cache *s)
  	unsigned long flags;
  	int ret = 0;
  
@@ -19401,7 +19548,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	for_each_kmem_cache_node(s, node, n) {
  		INIT_LIST_HEAD(&discard);
  		for (i = 0; i < SHRINK_PROMOTE_MAX; i++)
-@@ -4341,13 +4592,21 @@ int __kmem_cache_shrink(struct kmem_cache *s)
+@@ -4341,13 +4616,21 @@ int __kmem_cache_shrink(struct kmem_cache *s)
  	return ret;
  }
  
@@ -19425,7 +19572,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  	mutex_unlock(&slab_mutex);
  
  	return 0;
-@@ -4673,33 +4932,33 @@ static int count_total(struct page *page)
+@@ -4673,33 +4956,33 @@ static int count_total(struct page *page)
  #endif
  
  #ifdef CONFIG_SLUB_DEBUG
@@ -19467,7 +19614,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  {
  	unsigned long count = 0;
  	struct page *page;
-@@ -4708,7 +4967,7 @@ static int validate_slab_node(struct kmem_cache *s,
+@@ -4708,7 +4991,7 @@ static int validate_slab_node(struct kmem_cache *s,
  	spin_lock_irqsave(&n->list_lock, flags);
  
  	list_for_each_entry(page, &n->partial, slab_list) {
@@ -19476,7 +19623,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		count++;
  	}
  	if (count != n->nr_partial) {
-@@ -4721,7 +4980,7 @@ static int validate_slab_node(struct kmem_cache *s,
+@@ -4721,7 +5004,7 @@ static int validate_slab_node(struct kmem_cache *s,
  		goto out;
  
  	list_for_each_entry(page, &n->full, slab_list) {
@@ -19485,7 +19632,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  		count++;
  	}
  	if (count != atomic_long_read(&n->nr_slabs)) {
-@@ -4740,10 +4999,17 @@ long validate_slab_cache(struct kmem_cache *s)
+@@ -4740,10 +5023,17 @@ long validate_slab_cache(struct kmem_cache *s)
  	int node;
  	unsigned long count = 0;
  	struct kmem_cache_node *n;
@@ -19504,7 +19651,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	return count;
  }
-@@ -4879,17 +5145,17 @@ static int add_location(struct loc_track *t, struct kmem_cache *s,
+@@ -4879,17 +5169,17 @@ static int add_location(struct loc_track *t, struct kmem_cache *s,
  }
  
  static void process_slab(struct loc_track *t, struct kmem_cache *s,
@@ -19527,7 +19674,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  }
  #endif  /* CONFIG_DEBUG_FS   */
  #endif	/* CONFIG_SLUB_DEBUG */
-@@ -5816,17 +6082,21 @@ static int slab_debug_trace_open(struct inode *inode, struct file *filep)
+@@ -5816,17 +6106,21 @@ static int slab_debug_trace_open(struct inode *inode, struct file *filep)
  	struct loc_track *t = __seq_open_private(filep, &slab_debugfs_sops,
  						sizeof(struct loc_track));
  	struct kmem_cache *s = file_inode(filep)->i_private;
@@ -19553,7 +19700,7 @@ index f77d8cd79ef7f..df1ac8aff86fe 100644
  
  	for_each_kmem_cache_node(s, node, n) {
  		unsigned long flags;
-@@ -5837,12 +6107,13 @@ static int slab_debug_trace_open(struct inode *inode, struct file *filep)
+@@ -5837,12 +6131,13 @@ static int slab_debug_trace_open(struct inode *inode, struct file *filep)
  
  		spin_lock_irqsave(&n->list_lock, flags);
  		list_for_each_entry(page, &n->partial, slab_list)
@@ -20499,3 +20646,57 @@ index f64f3d62d6c2a..e4087b2d3fc4b 100644
  	if (ret)
  		return ret;
  
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 223a6da0e6dc5..10793526187c0 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -51,8 +51,10 @@
+ #define SMK_RECEIVING	1
+ #define SMK_SENDING	2
+ 
++#ifdef SMACK_IPV6_PORT_LABELING
+ static DEFINE_MUTEX(smack_ipv6_lock);
+ static LIST_HEAD(smk_ipv6_port_list);
++#endif
+ struct kmem_cache *smack_rule_cache;
+ int smack_enabled;
+ 
+@@ -2603,7 +2605,6 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
+ 	mutex_unlock(&smack_ipv6_lock);
+ 	return;
+ }
+-#endif
+ 
+ /**
+  * smk_ipv6_port_check - check Smack port access
+@@ -2666,6 +2667,7 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
+ 
+ 	return smk_ipv6_check(skp, object, address, act);
+ }
++#endif
+ 
+ /**
+  * smack_inode_setsecurity - set smack xattrs
+@@ -2852,8 +2854,9 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
+ 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
+ 					    SMK_CONNECTING);
+ 		}
+-		if (__is_defined(SMACK_IPV6_PORT_LABELING))
++#ifdef SMACK_IPV6_PORT_LABELING
+ 			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
++#endif
+ 
+ 		return rc;
+ 	}
+diff --git a/sound/soc/mediatek/common/mtk-afe-fe-dai.c b/sound/soc/mediatek/common/mtk-afe-fe-dai.c
+index 3cb2adf420bbf..35c3174c035d7 100644
+--- a/sound/soc/mediatek/common/mtk-afe-fe-dai.c
++++ b/sound/soc/mediatek/common/mtk-afe-fe-dai.c
+@@ -288,7 +288,6 @@ const struct snd_soc_dai_ops mtk_afe_fe_ops = {
+ };
+ EXPORT_SYMBOL_GPL(mtk_afe_fe_ops);
+ 
+-static DEFINE_MUTEX(irqs_lock);
+ int mtk_dynamic_irq_acquire(struct mtk_base_afe *afe)
+ {
+ 	int i;

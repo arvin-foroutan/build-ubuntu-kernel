@@ -162,17 +162,17 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15-rc1-rt1.patch .;
         patch -p1 < ./patch-5.15-rc1-rt1.patch;
     elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14.1-rt19.patch .;
-        patch -p1 < ./patch-5.14.1-rt19.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14.2-rt21.patch .;
+        patch -p1 < ./patch-5.14.2-rt21.patch;
     elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.59-rt52.patch .;
-        patch -p1 < ./patch-5.10.59-rt52.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.65-rt53.patch .;
+        patch -p1 < ./patch-5.10.65-rt53.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.143-rt64-rc2.patch .;
-        patch -p1 < ./patch-5.4.143-rt64-rc2.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.143-rt64.patch .;
+        patch -p1 < ./patch-5.4.143-rt64.patch;
     fi
 fi
 
