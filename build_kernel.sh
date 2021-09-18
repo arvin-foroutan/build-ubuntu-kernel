@@ -10,7 +10,7 @@ KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
 KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.147"}
 KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504147"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
-KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cacule"} # cacule, cfs
+KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"} # cfs, cacule
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
 KERNEL_MAIN_DIR=${KERNEL_MAIN_DIR:-$HOME/kernel_main}
@@ -1071,8 +1071,8 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0010-scripts-disable-the-localversion-tag-of-a-git-repo.patch;
 fi
 
-# CacULE scheduler enabled by default (except for -rt)
-# To disable, pass KERNEL_SCHEDULER=cfs
+# CacULE scheduler disabled by default and for real-time kernels
+# To enable, pass KERNEL_SCHEDULER=cacule to the script
 if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     if [ "${KERNEL_BASE_VER}" = "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/cacule-sched/5.14/cacule-5.14*.patch .;
