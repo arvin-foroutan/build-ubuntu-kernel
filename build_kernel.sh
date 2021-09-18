@@ -217,6 +217,8 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     echo "*** Copying and applying cpu graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/cpu-patches-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.15.patch .;
+    patch -p1 < ./graysky-gcc-5.15.patch;
     patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
@@ -967,8 +969,8 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
     patch -p1 < ./enable-background-reclaim-hugepages.patch;
     echo "*** Copying and applying graysky's GCC patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc9-5.4.patch .;
-    patch -p1 < ./graysky-gcc9-5.4.patch;
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-4.19-through-5.4.patch .;
+    patch -p1 < ./graysky-gcc-4.19-through-5.4.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/O3-optimization/O3-v5.4+.patch .;
     patch -p1 < ./O3-v5.4+.patch;
