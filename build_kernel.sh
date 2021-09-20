@@ -251,7 +251,6 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     echo "*** Copying and applying zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/zen-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
-    patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     echo "*** Copying and applying zstd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/zstd-patches-v2/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
