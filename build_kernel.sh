@@ -234,7 +234,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying lrng patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches-v2/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/pf-patches-v5-sep/*.patch .;
