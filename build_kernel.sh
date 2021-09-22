@@ -2,13 +2,13 @@
 
 # Compile the Linux kernel for Ubuntu.
 
-# Supported kernels: 5.4 LTS / 5.10 LTS / 5.13 / 5.14 / 5.15-rc
+# Supported kernels: 5.4 LTS / 5.10 LTS / 5.13 EOL / 5.14 / 5.15-rc
 
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.147"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504147"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.148"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504148"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"} # cfs, cacule
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -176,7 +176,7 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "5.15" ]; then
+if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
@@ -281,7 +281,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
+elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
@@ -297,7 +297,6 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
     patch -p1 < ./0001-bcachefs-5.14-introduce-bcachefs-patchset.patch;
     echo "*** Copying and applying bfq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-block-bfq-honor-already-setup-queue-merges.patch;
     patch -p1 < ./0002-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-sep/*.patch .;
@@ -433,7 +432,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
         patch -p1 < ./0003-mm-ksm-proc-introduce-remote-merge.patch;
         patch -p1 < ./0004-mm-ksm-proc-add-remote-KSM-documentation.patch;
     fi
-elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
+elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/21)
     echo "*** Copying and applying alsa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/alsa-patches-v2/*.patch .;
     patch -p1 < ./0001-alsa-patches.patch;
@@ -456,10 +455,6 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
     patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
     patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
     patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
-    patch -p1 < ./0010-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
-    patch -p1 < ./0011-block-bfq-honor-already-setup-queue-merges.patch;
-    patch -p1 < ./0012-Revert-block-return-ELEVATOR_DISCARD_MERGE-if-possib.patch;
-    patch -p1 < ./0013-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     patch -p1 < ./0014-Revert-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0015-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying block patches.. ✓";
@@ -600,9 +595,6 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex2-zen-patches-v2/*.patch .;
         patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
         patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-        echo "*** Copying and applying btrfs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
-        patch -p1 < ./0001-btrfs-patches.patch;
         echo "*** Copying and applying ksm patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksm-patches/*.patch .;
         patch -p1 < ./0001-ksm-patches.patch;
@@ -619,22 +611,14 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0001-block-bfq-use-half-slice_idle-as-a-threshold-to-chec.patch;
     patch -p1 < ./0002-block-bfq-set-next_rq-to-waker_bfqq-next_rq-in-waker.patch;
     patch -p1 < ./0003-block-bfq-increase-time-window-for-waker-detection.patch;
-    patch -p1 < ./0004-block-bfq-do-not-raise-non-default-weights.patch;
-    patch -p1 < ./0005-block-bfq-avoid-spurious-switches-to-soft_rt-of-inte.patch;
     patch -p1 < ./0006-block-bfq-do-not-expire-a-queue-when-it-is-the-only-.patch;
-    patch -p1 < ./0007-block-bfq-replace-mechanism-for-evaluating-I-O-inten.patch;
     patch -p1 < ./0008-block-bfq-re-evaluate-convenience-of-I-O-plugging-on.patch;
-    patch -p1 < ./0009-block-bfq-fix-switch-back-from-soft-rt-weitgh-raisin.patch;
     patch -p1 < ./0010-block-bfq-save-also-weight-raised-service-on-queue-m.patch;
     patch -p1 < ./0011-block-bfq-save-also-injection-state-on-queue-merging.patch;
-    patch -p1 < ./0012-block-bfq-make-waker-queue-detection-more-robust.patch;
-    patch -p1 < ./0013-bfq-bfq_check_waker-should-be-static.patch;
     patch -p1 < ./0014-block-bfq-always-inject-I-O-of-queues-blocked-by-wak.patch;
     patch -p1 < ./0015-block-bfq-put-reqs-of-waker-and-woken-in-dispatch-li.patch;
     patch -p1 < ./0016-block-bfq-make-shared-queues-inherit-wakers.patch;
-    patch -p1 < ./0017-block-bfq-fix-weight-raising-resume-with-low_latency.patch;
     patch -p1 < ./0018-block-bfq-keep-shared-queues-out-of-the-waker-mechan.patch;
-    patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
     patch -p1 < ./0020-bfq-don-t-duplicate-code-for-different-paths.patch;
     patch -p1 < ./0022-bfq-Use-ttime-local-variable.patch;
     patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
@@ -872,9 +856,6 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0016-block-bfq-make-shared-queues-inherit-wakers.patch;
     patch -p1 < ./0017-block-bfq-fix-weight-raising-resume-with-low_latency.patch;
     patch -p1 < ./0018-block-bfq-keep-shared-queues-out-of-the-waker-mechan.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-0019-block-bfq-merge-bursts-of-newly-created-queues*.patch .;
-    patch -p1 < ./5.4-0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
-    patch -p1 < ./5.4-0019-block-bfq-merge-bursts-of-newly-created-queues-part2.patch;
     patch -p1 < ./0020-bfq-don-t-duplicate-code-for-different-paths.patch;
     patch -p1 < ./0022-bfq-Use-ttime-local-variable.patch;
     patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
@@ -883,16 +864,10 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     echo "*** Copying and applying BFQ 5.11 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.11/bfq-patches-v7-sep/*.patch .;
     patch -p1 < ./0023-block-bfq-update-comments-and-default-value-in-docs-.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-0027-Revert-block-bfq-make-shared-queues-inherit-wakers*.patch .;
-    patch -p1 < ./5.4-0027-Revert-block-bfq-make-shared-queues-inherit-wakers.patch;
-    patch -p1 < ./5.4-0027-Revert-block-bfq-make-shared-queues-inherit-wakers-part2.patch;
     patch -p1 < ./0028-Revert-block-bfq-put-reqs-of-waker-and-woken-in-disp.patch;
     patch -p1 < ./0029-Revert-block-bfq-always-inject-I-O-of-queues-blocked.patch;
     patch -p1 < ./0030-block-bfq-always-inject-I-O-of-queues-blocked-by-wak.patch;
     patch -p1 < ./0031-block-bfq-put-reqs-of-waker-and-woken-in-dispatch-li.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-0032-block-bfq-make-shared-queues-inherit-wakers*.patch .;
-    patch -p1 < ./5.4-0032-block-bfq-make-shared-queues-inherit-wakers.patch;
-    patch -p1 < ./5.4-0032-block-bfq-make-shared-queues-inherit-wakers-part2.patch;
     patch -p1 < ./0037-block-bfq-fix-the-timeout-calculation-in-bfq_bfqq_ch.patch;
     patch -p1 < ./0038-blk-mq-bypass-IO-scheduler-s-limit_depth-for-passthr.patch;
     patch -p1 < ./0039-bfq-mq-deadline-remove-redundant-check-for-passthrou.patch;
@@ -900,10 +875,6 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${LUCJAN_PATCH_PATH}/5.12/bfq-patches-v15-sep/*.patch .;
     patch -p1 < ./0024-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0030-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
-    patch -p1 < ./0031-block-bfq-fix-delayed-stable-merge-check.patch;
-    patch -p1 < ./0032-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
-    patch -p1 < ./0033-block-bfq-boost-throughput-by-extending-queue-mergin.patch;
-    patch -p1 < ./0034-block-bfq-avoid-delayed-merge-of-async-queues.patch;
     patch -p1 < ./0035-block-bfq-check-waker-only-for-queues-with-no-in-fli.patch;
     patch -p1 < ./0036-block-bfq-reset-waker-pointer-with-shared-queues.patch;
     echo "*** Copying and applying BFQ 5.13 patches.. ✓";
@@ -911,10 +882,6 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch .;
     patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.13-0008-blk-Fix-lock-inversion-merge-fix*.patch .;
-    patch -p1 < ./5.4-from-5.13-0008-blk-Fix-lock-inversion-merge-fix-part1.patch;
-    patch -p1 < ./5.4-from-5.13-0008-blk-Fix-lock-inversion-merge-fix-part2.patch;
-    patch -p1 < ./0011-block-bfq-honor-already-setup-queue-merges.patch;
     patch -p1 < ./0014-Revert-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0015-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying Valve fsync/futex patches.. ✓";
@@ -1099,11 +1066,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.4.147-0504147+customidle-generic
-# 5.4.147-0504147+customfull-generic
-# 5.4.147-0504147+customrt-generic
+# 5.4.148-0504148+customidle-generic
+# 5.4.148-0504148+customfull-generic
+# 5.4.148-0504148+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.4.147-0504147+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.4.148-0504148+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1244,7 +1211,7 @@ rm -rf ${KERNEL_BUILD_DIR};
 # Also note: Running 'sudo update-grub2' will list your installed kernels,
 # and you can manually delete the ones that have uninstall as time goes on.
 #
-# To uninstall a kernel: $ sudo apt purge *5.4.147-0504147+customidle-generic*
+# To uninstall a kernel: $ sudo apt purge *5.4.148-0504148+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
 echo "ls -al /usr/src"
 ls -al /usr/src;
