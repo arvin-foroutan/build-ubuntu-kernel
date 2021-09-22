@@ -874,14 +874,12 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     echo "*** Copying and applying BFQ 5.12 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.12/bfq-patches-v15-sep/*.patch .;
     patch -p1 < ./0024-block-bfq-remove-the-repeated-declaration.patch;
-    patch -p1 < ./0030-block-bfq-let-also-stably-merged-queues-enjoy-weight.patch;
     patch -p1 < ./0035-block-bfq-check-waker-only-for-queues-with-no-in-fli.patch;
     patch -p1 < ./0036-block-bfq-reset-waker-pointer-with-shared-queues.patch;
     echo "*** Copying and applying BFQ 5.13 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.13/bfq-patches-v7-sep/*.patch .;
     patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch .;
-    patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
     patch -p1 < ./0014-Revert-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0015-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying Valve fsync/futex patches.. ✓";
