@@ -235,12 +235,12 @@ index efa4020250315..59487ee9fd612 100644
  	return 0;
  }
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 077f2ec4eeb23..243e43cd226de 100644
+index 5c7ae4c3954be..c0b1b75cd9f9b 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -88,6 +88,7 @@ config ARM64
  	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128 && (GCC_VERSION >= 50000 || CC_IS_CLANG)
+ 	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
  	select ARCH_SUPPORTS_NUMA_BALANCING
 +	select ARCH_SUPPORTS_RT if HAVE_POSIX_CPU_TIMERS_TASK_WORK
  	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
@@ -384,7 +384,7 @@ index 551427ae8cc52..96a4f6c9eb787 100644
    DEFINE(TSK_TI_TTBR0,		offsetof(struct task_struct, thread_info.ttbr0));
  #endif
 diff --git a/arch/arm64/kernel/fpsimd.c b/arch/arm64/kernel/fpsimd.c
-index 5a294f20e9dec..28c4f96cfad8a 100644
+index ff4962750b3d0..99484e8bbade6 100644
 --- a/arch/arm64/kernel/fpsimd.c
 +++ b/arch/arm64/kernel/fpsimd.c
 @@ -179,10 +179,19 @@ static void __get_cpu_fpsimd_context(void)
@@ -664,10 +664,10 @@ index b4ec6c7dd72ee..07df83231ec20 100644
  /* Bits in local_flags */
  /* Don't move TLF_NAPPING without adjusting the code in entry_32.S */
 diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
-index a73f3f70a6576..83ba6e5861c8c 100644
+index de10a26972581..0bb560240b2b2 100644
 --- a/arch/powerpc/kernel/interrupt.c
 +++ b/arch/powerpc/kernel/interrupt.c
-@@ -303,7 +303,7 @@ interrupt_exit_user_prepare_main(unsigned long ret, struct pt_regs *regs)
+@@ -346,7 +346,7 @@ interrupt_exit_user_prepare_main(unsigned long ret, struct pt_regs *regs)
  	ti_flags = READ_ONCE(current_thread_info()->flags);
  	while (unlikely(ti_flags & (_TIF_USER_WORK_MASK & ~_TIF_RESTORE_TM))) {
  		local_irq_enable();
@@ -676,7 +676,7 @@ index a73f3f70a6576..83ba6e5861c8c 100644
  			schedule();
  		} else {
  			/*
-@@ -509,11 +509,15 @@ notrace unsigned long interrupt_exit_kernel_prepare(struct pt_regs *regs)
+@@ -552,11 +552,15 @@ notrace unsigned long interrupt_exit_kernel_prepare(struct pt_regs *regs)
  		/* Returning to a kernel context with local irqs enabled. */
  		WARN_ON_ONCE(!(regs->msr & MSR_EE));
  again:
@@ -991,7 +991,7 @@ index c8848bb681a11..41fa1be980a33 100644
  #ifdef CONFIG_HOTPLUG_CPU
  void fixup_irqs(void)
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 4e001bbbb4256..65c9d81c8306c 100644
+index dad7f85dcdea0..4ef60f45b1353 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
 @@ -107,6 +107,7 @@ config X86
@@ -1010,18 +1010,6 @@ index 4e001bbbb4256..65c9d81c8306c 100644
  	select MMU_GATHER_RCU_TABLE_FREE		if PARAVIRT
  	select HAVE_POSIX_CPU_TIMERS_TASK_WORK
  	select HAVE_REGS_AND_STACK_ACCESS_API
-diff --git a/arch/x86/include/asm/fpu/api.h b/arch/x86/include/asm/fpu/api.h
-index 23bef08a83880..62cf3e4c06fb1 100644
---- a/arch/x86/include/asm/fpu/api.h
-+++ b/arch/x86/include/asm/fpu/api.h
-@@ -28,6 +28,7 @@ extern void kernel_fpu_begin_mask(unsigned int kfpu_mask);
- extern void kernel_fpu_end(void);
- extern bool irq_fpu_usable(void);
- extern void fpregs_mark_activate(void);
-+extern void kernel_fpu_resched(void);
- 
- /* Code that is unaware of kernel_fpu_begin_mask() can use this */
- static inline void kernel_fpu_begin(void)
 diff --git a/arch/x86/include/asm/irq_stack.h b/arch/x86/include/asm/irq_stack.h
 index 562854c608082..ea0c5ab31da40 100644
 --- a/arch/x86/include/asm/irq_stack.h
@@ -1229,29 +1217,6 @@ index 5601b95944fae..501f3e810f8fb 100644
  			goto unknown;
  		}
  		*visit_mask |= 1UL << info->type;
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 7ada7bd03a327..e17fe40ee51e1 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -185,6 +185,18 @@ void kernel_fpu_end(void)
- }
- EXPORT_SYMBOL_GPL(kernel_fpu_end);
- 
-+void kernel_fpu_resched(void)
-+{
-+	WARN_ON_FPU(!this_cpu_read(in_kernel_fpu));
-+
-+	if (should_resched(PREEMPT_OFFSET)) {
-+		kernel_fpu_end();
-+		cond_resched();
-+		kernel_fpu_begin();
-+	}
-+}
-+EXPORT_SYMBOL_GPL(kernel_fpu_resched);
-+
- /*
-  * Sync the FPU register state to current's memory register state when the
-  * current task owns the FPU. The hardware register state is preserved.
 diff --git a/arch/x86/kernel/i8259.c b/arch/x86/kernel/i8259.c
 index 15aefa3f3e18e..52af9a89ad478 100644
 --- a/arch/x86/kernel/i8259.c
@@ -3240,10 +3205,30 @@ index af308e15f174c..33c14785c46b2 100644
  #include <linux/refcount.h>
  
 diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-index 4d244e295e855..af39859f02ee1 100644
+index 4d244e295e855..cf665d25838cf 100644
 --- a/include/linux/preempt.h
 +++ b/include/linux/preempt.h
-@@ -174,6 +174,20 @@ extern void preempt_count_sub(int val);
+@@ -122,9 +122,17 @@
+  * The preempt_count offset after spin_lock()
+  */
+ #if !defined(CONFIG_PREEMPT_RT)
+-#define PREEMPT_LOCK_OFFSET	PREEMPT_DISABLE_OFFSET
++#define PREEMPT_LOCK_OFFSET		PREEMPT_DISABLE_OFFSET
++#define PREEMPT_LOCK_RESCHED_OFFSET	PREEMPT_LOCK_OFFSET
+ #else
+-#define PREEMPT_LOCK_OFFSET	0
++/* Locks on RT do not disable preemption */
++#define PREEMPT_LOCK_OFFSET		0
++/*
++ * spin/rw_lock() on RT implies rcu_read_lock(). The might_sleep() check in
++ * cond_resched*lock() has to take that into account because it checks for
++ * preempt_count() + rcu_preempt_depth().
++ */
++#define PREEMPT_LOCK_RESCHED_OFFSET	1
+ #endif
+ 
+ /*
+@@ -174,6 +182,20 @@ extern void preempt_count_sub(int val);
  #define preempt_count_inc() preempt_count_add(1)
  #define preempt_count_dec() preempt_count_sub(1)
  
@@ -3264,7 +3249,7 @@ index 4d244e295e855..af39859f02ee1 100644
  #ifdef CONFIG_PREEMPT_COUNT
  
  #define preempt_disable() \
-@@ -182,13 +196,25 @@ do { \
+@@ -182,13 +204,25 @@ do { \
  	barrier(); \
  } while (0)
  
@@ -3281,17 +3266,17 @@ index 4d244e295e855..af39859f02ee1 100644
  } while (0)
  
 -#define preempt_enable_no_resched() sched_preempt_enable_no_resched()
-+#ifdef CONFIG_PREEMPT_RT
++#ifndef CONFIG_PREEMPT_RT
 +# define preempt_enable_no_resched() sched_preempt_enable_no_resched()
-+# define preempt_check_resched_rt() preempt_check_resched()
++# define preempt_check_resched_rt() barrier();
 +#else
 +# define preempt_enable_no_resched() preempt_enable()
-+# define preempt_check_resched_rt() barrier();
++# define preempt_check_resched_rt() preempt_check_resched()
 +#endif
  
  #define preemptible()	(preempt_count() == 0 && !irqs_disabled())
  
-@@ -213,6 +239,18 @@ do { \
+@@ -213,6 +247,18 @@ do { \
  		__preempt_schedule(); \
  } while (0)
  
@@ -3310,7 +3295,7 @@ index 4d244e295e855..af39859f02ee1 100644
  #else /* !CONFIG_PREEMPTION */
  #define preempt_enable() \
  do { \
-@@ -220,6 +258,12 @@ do { \
+@@ -220,6 +266,12 @@ do { \
  	preempt_count_dec(); \
  } while (0)
  
@@ -3323,7 +3308,7 @@ index 4d244e295e855..af39859f02ee1 100644
  #define preempt_enable_notrace() \
  do { \
  	barrier(); \
-@@ -258,8 +302,12 @@ do { \
+@@ -258,8 +310,12 @@ do { \
  #define preempt_disable_notrace()		barrier()
  #define preempt_enable_no_resched_notrace()	barrier()
  #define preempt_enable_notrace()		barrier()
@@ -3336,7 +3321,7 @@ index 4d244e295e855..af39859f02ee1 100644
  #endif /* CONFIG_PREEMPT_COUNT */
  
  #ifdef MODULE
-@@ -278,10 +326,22 @@ do { \
+@@ -278,10 +334,18 @@ do { \
  } while (0)
  #define preempt_fold_need_resched() \
  do { \
@@ -3348,19 +3333,15 @@ index 4d244e295e855..af39859f02ee1 100644
 +#ifdef CONFIG_PREEMPT_RT
 +# define preempt_disable_rt()		preempt_disable()
 +# define preempt_enable_rt()		preempt_enable()
-+# define preempt_disable_nort()		barrier()
-+# define preempt_enable_nort()		barrier()
 +#else
 +# define preempt_disable_rt()		barrier()
 +# define preempt_enable_rt()		barrier()
-+# define preempt_disable_nort()		preempt_disable()
-+# define preempt_enable_nort()		preempt_enable()
 +#endif
 +
  #ifdef CONFIG_PREEMPT_NOTIFIERS
  
  struct preempt_notifier;
-@@ -394,8 +454,15 @@ extern void migrate_enable(void);
+@@ -394,8 +458,15 @@ extern void migrate_enable(void);
  
  #else
  
@@ -3564,31 +3545,10 @@ index b676aa419eef8..c21c7f8103e2b 100644
  #define DEFAULT_RATELIMIT_INTERVAL	(5 * HZ)
  #define DEFAULT_RATELIMIT_BURST		10
 diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index 434d12fe2d4f5..48d00a4cf7de7 100644
+index 434d12fe2d4f5..de6d1a21f113b 100644
 --- a/include/linux/rcupdate.h
 +++ b/include/linux/rcupdate.h
-@@ -54,6 +54,11 @@ void __rcu_read_unlock(void);
-  * types of kernel builds, the rcu_read_lock() nesting depth is unknowable.
-  */
- #define rcu_preempt_depth() READ_ONCE(current->rcu_read_lock_nesting)
-+#ifndef CONFIG_PREEMPT_RT
-+#define sched_rcu_preempt_depth()	rcu_preempt_depth()
-+#else
-+static inline int sched_rcu_preempt_depth(void) { return 0; }
-+#endif
- 
- #else /* #ifdef CONFIG_PREEMPT_RCU */
- 
-@@ -79,6 +84,8 @@ static inline int rcu_preempt_depth(void)
- 	return 0;
- }
- 
-+#define sched_rcu_preempt_depth()	rcu_preempt_depth()
-+
- #endif /* #else #ifdef CONFIG_PREEMPT_RCU */
- 
- /* Internal to kernel */
-@@ -94,6 +101,13 @@ void rcu_init_tasks_generic(void);
+@@ -94,6 +94,13 @@ void rcu_init_tasks_generic(void);
  static inline void rcu_init_tasks_generic(void) { }
  #endif
  
@@ -3630,7 +3590,7 @@ index 9deedfeec2b17..7d049883a08ac 100644
  
  extern void rt_mutex_unlock(struct rt_mutex *lock);
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index e12b524426b02..50aaf8dd83178 100644
+index 39039ce8ac4c1..992a1e07a27e8 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
 @@ -118,12 +118,8 @@ struct task_group;
@@ -3657,7 +3617,7 @@ index e12b524426b02..50aaf8dd83178 100644
  	unsigned long			sas_ss_sp;
  	size_t				sas_ss_size;
  	unsigned int			sas_ss_flags;
-@@ -1729,6 +1729,16 @@ static inline bool is_percpu_thread(void)
+@@ -1730,6 +1730,16 @@ static inline bool is_percpu_thread(void)
  #endif
  }
  
@@ -3674,7 +3634,7 @@ index e12b524426b02..50aaf8dd83178 100644
  /* Per-process atomic flags. */
  #define PFA_NO_NEW_PRIVS		0	/* May not gain new privileges. */
  #define PFA_SPREAD_PAGE			1	/* Spread page cache over cpuset */
-@@ -2004,6 +2014,118 @@ static inline int test_tsk_need_resched(struct task_struct *tsk)
+@@ -2005,6 +2015,118 @@ static inline int test_tsk_need_resched(struct task_struct *tsk)
  	return unlikely(test_tsk_thread_flag(tsk,TIF_NEED_RESCHED));
  }
  
@@ -3793,6 +3753,35 @@ index e12b524426b02..50aaf8dd83178 100644
  /*
   * cond_resched() and cond_resched_lock(): latency reduction via
   * explicit rescheduling in places that are safe. The return
+@@ -2047,19 +2169,19 @@ extern int __cond_resched_lock(spinlock_t *lock);
+ extern int __cond_resched_rwlock_read(rwlock_t *lock);
+ extern int __cond_resched_rwlock_write(rwlock_t *lock);
+ 
+-#define cond_resched_lock(lock) ({				\
+-	___might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);\
+-	__cond_resched_lock(lock);				\
++#define cond_resched_lock(lock) ({					\
++	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSET);	\
++	__cond_resched_lock(lock);					\
+ })
+ 
+-#define cond_resched_rwlock_read(lock) ({			\
+-	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);	\
+-	__cond_resched_rwlock_read(lock);			\
++#define cond_resched_rwlock_read(lock) ({				\
++	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSET);	\
++	__cond_resched_rwlock_read(lock);				\
+ })
+ 
+-#define cond_resched_rwlock_write(lock) ({			\
+-	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);	\
+-	__cond_resched_rwlock_write(lock);			\
++#define cond_resched_rwlock_write(lock) (	{			\
++	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSET);	\
++	__cond_resched_rwlock_write(lock);				\
+ })
+ 
+ static inline void cond_resched_rcu(void)
 diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
 index 5561486fddef7..11177c36f640d 100644
 --- a/include/linux/sched/mm.h
@@ -3846,7 +3835,7 @@ index 5db211f43b29e..aa011f6687051 100644
  int serial8250_console_exit(struct uart_port *port);
  
 diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 6bdb0db3e8258..22de2e5349e97 100644
+index 841e2f0f5240b..b5c228b09f524 100644
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
 @@ -297,6 +297,7 @@ struct sk_buff_head {
@@ -4275,7 +4264,7 @@ index c0069ac00e62d..5ab89e53bc20f 100644
  	struct Qdisc *root = qdisc_root_sleeping(qdisc);
  
 diff --git a/init/Kconfig b/init/Kconfig
-index 11f8a845f259d..a42f126ea89e2 100644
+index 11f8a845f259d..28fd7b8e8c7d6 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
 @@ -938,6 +938,7 @@ config PAGE_COUNTER
@@ -4286,15 +4275,7 @@ index 11f8a845f259d..a42f126ea89e2 100644
  	select PAGE_COUNTER
  	select EVENTFD
  	help
-@@ -1008,6 +1009,7 @@ config CFS_BANDWIDTH
- config RT_GROUP_SCHED
- 	bool "Group scheduling for SCHED_RR/FIFO"
- 	depends on CGROUP_SCHED
-+	depends on !PREEMPT_RT
- 	default n
- 	help
- 	  This feature lets you explicitly allocate real CPU bandwidth
-@@ -1896,6 +1898,7 @@ choice
+@@ -1896,6 +1897,7 @@ choice
  
  config SLAB
  	bool "SLAB"
@@ -4302,7 +4283,7 @@ index 11f8a845f259d..a42f126ea89e2 100644
  	select HAVE_HARDENED_USERCOPY_ALLOCATOR
  	help
  	  The regular slab allocator that is established and known to work
-@@ -1916,6 +1919,7 @@ config SLUB
+@@ -1916,6 +1918,7 @@ config SLUB
  config SLOB
  	depends on EXPERT
  	bool "SLOB (Simple Allocator)"
@@ -4311,7 +4292,7 @@ index 11f8a845f259d..a42f126ea89e2 100644
  	   SLOB replaces the stock allocator with a drastically simpler
  	   allocator. SLOB is generally more space efficient but
 diff --git a/init/main.c b/init/main.c
-index 5c9a48df90e1b..11c2a9606708d 100644
+index 3f72169344412..6391d1b2cc4fd 100644
 --- a/init/main.c
 +++ b/init/main.c
 @@ -1601,6 +1601,7 @@ static noinline void __init kernel_init_freeable(void)
@@ -4338,315 +4319,6 @@ index 5876e30c5740d..5df0776264c20 100644
  choice
  	prompt "Preemption Model"
  	default PREEMPT_NONE
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index df1ccf4558f82..38530791e91e6 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -358,7 +358,7 @@ void cpuset_read_unlock(void)
- 	percpu_up_read(&cpuset_rwsem);
- }
- 
--static DEFINE_SPINLOCK(callback_lock);
-+static DEFINE_RAW_SPINLOCK(callback_lock);
- 
- static struct workqueue_struct *cpuset_migrate_mm_wq;
- 
-@@ -1308,7 +1308,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
- 	 * Newly added CPUs will be removed from effective_cpus and
- 	 * newly deleted ones will be added back to effective_cpus.
- 	 */
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	if (adding) {
- 		cpumask_or(parent->subparts_cpus,
- 			   parent->subparts_cpus, tmp->addmask);
-@@ -1331,7 +1331,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
- 	if (old_prs != new_prs)
- 		cpuset->partition_root_state = new_prs;
- 
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 	notify_partition_change(cpuset, old_prs, new_prs);
- 
- 	return cmd == partcmd_update;
-@@ -1435,7 +1435,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
- 			continue;
- 		rcu_read_unlock();
- 
--		spin_lock_irq(&callback_lock);
-+		raw_spin_lock_irq(&callback_lock);
- 
- 		cpumask_copy(cp->effective_cpus, tmp->new_cpus);
- 		if (cp->nr_subparts_cpus && (new_prs != PRS_ENABLED)) {
-@@ -1469,7 +1469,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
- 		if (new_prs != old_prs)
- 			cp->partition_root_state = new_prs;
- 
--		spin_unlock_irq(&callback_lock);
-+		raw_spin_unlock_irq(&callback_lock);
- 		notify_partition_change(cp, old_prs, new_prs);
- 
- 		WARN_ON(!is_in_v2_mode() &&
-@@ -1588,7 +1588,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
- 			return -EINVAL;
- 	}
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	cpumask_copy(cs->cpus_allowed, trialcs->cpus_allowed);
- 
- 	/*
-@@ -1599,7 +1599,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
- 			       cs->cpus_allowed);
- 		cs->nr_subparts_cpus = cpumask_weight(cs->subparts_cpus);
- 	}
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 
- 	update_cpumasks_hier(cs, &tmp);
- 
-@@ -1798,9 +1798,9 @@ static void update_nodemasks_hier(struct cpuset *cs, nodemask_t *new_mems)
- 			continue;
- 		rcu_read_unlock();
- 
--		spin_lock_irq(&callback_lock);
-+		raw_spin_lock_irq(&callback_lock);
- 		cp->effective_mems = *new_mems;
--		spin_unlock_irq(&callback_lock);
-+		raw_spin_unlock_irq(&callback_lock);
- 
- 		WARN_ON(!is_in_v2_mode() &&
- 			!nodes_equal(cp->mems_allowed, cp->effective_mems));
-@@ -1868,9 +1868,9 @@ static int update_nodemask(struct cpuset *cs, struct cpuset *trialcs,
- 	if (retval < 0)
- 		goto done;
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	cs->mems_allowed = trialcs->mems_allowed;
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 
- 	/* use trialcs->mems_allowed as a temp variable */
- 	update_nodemasks_hier(cs, &trialcs->mems_allowed);
-@@ -1961,9 +1961,9 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
- 	spread_flag_changed = ((is_spread_slab(cs) != is_spread_slab(trialcs))
- 			|| (is_spread_page(cs) != is_spread_page(trialcs)));
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	cs->flags = trialcs->flags;
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 
- 	if (!cpumask_empty(trialcs->cpus_allowed) && balance_flag_changed)
- 		rebuild_sched_domains_locked();
-@@ -2054,9 +2054,9 @@ static int update_prstate(struct cpuset *cs, int new_prs)
- 	rebuild_sched_domains_locked();
- out:
- 	if (!err) {
--		spin_lock_irq(&callback_lock);
-+		raw_spin_lock_irq(&callback_lock);
- 		cs->partition_root_state = new_prs;
--		spin_unlock_irq(&callback_lock);
-+		raw_spin_unlock_irq(&callback_lock);
- 		notify_partition_change(cs, old_prs, new_prs);
- 	}
- 
-@@ -2471,7 +2471,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
- 	cpuset_filetype_t type = seq_cft(sf)->private;
- 	int ret = 0;
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 
- 	switch (type) {
- 	case FILE_CPULIST:
-@@ -2493,7 +2493,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
- 		ret = -EINVAL;
- 	}
- 
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 	return ret;
- }
- 
-@@ -2811,14 +2811,14 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
- 
- 	cpuset_inc();
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	if (is_in_v2_mode()) {
- 		cpumask_copy(cs->effective_cpus, parent->effective_cpus);
- 		cs->effective_mems = parent->effective_mems;
- 		cs->use_parent_ecpus = true;
- 		parent->child_ecpus_count++;
- 	}
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 
- 	if (!test_bit(CGRP_CPUSET_CLONE_CHILDREN, &css->cgroup->flags))
- 		goto out_unlock;
-@@ -2845,12 +2845,12 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
- 	}
- 	rcu_read_unlock();
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	cs->mems_allowed = parent->mems_allowed;
- 	cs->effective_mems = parent->mems_allowed;
- 	cpumask_copy(cs->cpus_allowed, parent->cpus_allowed);
- 	cpumask_copy(cs->effective_cpus, parent->cpus_allowed);
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- out_unlock:
- 	percpu_up_write(&cpuset_rwsem);
- 	cpus_read_unlock();
-@@ -2906,7 +2906,7 @@ static void cpuset_css_free(struct cgroup_subsys_state *css)
- static void cpuset_bind(struct cgroup_subsys_state *root_css)
- {
- 	percpu_down_write(&cpuset_rwsem);
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 
- 	if (is_in_v2_mode()) {
- 		cpumask_copy(top_cpuset.cpus_allowed, cpu_possible_mask);
-@@ -2917,7 +2917,7 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
- 		top_cpuset.mems_allowed = top_cpuset.effective_mems;
- 	}
- 
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 	percpu_up_write(&cpuset_rwsem);
- }
- 
-@@ -3014,12 +3014,12 @@ hotplug_update_tasks_legacy(struct cpuset *cs,
- {
- 	bool is_empty;
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	cpumask_copy(cs->cpus_allowed, new_cpus);
- 	cpumask_copy(cs->effective_cpus, new_cpus);
- 	cs->mems_allowed = *new_mems;
- 	cs->effective_mems = *new_mems;
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 
- 	/*
- 	 * Don't call update_tasks_cpumask() if the cpuset becomes empty,
-@@ -3056,10 +3056,10 @@ hotplug_update_tasks(struct cpuset *cs,
- 	if (nodes_empty(*new_mems))
- 		*new_mems = parent_cs(cs)->effective_mems;
- 
--	spin_lock_irq(&callback_lock);
-+	raw_spin_lock_irq(&callback_lock);
- 	cpumask_copy(cs->effective_cpus, new_cpus);
- 	cs->effective_mems = *new_mems;
--	spin_unlock_irq(&callback_lock);
-+	raw_spin_unlock_irq(&callback_lock);
- 
- 	if (cpus_updated)
- 		update_tasks_cpumask(cs);
-@@ -3126,10 +3126,10 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
- 	if (is_partition_root(cs) && (cpumask_empty(&new_cpus) ||
- 	   (parent->partition_root_state == PRS_ERROR))) {
- 		if (cs->nr_subparts_cpus) {
--			spin_lock_irq(&callback_lock);
-+			raw_spin_lock_irq(&callback_lock);
- 			cs->nr_subparts_cpus = 0;
- 			cpumask_clear(cs->subparts_cpus);
--			spin_unlock_irq(&callback_lock);
-+			raw_spin_unlock_irq(&callback_lock);
- 			compute_effective_cpumask(&new_cpus, cs, parent);
- 		}
- 
-@@ -3147,9 +3147,9 @@ static void cpuset_hotplug_update_tasks(struct cpuset *cs, struct tmpmasks *tmp)
- 						       NULL, tmp);
- 			old_prs = cs->partition_root_state;
- 			if (old_prs != PRS_ERROR) {
--				spin_lock_irq(&callback_lock);
-+				raw_spin_lock_irq(&callback_lock);
- 				cs->partition_root_state = PRS_ERROR;
--				spin_unlock_irq(&callback_lock);
-+				raw_spin_unlock_irq(&callback_lock);
- 				notify_partition_change(cs, old_prs, PRS_ERROR);
- 			}
- 		}
-@@ -3231,7 +3231,7 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
- 
- 	/* synchronize cpus_allowed to cpu_active_mask */
- 	if (cpus_updated) {
--		spin_lock_irq(&callback_lock);
-+		raw_spin_lock_irq(&callback_lock);
- 		if (!on_dfl)
- 			cpumask_copy(top_cpuset.cpus_allowed, &new_cpus);
- 		/*
-@@ -3251,17 +3251,17 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
- 			}
- 		}
- 		cpumask_copy(top_cpuset.effective_cpus, &new_cpus);
--		spin_unlock_irq(&callback_lock);
-+		raw_spin_unlock_irq(&callback_lock);
- 		/* we don't mess with cpumasks of tasks in top_cpuset */
- 	}
- 
- 	/* synchronize mems_allowed to N_MEMORY */
- 	if (mems_updated) {
--		spin_lock_irq(&callback_lock);
-+		raw_spin_lock_irq(&callback_lock);
- 		if (!on_dfl)
- 			top_cpuset.mems_allowed = new_mems;
- 		top_cpuset.effective_mems = new_mems;
--		spin_unlock_irq(&callback_lock);
-+		raw_spin_unlock_irq(&callback_lock);
- 		update_tasks_nodemask(&top_cpuset);
- 	}
- 
-@@ -3362,9 +3362,9 @@ void cpuset_cpus_allowed(struct task_struct *tsk, struct cpumask *pmask)
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&callback_lock, flags);
-+	raw_spin_lock_irqsave(&callback_lock, flags);
- 	guarantee_online_cpus(tsk, pmask);
--	spin_unlock_irqrestore(&callback_lock, flags);
-+	raw_spin_unlock_irqrestore(&callback_lock, flags);
- }
- 
- /**
-@@ -3435,11 +3435,11 @@ nodemask_t cpuset_mems_allowed(struct task_struct *tsk)
- 	nodemask_t mask;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&callback_lock, flags);
-+	raw_spin_lock_irqsave(&callback_lock, flags);
- 	rcu_read_lock();
- 	guarantee_online_mems(task_cs(tsk), &mask);
- 	rcu_read_unlock();
--	spin_unlock_irqrestore(&callback_lock, flags);
-+	raw_spin_unlock_irqrestore(&callback_lock, flags);
- 
- 	return mask;
- }
-@@ -3531,14 +3531,14 @@ bool __cpuset_node_allowed(int node, gfp_t gfp_mask)
- 		return true;
- 
- 	/* Not hardwall and node outside mems_allowed: scan up cpusets */
--	spin_lock_irqsave(&callback_lock, flags);
-+	raw_spin_lock_irqsave(&callback_lock, flags);
- 
- 	rcu_read_lock();
- 	cs = nearest_hardwall_ancestor(task_cs(current));
- 	allowed = node_isset(node, cs->mems_allowed);
- 	rcu_read_unlock();
- 
--	spin_unlock_irqrestore(&callback_lock, flags);
-+	raw_spin_unlock_irqrestore(&callback_lock, flags);
- 	return allowed;
- }
- 
 diff --git a/kernel/cgroup/rstat.c b/kernel/cgroup/rstat.c
 index b264ab5652ba9..7268059c27d8c 100644
 --- a/kernel/cgroup/rstat.c
@@ -4930,17 +4602,17 @@ index 27667e82ecc91..894e4db1fffcc 100644
   */
  int irq_set_irqchip_state(unsigned int irq, enum irqchip_irq_state which,
 diff --git a/kernel/irq/spurious.c b/kernel/irq/spurious.c
-index c481d84583257..ca4bdc53d6c74 100644
+index c481d84583257..02b2daf074414 100644
 --- a/kernel/irq/spurious.c
 +++ b/kernel/irq/spurious.c
 @@ -447,6 +447,10 @@ MODULE_PARM_DESC(noirqdebug, "Disable irq lockup detection when true");
  
  static int __init irqfixup_setup(char *str)
  {
-+#ifdef CONFIG_PREEMPT_RT
-+	pr_warn("irqfixup boot option not supported w/ CONFIG_PREEMPT_RT\n");
-+	return 1;
-+#endif
++	if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
++		pr_warn("irqfixup boot option not supported with PREEMPT_RT\n");
++		return 1;
++	}
  	irqfixup = 1;
  	printk(KERN_WARNING "Misrouted IRQ fixup support enabled.\n");
  	printk(KERN_WARNING "This may impact system performance.\n");
@@ -4948,10 +4620,10 @@ index c481d84583257..ca4bdc53d6c74 100644
  
  static int __init irqpoll_setup(char *str)
  {
-+#ifdef CONFIG_PREEMPT_RT
-+	pr_warn("irqpoll boot option not supported w/ CONFIG_PREEMPT_RT\n");
-+	return 1;
-+#endif
++	if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
++		pr_warn("irqpoll boot option not supported with PREEMPT_RT\n");
++		return 1;
++	}
  	irqfixup = 2;
  	printk(KERN_WARNING "Misrouted IRQ fixup and polling support "
  				"enabled\n");
@@ -5460,10 +5132,52 @@ index 5c9299aaabae1..900220941caac 100644
   * rt_mutex_trylock - try to lock a rt_mutex
   *
 diff --git a/kernel/locking/spinlock_rt.c b/kernel/locking/spinlock_rt.c
-index d2912e44d61fd..839041f8460f9 100644
+index d2912e44d61fd..1d1e85e317385 100644
 --- a/kernel/locking/spinlock_rt.c
 +++ b/kernel/locking/spinlock_rt.c
-@@ -246,12 +246,6 @@ void __sched rt_write_unlock(rwlock_t *rwlock)
+@@ -24,6 +24,14 @@
+ #define RT_MUTEX_BUILD_SPINLOCKS
+ #include "rtmutex.c"
+ 
++/*
++ * Use ___might_sleep() which skips the state check and take RCU nesting
++ * into account as spin/read/write_lock() can legitimately nest into an RCU
++ * read side critical section:
++ */
++#define rtlock_might_sleep()					\
++	___might_sleep(__FILE__, __LINE__, rcu_preempt_depth())
++
+ static __always_inline void rtlock_lock(struct rt_mutex_base *rtm)
+ {
+ 	if (unlikely(!rt_mutex_cmpxchg_acquire(rtm, NULL, current)))
+@@ -32,7 +40,7 @@ static __always_inline void rtlock_lock(struct rt_mutex_base *rtm)
+ 
+ static __always_inline void __rt_spin_lock(spinlock_t *lock)
+ {
+-	___might_sleep(__FILE__, __LINE__, 0);
++	rtlock_might_sleep();
+ 	rtlock_lock(&lock->lock);
+ 	rcu_read_lock();
+ 	migrate_disable();
+@@ -210,7 +218,7 @@ EXPORT_SYMBOL(rt_write_trylock);
+ 
+ void __sched rt_read_lock(rwlock_t *rwlock)
+ {
+-	___might_sleep(__FILE__, __LINE__, 0);
++	rtlock_might_sleep();
+ 	rwlock_acquire_read(&rwlock->dep_map, 0, 0, _RET_IP_);
+ 	rwbase_read_lock(&rwlock->rwbase, TASK_RTLOCK_WAIT);
+ 	rcu_read_lock();
+@@ -220,7 +228,7 @@ EXPORT_SYMBOL(rt_read_lock);
+ 
+ void __sched rt_write_lock(rwlock_t *rwlock)
+ {
+-	___might_sleep(__FILE__, __LINE__, 0);
++	rtlock_might_sleep();
+ 	rwlock_acquire(&rwlock->dep_map, 0, 0, _RET_IP_);
+ 	rwbase_write_lock(&rwlock->rwbase, TASK_RTLOCK_WAIT);
+ 	rcu_read_lock();
+@@ -246,12 +254,6 @@ void __sched rt_write_unlock(rwlock_t *rwlock)
  }
  EXPORT_SYMBOL(rt_write_unlock);
  
@@ -5653,7 +5367,7 @@ index 9f3ed2fdb7211..de8ab059dd961 100644
 -static inline bool printk_percpu_data_ready(void) { return false; }
  #endif /* CONFIG_PRINTK */
 diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 825277e1e742d..d9d9699d3cba1 100644
+index a8d0a58deebc7..dbdff0a4704b5 100644
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
 @@ -44,6 +44,10 @@
@@ -7232,212 +6946,44 @@ index 806160c44b172..3a3769d30be29 100644
  
  #else /* #ifdef CONFIG_TASKS_RCU_GENERIC */
 diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index bce848e50512e..c13f63aa12e83 100644
+index bce848e50512e..937b96ce1510a 100644
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
-@@ -80,6 +80,7 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(struct rcu_data, rcu_data) = {
- 	.dynticks = ATOMIC_INIT(1),
- #ifdef CONFIG_RCU_NOCB_CPU
- 	.cblist.flags = SEGCBLIST_SOFTIRQ_ONLY,
-+	.nocb_local_lock =  INIT_LOCAL_LOCK(nocb_local_lock),
- #endif
- };
- static struct rcu_state rcu_state = {
-@@ -2811,10 +2812,12 @@ static void rcu_cpu_kthread(unsigned int cpu)
+@@ -2278,13 +2278,13 @@ rcu_report_qs_rdp(struct rcu_data *rdp)
  {
- 	unsigned int *statusp = this_cpu_ptr(&rcu_data.rcu_cpu_kthread_status);
- 	char work, *workp = this_cpu_ptr(&rcu_data.rcu_cpu_has_work);
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
- 	int spincnt;
+ 	unsigned long flags;
+ 	unsigned long mask;
+-	bool needwake = false;
+-	const bool offloaded = rcu_rdp_is_offloaded(rdp);
++	bool offloaded, needwake = false;
+ 	struct rcu_node *rnp;
  
- 	trace_rcu_utilization(TPS("Start CPU kthread@rcu_run"));
- 	for (spincnt = 0; spincnt < 10; spincnt++) {
-+		rcu_nocb_local_lock(rdp);
- 		local_bh_disable();
- 		*statusp = RCU_KTHREAD_RUNNING;
- 		local_irq_disable();
-@@ -2824,6 +2827,7 @@ static void rcu_cpu_kthread(unsigned int cpu)
- 		if (work)
- 			rcu_core();
- 		local_bh_enable();
-+		rcu_nocb_local_unlock(rdp);
- 		if (*workp == 0) {
- 			trace_rcu_utilization(TPS("End CPU kthread@rcu_wait"));
- 			*statusp = RCU_KTHREAD_WAITING;
-diff --git a/kernel/rcu/tree.h b/kernel/rcu/tree.h
-index 305cf6aeb4086..aa6831255fec6 100644
---- a/kernel/rcu/tree.h
-+++ b/kernel/rcu/tree.h
-@@ -210,6 +210,8 @@ struct rcu_data {
- 	struct timer_list nocb_timer;	/* Enforce finite deferral. */
- 	unsigned long nocb_gp_adv_time;	/* Last call_rcu() CB adv (jiffies). */
+ 	WARN_ON_ONCE(rdp->cpu != smp_processor_id());
+ 	rnp = rdp->mynode;
+ 	raw_spin_lock_irqsave_rcu_node(rnp, flags);
++	offloaded = rcu_rdp_is_offloaded(rdp);
+ 	if (rdp->cpu_no_qs.b.norm || rdp->gp_seq != rnp->gp_seq ||
+ 	    rdp->gpwrap) {
  
-+	local_lock_t nocb_local_lock;
-+
- 	/* The following fields are used by call_rcu, hence own cacheline. */
- 	raw_spinlock_t nocb_bypass_lock ____cacheline_internodealigned_in_smp;
- 	struct rcu_cblist nocb_bypass;	/* Lock-contention-bypass CB list. */
-@@ -445,6 +447,8 @@ static void rcu_nocb_unlock(struct rcu_data *rdp);
- static void rcu_nocb_unlock_irqrestore(struct rcu_data *rdp,
- 				       unsigned long flags);
- static void rcu_lockdep_assert_cblist_protected(struct rcu_data *rdp);
-+static void rcu_nocb_local_lock(struct rcu_data *rdp);
-+static void rcu_nocb_local_unlock(struct rcu_data *rdp);
- #ifdef CONFIG_RCU_NOCB_CPU
- static void __init rcu_organize_nocb_kthreads(void);
- #define rcu_nocb_lock_irqsave(rdp, flags)				\
-diff --git a/kernel/rcu/tree_nocb.h b/kernel/rcu/tree_nocb.h
-index 8fdf44f8523f2..42481a3ce4913 100644
---- a/kernel/rcu/tree_nocb.h
-+++ b/kernel/rcu/tree_nocb.h
-@@ -21,6 +21,11 @@ static inline int rcu_lockdep_is_held_nocb(struct rcu_data *rdp)
- 	return lockdep_is_held(&rdp->nocb_lock);
- }
- 
-+static inline int rcu_lockdep_is_held_nocb_local(struct rcu_data *rdp)
-+{
-+	return lockdep_is_held(&rdp->nocb_local_lock);
-+}
-+
- static inline bool rcu_current_is_nocb_kthread(struct rcu_data *rdp)
- {
- 	/* Race on early boot between thread creation and assignment */
-@@ -181,6 +186,22 @@ static void rcu_nocb_unlock_irqrestore(struct rcu_data *rdp,
- 	}
- }
- 
-+/*
-+ * The invocation of rcu_core() within the RCU core kthreads remains preemptible
-+ * under PREEMPT_RT, thus the offload state of a CPU could change while
-+ * said kthreads are preempted. Prevent this from happening by protecting the
-+ * offload state with a local_lock().
-+ */
-+static void rcu_nocb_local_lock(struct rcu_data *rdp)
-+{
-+	local_lock(&rcu_data.nocb_local_lock);
-+}
-+
-+static void rcu_nocb_local_unlock(struct rcu_data *rdp)
-+{
-+	local_unlock(&rcu_data.nocb_local_lock);
-+}
-+
- /* Lockdep check that ->cblist may be safely accessed. */
- static void rcu_lockdep_assert_cblist_protected(struct rcu_data *rdp)
- {
-@@ -948,6 +969,7 @@ static int rdp_offload_toggle(struct rcu_data *rdp,
- 	if (rdp->nocb_cb_sleep)
- 		rdp->nocb_cb_sleep = false;
- 	rcu_nocb_unlock_irqrestore(rdp, flags);
-+	rcu_nocb_local_unlock(rdp);
- 
- 	/*
- 	 * Ignore former value of nocb_cb_sleep and force wake up as it could
-@@ -979,6 +1001,7 @@ static long rcu_nocb_rdp_deoffload(void *arg)
- 
- 	pr_info("De-offloading %d\n", rdp->cpu);
- 
-+	rcu_nocb_local_lock(rdp);
- 	rcu_nocb_lock_irqsave(rdp, flags);
- 	/*
- 	 * Flush once and for all now. This suffices because we are
-@@ -1061,6 +1084,7 @@ static long rcu_nocb_rdp_offload(void *arg)
- 	 * Can't use rcu_nocb_lock_irqsave() while we are in
- 	 * SEGCBLIST_SOFTIRQ_ONLY mode.
- 	 */
-+	rcu_nocb_local_lock(rdp);
- 	raw_spin_lock_irqsave(&rdp->nocb_lock, flags);
- 
- 	/*
-@@ -1408,6 +1432,11 @@ static inline int rcu_lockdep_is_held_nocb(struct rcu_data *rdp)
- 	return 0;
- }
- 
-+static inline int rcu_lockdep_is_held_nocb_local(struct rcu_data *rdp)
-+{
-+	return 0;
-+}
-+
- static inline bool rcu_current_is_nocb_kthread(struct rcu_data *rdp)
- {
- 	return false;
-@@ -1430,6 +1459,16 @@ static void rcu_nocb_unlock_irqrestore(struct rcu_data *rdp,
- 	local_irq_restore(flags);
- }
- 
-+/* No ->nocb_local_lock to acquire. */
-+static void rcu_nocb_local_lock(struct rcu_data *rdp)
-+{
-+}
-+
-+/* No ->nocb_local_lock to release. */
-+static void rcu_nocb_local_unlock(struct rcu_data *rdp)
-+{
-+}
-+
- /* Lockdep check that ->cblist may be safely accessed. */
- static void rcu_lockdep_assert_cblist_protected(struct rcu_data *rdp)
- {
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index d070059163d70..265cb799d340c 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -13,23 +13,45 @@
- 
- #include "../locking/rtmutex_common.h"
- 
-+/*
-+ * Is a local read of the rdp's offloaded state safe and stable?
-+ * See rcu_nocb_local_lock() & family.
-+ */
-+static inline bool rcu_local_offload_access_safe(struct rcu_data *rdp)
-+{
-+	if (!preemptible())
-+		return true;
-+
-+	if (!is_migratable()) {
-+		if (!IS_ENABLED(CONFIG_RCU_NOCB))
-+			return true;
-+
-+		return rcu_lockdep_is_held_nocb_local(rdp);
-+	}
-+
-+	return false;
-+}
-+
- static bool rcu_rdp_is_offloaded(struct rcu_data *rdp)
- {
- 	/*
--	 * In order to read the offloaded state of an rdp is a safe
--	 * and stable way and prevent from its value to be changed
--	 * under us, we must either hold the barrier mutex, the cpu
--	 * hotplug lock (read or write) or the nocb lock. Local
--	 * non-preemptible reads are also safe. NOCB kthreads and
--	 * timers have their own means of synchronization against the
--	 * offloaded state updaters.
-+	 * In order to read the offloaded state of an rdp is a safe and stable
-+	 * way and prevent from its value to be changed under us, we must
-+         * either...
- 	 */
- 	RCU_LOCKDEP_WARN(
-+		// ...hold the barrier mutex...
- 		!(lockdep_is_held(&rcu_state.barrier_mutex) ||
-+		// ... the cpu hotplug lock (read or write)...
- 		  (IS_ENABLED(CONFIG_HOTPLUG_CPU) && lockdep_is_cpus_held()) ||
-+		  // ... or the NOCB lock.
- 		  rcu_lockdep_is_held_nocb(rdp) ||
-+		  // Local reads still require the local state to remain stable
-+		  // (preemption disabled / local lock held)
- 		  (rdp == this_cpu_ptr(&rcu_data) &&
--		   !(IS_ENABLED(CONFIG_PREEMPT_COUNT) && preemptible())) ||
-+		   rcu_local_offload_access_safe(rdp)) ||
-+		  // NOCB kthreads and timers have their own means of
-+		  // synchronization against the offloaded state updaters.
- 		  rcu_current_is_nocb_kthread(rdp)),
- 		"Unsafe read of RCU_NOCB offloaded state"
- 	);
+@@ -2446,7 +2446,7 @@ static void rcu_do_batch(struct rcu_data *rdp)
+ 	int div;
+ 	bool __maybe_unused empty;
+ 	unsigned long flags;
+-	const bool offloaded = rcu_rdp_is_offloaded(rdp);
++	bool offloaded;
+ 	struct rcu_head *rhp;
+ 	struct rcu_cblist rcl = RCU_CBLIST_INITIALIZER(rcl);
+ 	long bl, count = 0;
+@@ -2472,6 +2472,7 @@ static void rcu_do_batch(struct rcu_data *rdp)
+ 	rcu_nocb_lock(rdp);
+ 	WARN_ON_ONCE(cpu_is_offline(smp_processor_id()));
+ 	pending = rcu_segcblist_n_cbs(&rdp->cblist);
++	offloaded = rcu_rdp_is_offloaded(rdp);
+ 	div = READ_ONCE(rcu_divisor);
+ 	div = div < 0 ? 7 : div > sizeof(long) * 8 - 2 ? sizeof(long) * 8 - 2 : div;
+ 	bl = max(rdp->blimit, pending >> div);
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 1bba4128a3e68..74260746865d8 100644
+index 1bba4128a3e68..261508bac047d 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -74,7 +74,11 @@ __read_mostly int sysctl_resched_latency_warn_once = 1;
@@ -7691,15 +7237,6 @@ index 1bba4128a3e68..74260746865d8 100644
  /*
   * Ensure that the idle task is using init_mm right before its CPU goes
   * offline.
-@@ -9470,7 +9547,7 @@ void __init sched_init(void)
- #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
- static inline int preempt_count_equals(int preempt_offset)
- {
--	int nested = preempt_count() + rcu_preempt_depth();
-+	int nested = preempt_count() + sched_rcu_preempt_depth();
- 
- 	return (nested == preempt_offset);
- }
 diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
 index e94314633b39d..fd7c4f972aaff 100644
 --- a/kernel/sched/deadline.c
