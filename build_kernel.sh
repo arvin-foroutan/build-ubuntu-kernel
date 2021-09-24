@@ -286,14 +286,13 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
 elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0002-SUNRPC-don-t-pause-on-incomplete-allocation.patch;
-    patch -p1 < ./0003-Bluetooth-btusb-Add-support-for-IMC-Networks-Mediate.patch;
-    patch -p1 < ./0004-Bluetooth-btusb-Add-support-for-Foxconn-Mediatek-Chi.patch;
-    patch -p1 < ./0005-ALSA-pcm-Check-mmap-capability-of-runtime-dma-buffer.patch;
-    patch -p1 < ./0006-ALSA-pci-rme-Set-up-buffer-type-properly.patch;
-    patch -p1 < ./0007-ALSA-pci-cs46xx-Fix-set-up-buffer-type-properly.patch;
+    patch -p1 < ./0002-Bluetooth-btusb-Add-support-for-IMC-Networks-Mediate.patch;
+    patch -p1 < ./0003-Bluetooth-btusb-Add-support-for-Foxconn-Mediatek-Chi.patch;
+    patch -p1 < ./0004-ALSA-pcm-Check-mmap-capability-of-runtime-dma-buffer.patch;
+    patch -p1 < ./0005-ALSA-pci-rme-Set-up-buffer-type-properly.patch;
+    patch -p1 < ./0006-ALSA-pci-cs46xx-Fix-set-up-buffer-type-properly.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20210906.patch;
