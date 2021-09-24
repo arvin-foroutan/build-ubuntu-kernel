@@ -351,7 +351,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v2/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v10/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v11/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5-sep/*.patch .;
