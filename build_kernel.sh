@@ -45,7 +45,7 @@ mkdir -pv ${CONFIG_PATH};
 PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
 cd ${PARENT_PATH};
 
-if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
+if [ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]; then
     # Handle the case where we allow for building a modified build script
     # in $KERNEL_MAIN_DIR (~/kernel_main) as opposed to the location where
     # we cloned the repo.
@@ -68,30 +68,38 @@ if [[ ${PARENT_PATH} != ${KERNEL_MAIN_DIR} ]]; then
     cp --no-clobber --recursive ./configs/* ${CONFIG_PATH};
     cp --update --recursive ./patches/* ${CUSTOM_PATCH_PATH};
 
-    if [[ -f ${KERNEL_MAIN_DIR}/build_kernel.sh ]]; then
-        BACKUP_SCRIPT_NAME=build_kernel-backup.sh
-        echo -n "Found existing build script. Overwrite? [y/N]: ";
-        read yno;
-        case $yno in
-            [yY] | [yY][Ee][Ss] )
-                if [[ -f ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME} ]]; then
-                    echo "Removing the old backup build script... ✓";
-                    rm -f ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME};
-                fi
-                echo "*** Backing up the current build script... ✓";
-                cp ${KERNEL_MAIN_DIR}/build_kernel.sh ${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME};
-                echo "*** Copying over the updated build script... ✓";
-                cp --update ./build_kernel.sh ${KERNEL_MAIN_DIR};
-                ;;
-            [nN] | [n|N][O|o] )
-                ;&
-            *)
-                echo "*** Keeping existing build script. ✓";
-                ;;
-        esac
-    else
-        echo "*** Copying build_kernel.sh to ${KERNEL_MAIN_DIR} to allow for custom editing... ✓";
-        cp ./build_kernel.sh ${KERNEL_MAIN_DIR};
+    SCRIPT_NAME=${SCRIPT_NAME:-"build_kernel"}
+    BACKUP_SCRIPT_NAME=${BACKUP_SCRIPT_NAME:-"${SCRIPT_NAME}-backup"}
+    SCRIPT_EXT=${SCRIPT_EXT:-"sh"}
+    SCRIPT_FILE=${KERNEL_MAIN_DIR}/${SCRIPT_NAME}.${SCRIPT_EXT}
+    BACKUP_SCRIPT_FILE=${KERNEL_MAIN_DIR}/${BACKUP_SCRIPT_NAME}.${SCRIPT_EXT}
+    SHOW_BACKUP_PROMPT=${SHOW_BACKUP_PROMPT:-"yes"}
+    if [ ${SHOW_BACKUP_PROMPT} == "yes" ]; then
+        if [ -f ${SCRIPT_FILE} ]; then
+            echo -n "Found existing build script. Overwrite? [y/N]: ";
+            read yno;
+            case $yno in
+                [yY] | [yY][Ee][Ss] )
+                    if [ -f ${BACKUP_SCRIPT_FILE} ]; then
+                        echo "Removing the old backup ${SCRIPT_NAME} script... ✓";
+                        rm -f ${BACKUP_SCRIPT_FILE};
+                    fi
+                    echo "*** Backing up the current ${SCRIPT_NAME} script... ✓";
+                    cp ${SCRIPT_FILE} ${BACKUP_SCRIPT_FILE};
+                    echo "*** Copying over the updated ${SCRIPT_NAME} script... ✓";
+                    cp --update ./${SCRIPT_NAME}.${SCRIPT_EXT} ${KERNEL_MAIN_DIR};
+                    ;;
+                [nN] | [n|N][O|o] )
+                    ;&
+                *)
+                    echo "*** Keeping existing ${SCRIPT_NAME} script.";
+                    ;;
+            esac
+        else
+            echo "*** Copying ${SCRIPT_NAME}.${SCRIPT_EXT} to ${KERNEL_MAIN_DIR}"
+            echo " to allow for custom editing... ✓";
+            cp ./${SCRIPT_NAME}.${SCRIPT_EXT} ${KERNEL_MAIN_DIR};
+        fi
     fi
 fi
 
@@ -100,18 +108,23 @@ rm -rf ${KERNEL_BUILD_DIR};
 mkdir -pv ${KERNEL_BUILD_DIR};
 cd ${KERNEL_BUILD_DIR};
 
-if ! [[ -f ${KERNEL_SOURCES_DIR}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} ]]; then
-    echo "*** No tarball found for linux-${KERNEL_PATCH_VER}, fetching... ✓";
+if ! [ -f ${KERNEL_SOURCES_DIR}/${KERNEL_SRC_NAME}.${KERNEL_SRC_EXT} ]; then
+    echo "*** No tarball found for ${KERNEL_SRC_NAME}, fetching... ✓";
     wget ${KERNEL_SRC_URL} -P ${KERNEL_SOURCES_DIR};
 fi
 
-echo "*** Copying over the source tarball and extracting... ✓";
-cp -v ${KERNEL_SOURCES_DIR}/linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT} .;
-tar xvf linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT};
-rm -f linux-${KERNEL_PATCH_VER}.${KERNEL_SRC_EXT};
-cd linux-${KERNEL_PATCH_VER};
+echo "*** Copying over the source tarball... ✓";
+cp -v ${KERNEL_SOURCES_DIR}/${KERNEL_SRC_NAME}.${KERNEL_SRC_EXT} .;
 
-if [[ -d ${PATCH_PATH}/lucjan-patches ]]; then
+TAR_VERBOSE=${TAR_VERBOSE:-"no"}
+echo "*** Extracting the kernel source tarball. Please wait... ";
+[ ${TAR_VERBOSE} == "no" ] && TAR_FLAGS=${TAR_FLAGS:-"xf"} || TAR_FLAGS=${TAR_FLAGS:-"xvf"};
+tar ${TAR_FLAGS} ${KERNEL_SRC_NAME}.${KERNEL_SRC_EXT};
+echo "*** Finished extracting source tarball. ✓";
+rm -f ${KERNEL_SRC_NAME}.${KERNEL_SRC_EXT};
+cd ${KERNEL_SRC_NAME};
+
+if [ -d ${PATCH_PATH}/lucjan-patches ]; then
     echo "*** Found lucjan-patches, pulling latest... ✓";
     git -C ${PATCH_PATH}/lucjan-patches pull https://github.com/sirlucjan/kernel-patches.git;
 else
@@ -119,7 +132,7 @@ else
     git clone https://github.com/sirlucjan/kernel-patches.git ${PATCH_PATH}/lucjan-patches;
 fi
 
-if [[ -d ${PATCH_PATH}/xanmod-patches ]]; then
+if [ -d ${PATCH_PATH}/xanmod-patches ]; then
     echo "*** Found xanmod-patches, pulling latest... ✓";
     git -C ${PATCH_PATH}/xanmod-patches pull https://github.com/xanmod/linux-patches.git;
 else
@@ -149,7 +162,7 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     patch -p1 < ./0004-debian-changelog.patch;
 
     echo "*** Updating patch version number... 3/3 ✓";
-    [[ ${KERNEL_BASE_VER} == "5.4" ]] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
+    [ ${KERNEL_BASE_VER} == "5.4" ] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
     patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
     echo "*** Successfully applied all Ubuntu patches. ✓";
 fi
@@ -1121,7 +1134,7 @@ chmod a+x debian/scripts/*;
 chmod a+x debian/scripts/misc/*;
 
 echo "*** Create symlink for kernel ABI... ✓";
-[[ ${KERNEL_BASE_VER} == "5.4" ]] && ABI_VERSION=5.4.0-25.29 || ABI_VERSION=5.7.0-5.6;
+[ ${KERNEL_BASE_VER} == "5.4" ] && ABI_VERSION=5.4.0-25.29 || ABI_VERSION=5.7.0-5.6;
 ln -rsv ./debian.master/abi/${ABI_VERSION} ./debian.master/abi/${KERNEL_PATCH_VER}-0.0;
 
 echo "*** Running fakeroot debian/rules clean... ✓";
@@ -1153,7 +1166,7 @@ echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you need to
 read yno;
 case $yno in
     [nN] | [n|N][O|o] )
-        echo "*** Okay, moving on. ✓";
+        echo "*** Okay, moving on.";
         ;;
     [yY] | [yY][Ee][Ss] )
         ;&
@@ -1173,7 +1186,7 @@ case $yno in
     [nN] | [n|N][O|o] )
         ;&
     *)
-        echo "*** Okay, moving on. ✓";
+        echo "*** Okay, moving on.";
         ;;
 esac
 
@@ -1181,7 +1194,7 @@ echo -n "[${KERNEL_PATCH_VER} ${KERNEL_SCHEDULER} ${KERNEL_TYPE}] Do you want to
 read yno;
 case $yno in
     [nN] | [n|N][O|o] )
-        echo "*** All good. Exiting. ✓";
+        echo "*** All good. Exiting.";
         exit 0;
         ;;
     [yY] | [yY][Ee][Ss] )
@@ -1217,7 +1230,7 @@ if [ ${VBOX_SUPPORT} == "yes" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
     sudo /sbin/vboxconfig;
 fi
 
-echo "*** Finished installing kernel, cleaning up build dir... ✓";
+echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # Keep an eye out for the following directories, as they build up over time.
@@ -1226,14 +1239,14 @@ rm -rf ${KERNEL_BUILD_DIR};
 #
 # To uninstall a kernel: $ sudo apt purge *5.4.148-0504148+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
-echo "ls -al /usr/src"
-ls -al /usr/src;
-echo "ls -al /lib/modules"
-ls -al /lib/modules;
-echo "ls -al ${COMPILED_KERNELS_DIR}"
-ls -al ${COMPILED_KERNELS_DIR};
-echo "ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT}"
-ls -al ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT};
+echo "ls -alh /usr/src"
+ls -alh /usr/src;
+echo "ls -alh /lib/modules"
+ls -alh /lib/modules;
+echo "ls -alh ${COMPILED_KERNELS_DIR}"
+ls -alh ${COMPILED_KERNELS_DIR};
+echo "ls -alh ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT}"
+ls -alh ${COMPILED_KERNELS_DIR}/${COMPILED_KERNEL_VER}-${TIME_BUILT};
 
 cd;
 echo "*** All done. ✓";
