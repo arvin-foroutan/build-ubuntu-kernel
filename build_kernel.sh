@@ -353,9 +353,11 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
     patch -p1 < ./0013-fs-add-a-filemap_fdatawrite_wbc-helper.patch;
     patch -p1 < ./0014-NFS-Always-provide-aligned-buffers-to-the-RPC-read-l.patch;
-    patch -p1 < ./0015-atlantic-Fix-issue-in-the-pm-resume-flow.patch;
     patch -p1 < ./0016-SUNRPC-Simplify-socket-shutdown-when-not-reusing-TCP.patch;
     patch -p1 < ./0017-SUNRPC-Tweak-TCP-socket-shutdown-in-the-RPC-client.patch;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0015-atlantic-Fix-issue-in-the-pm-resume-flow.patch;
+    fi
     echo "*** Copying and applying ksmbd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v10/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
@@ -423,6 +425,12 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
     patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
+    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0008-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0011-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
@@ -479,7 +487,6 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
     patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
     patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
-    patch -p1 < ./0010-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     patch -p1 < ./0012-Revert-block-return-ELEVATOR_DISCARD_MERGE-if-possib.patch;
     patch -p1 < ./0013-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     patch -p1 < ./0014-Revert-block-bfq-remove-the-repeated-declaration.patch;
@@ -591,6 +598,13 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-5.13.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
+    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0008-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0011-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
     patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
@@ -653,12 +667,19 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0016-block-bfq-make-shared-queues-inherit-wakers.patch;
     patch -p1 < ./0017-block-bfq-fix-weight-raising-resume-with-low_latency.patch;
     patch -p1 < ./0018-block-bfq-keep-shared-queues-out-of-the-waker-mechan.patch;
-    patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
     patch -p1 < ./0020-bfq-don-t-duplicate-code-for-different-paths.patch;
     patch -p1 < ./0022-bfq-Use-ttime-local-variable.patch;
     patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
     patch -p1 < ./0024-bfq-Remove-stale-comment.patch;
     patch -p1 < ./0025-Revert-bfq-Remove-stale-comment.patch;
+    if [ ${KERNEL_TYPE} == "rt" ]; then
+        patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
+    else
+        # regular non-RT builds don't patch cleanly with below, let's add a merge fix
+        cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/0019-block-bfq*.patch .;
+        patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
+        patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues-merge-fix.patch;
+    fi
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v3/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
@@ -792,9 +813,16 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
-    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
-    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
+    fi
+    patch -p1 < ./0006-dcache-cache_pressure-50-decreases-the-rate-at-which.patch;
+    patch -p1 < ./0008-mm-vmscan-vm_swappiness-30-decreases-the-amount-of-s.patch;
+    patch -p1 < ./0009-cpufreq-tunes-ondemand-and-conservative-governor-for.patch;
+    patch -p1 < ./0011-lib-kconfig.debug-disable-default-CONFIG_SYMBOLIC_ER.patch;
+    patch -p1 < ./0013-XANMOD-fair-Remove-all-energy-efficiency-functions.patch;
+    patch -p1 < ./0014-XANMOD-Makefile-Turn-off-loop-vectorization-for-GCC-.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
