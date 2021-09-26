@@ -3137,6 +3137,44 @@ index 600c10da321a7..4b140938b03e2 100644
  #if defined(CONFIG_IRQSOFF_TRACER) || \
  	defined(CONFIG_PREEMPT_TRACER)
   extern void stop_critical_timings(void);
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 2776423a587e4..e8696e4a45aa0 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -111,8 +111,8 @@ static __always_inline void might_resched(void)
+ #endif /* CONFIG_PREEMPT_* */
+ 
+ #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+-extern void ___might_sleep(const char *file, int line, int preempt_offset);
+-extern void __might_sleep(const char *file, int line, int preempt_offset);
++extern void __might_resched(const char *file, int line, unsigned int offsets);
++extern void __might_sleep(const char *file, int line);
+ extern void __cant_sleep(const char *file, int line, int preempt_offset);
+ extern void __cant_migrate(const char *file, int line);
+ 
+@@ -129,7 +129,7 @@ extern void __cant_migrate(const char *file, int line);
+  * supposed to.
+  */
+ # define might_sleep() \
+-	do { __might_sleep(__FILE__, __LINE__, 0); might_resched(); } while (0)
++	do { __might_sleep(__FILE__, __LINE__); might_resched(); } while (0)
+ /**
+  * cant_sleep - annotation for functions that cannot sleep
+  *
+@@ -168,10 +168,9 @@ extern void __cant_migrate(const char *file, int line);
+  */
+ # define non_block_end() WARN_ON(current->non_block_count-- == 0)
+ #else
+-  static inline void ___might_sleep(const char *file, int line,
+-				   int preempt_offset) { }
+-  static inline void __might_sleep(const char *file, int line,
+-				   int preempt_offset) { }
++  static inline void __might_resched(const char *file, int line,
++				     unsigned int offsets) { }
++static inline void __might_sleep(const char *file, int line) { }
+ # define might_sleep() do { might_resched(); } while (0)
+ # define cant_sleep() do { } while (0)
+ # define cant_migrate()		do { } while (0)
 diff --git a/include/linux/kgdb.h b/include/linux/kgdb.h
 index 258cdde8d356b..9bca0d98db5a1 100644
 --- a/include/linux/kgdb.h
@@ -3192,43 +3230,24 @@ index e9698b6278a52..1c8393c1280c5 100644
  	const struct cred *cred;
  	struct nfs_fattr dir_attr;
  	long timeout;
-diff --git a/include/linux/pid.h b/include/linux/pid.h
-index af308e15f174c..33c14785c46b2 100644
---- a/include/linux/pid.h
-+++ b/include/linux/pid.h
-@@ -3,6 +3,7 @@
- #define _LINUX_PID_H
- 
- #include <linux/rculist.h>
-+#include <linux/atomic.h>
- #include <linux/wait.h>
- #include <linux/refcount.h>
- 
 diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-index 4d244e295e855..cf665d25838cf 100644
+index 4d244e295e855..dc8158a459859 100644
 --- a/include/linux/preempt.h
 +++ b/include/linux/preempt.h
-@@ -122,9 +122,17 @@
+@@ -122,9 +122,10 @@
   * The preempt_count offset after spin_lock()
   */
  #if !defined(CONFIG_PREEMPT_RT)
 -#define PREEMPT_LOCK_OFFSET	PREEMPT_DISABLE_OFFSET
 +#define PREEMPT_LOCK_OFFSET		PREEMPT_DISABLE_OFFSET
-+#define PREEMPT_LOCK_RESCHED_OFFSET	PREEMPT_LOCK_OFFSET
  #else
 -#define PREEMPT_LOCK_OFFSET	0
 +/* Locks on RT do not disable preemption */
 +#define PREEMPT_LOCK_OFFSET		0
-+/*
-+ * spin/rw_lock() on RT implies rcu_read_lock(). The might_sleep() check in
-+ * cond_resched*lock() has to take that into account because it checks for
-+ * preempt_count() + rcu_preempt_depth().
-+ */
-+#define PREEMPT_LOCK_RESCHED_OFFSET	1
  #endif
  
  /*
-@@ -174,6 +182,20 @@ extern void preempt_count_sub(int val);
+@@ -174,6 +175,20 @@ extern void preempt_count_sub(int val);
  #define preempt_count_inc() preempt_count_add(1)
  #define preempt_count_dec() preempt_count_sub(1)
  
@@ -3249,7 +3268,7 @@ index 4d244e295e855..cf665d25838cf 100644
  #ifdef CONFIG_PREEMPT_COUNT
  
  #define preempt_disable() \
-@@ -182,13 +204,25 @@ do { \
+@@ -182,13 +197,25 @@ do { \
  	barrier(); \
  } while (0)
  
@@ -3276,7 +3295,7 @@ index 4d244e295e855..cf665d25838cf 100644
  
  #define preemptible()	(preempt_count() == 0 && !irqs_disabled())
  
-@@ -213,6 +247,18 @@ do { \
+@@ -213,6 +240,18 @@ do { \
  		__preempt_schedule(); \
  } while (0)
  
@@ -3295,7 +3314,7 @@ index 4d244e295e855..cf665d25838cf 100644
  #else /* !CONFIG_PREEMPTION */
  #define preempt_enable() \
  do { \
-@@ -220,6 +266,12 @@ do { \
+@@ -220,6 +259,12 @@ do { \
  	preempt_count_dec(); \
  } while (0)
  
@@ -3308,7 +3327,7 @@ index 4d244e295e855..cf665d25838cf 100644
  #define preempt_enable_notrace() \
  do { \
  	barrier(); \
-@@ -258,8 +310,12 @@ do { \
+@@ -258,8 +303,12 @@ do { \
  #define preempt_disable_notrace()		barrier()
  #define preempt_enable_no_resched_notrace()	barrier()
  #define preempt_enable_notrace()		barrier()
@@ -3321,7 +3340,7 @@ index 4d244e295e855..cf665d25838cf 100644
  #endif /* CONFIG_PREEMPT_COUNT */
  
  #ifdef MODULE
-@@ -278,10 +334,18 @@ do { \
+@@ -278,10 +327,18 @@ do { \
  } while (0)
  #define preempt_fold_need_resched() \
  do { \
@@ -3341,7 +3360,7 @@ index 4d244e295e855..cf665d25838cf 100644
  #ifdef CONFIG_PREEMPT_NOTIFIERS
  
  struct preempt_notifier;
-@@ -394,8 +458,15 @@ extern void migrate_enable(void);
+@@ -394,8 +451,15 @@ extern void migrate_enable(void);
  
  #else
  
@@ -3590,7 +3609,7 @@ index 9deedfeec2b17..7d049883a08ac 100644
  
  extern void rt_mutex_unlock(struct rt_mutex *lock);
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 39039ce8ac4c1..992a1e07a27e8 100644
+index 39039ce8ac4c1..79852a2ebe5b4 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
 @@ -118,12 +118,8 @@ struct task_group;
@@ -3753,52 +3772,89 @@ index 39039ce8ac4c1..992a1e07a27e8 100644
  /*
   * cond_resched() and cond_resched_lock(): latency reduction via
   * explicit rescheduling in places that are safe. The return
-@@ -2047,19 +2169,19 @@ extern int __cond_resched_lock(spinlock_t *lock);
+@@ -2039,7 +2161,7 @@ static inline int _cond_resched(void) { return 0; }
+ #endif /* !defined(CONFIG_PREEMPTION) || defined(CONFIG_PREEMPT_DYNAMIC) */
+ 
+ #define cond_resched() ({			\
+-	___might_sleep(__FILE__, __LINE__, 0);	\
++	__might_resched(__FILE__, __LINE__, 0);	\
+ 	_cond_resched();			\
+ })
+ 
+@@ -2047,19 +2169,38 @@ extern int __cond_resched_lock(spinlock_t *lock);
  extern int __cond_resched_rwlock_read(rwlock_t *lock);
  extern int __cond_resched_rwlock_write(rwlock_t *lock);
  
 -#define cond_resched_lock(lock) ({				\
 -	___might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);\
 -	__cond_resched_lock(lock);				\
-+#define cond_resched_lock(lock) ({					\
-+	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSET);	\
-+	__cond_resched_lock(lock);					\
++#define MIGHT_RESCHED_RCU_SHIFT		8
++#define MIGHT_RESCHED_PREEMPT_MASK	((1U << MIGHT_RESCHED_RCU_SHIFT) - 1)
++
++#ifndef CONFIG_PREEMPT_RT
++/*
++ * Non RT kernels have an elevated preempt count due to the held lock,
++ * but are not allowed to be inside a RCU read side critical section
++ */
++# define PREEMPT_LOCK_RESCHED_OFFSETS	PREEMPT_LOCK_OFFSET
++#else
++/*
++ * spin/rw_lock() on RT implies rcu_read_lock(). The might_sleep() check in
++ * cond_resched*lock() has to take that into account because it checks for
++ * preempt_count() and rcu_preempt_depth().
++ */
++# define PREEMPT_LOCK_RESCHED_OFFSETS	\
++	(PREEMPT_LOCK_OFFSET + (1U << MIGHT_RESCHED_RCU_SHIFT))
++#endif
++
++#define cond_resched_lock(lock) ({						\
++	__might_resched(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSETS);	\
++	__cond_resched_lock(lock);						\
  })
  
 -#define cond_resched_rwlock_read(lock) ({			\
 -	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);	\
 -	__cond_resched_rwlock_read(lock);			\
-+#define cond_resched_rwlock_read(lock) ({				\
-+	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSET);	\
-+	__cond_resched_rwlock_read(lock);				\
++#define cond_resched_rwlock_read(lock) ({					\
++	__might_resched(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSETS);	\
++	__cond_resched_rwlock_read(lock);					\
  })
  
 -#define cond_resched_rwlock_write(lock) ({			\
 -	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);	\
 -	__cond_resched_rwlock_write(lock);			\
-+#define cond_resched_rwlock_write(lock) (	{			\
-+	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSET);	\
-+	__cond_resched_rwlock_write(lock);				\
++#define cond_resched_rwlock_write(lock) ({					\
++	__might_resched(__FILE__, __LINE__, PREEMPT_LOCK_RESCHED_OFFSETS);	\
++	__cond_resched_rwlock_write(lock);					\
  })
  
  static inline void cond_resched_rcu(void)
 diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
-index 5561486fddef7..11177c36f640d 100644
+index 5561486fddef7..8358352428d4d 100644
 --- a/include/linux/sched/mm.h
 +++ b/include/linux/sched/mm.h
-@@ -49,6 +49,17 @@ static inline void mmdrop(struct mm_struct *mm)
+@@ -49,6 +49,26 @@ static inline void mmdrop(struct mm_struct *mm)
  		__mmdrop(mm);
  }
  
 +#ifdef CONFIG_PREEMPT_RT
 +extern void __mmdrop_delayed(struct rcu_head *rhp);
-+static inline void mmdrop_delayed(struct mm_struct *mm)
++
++/*
++ * Invoked from finish_task_switch(). Delegates the heavy lifting on RT
++ * kernels via RCU.
++ */
++static inline void mmdrop_sched(struct mm_struct *mm)
 +{
++	/* Provides a full memory barrier. See mmdrop() */
 +	if (atomic_dec_and_test(&mm->mm_count))
 +		call_rcu(&mm->delayed_drop, __mmdrop_delayed);
 +}
 +#else
-+# define mmdrop_delayed(mm)    mmdrop(mm)
++static inline void mmdrop_sched(struct mm_struct *mm)
++{
++	mmdrop(mm);
++}
 +#endif
 +
  /**
@@ -4100,18 +4156,6 @@ index e81856c0ba134..66eb968a09d49 100644
  	local_irq_enable();
  #endif
  	return __u64_stats_fetch_retry(syncp, start);
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 93dab0e9580f8..e778131e7c4bd 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -10,6 +10,7 @@
- 
- #include <asm/current.h>
- #include <uapi/linux/wait.h>
-+#include <linux/atomic.h>
- 
- typedef struct wait_queue_entry wait_queue_entry_t;
- 
 diff --git a/include/net/gen_stats.h b/include/net/gen_stats.h
 index 1424e02cef90c..163f8415e5db5 100644
 --- a/include/net/gen_stats.h
@@ -4475,35 +4519,57 @@ index bf16395b9e135..d8bedab935b23 100644
  			preempt_schedule_irq();
  	}
  }
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 91a43e57a32eb..acd7aa9700db3 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -60,6 +60,7 @@
+ #include <linux/writeback.h>
+ #include <linux/shm.h>
+ #include <linux/kcov.h>
++#include <linux/kprobes.h>
+ #include <linux/random.h>
+ #include <linux/rcuwait.h>
+ #include <linux/compat.h>
+@@ -168,8 +169,14 @@ static void delayed_put_task_struct(struct rcu_head *rhp)
+ {
+ 	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
+ 
++	kprobe_flush_task(tsk);
+ 	perf_event_delayed_put(tsk);
+ 	trace_sched_process_free(tsk);
++
++	/* RT enabled kernels delay freeing the VMAP'ed task stack */
++	if (IS_ENABLED(CONFIG_PREEMPT_RT))
++		put_task_stack(tsk);
++
+ 	put_task_struct(tsk);
+ }
+ 
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 38681ad44c76b..a040f0cfe45d1 100644
+index 38681ad44c76b..1dc9ac795d5eb 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -42,6 +42,7 @@
- #include <linux/mmu_notifier.h>
- #include <linux/fs.h>
- #include <linux/mm.h>
-+#include <linux/kprobes.h>
- #include <linux/vmacache.h>
- #include <linux/nsproxy.h>
- #include <linux/capability.h>
-@@ -289,7 +290,7 @@ static inline void free_thread_stack(struct task_struct *tsk)
+@@ -289,7 +289,10 @@ static inline void free_thread_stack(struct task_struct *tsk)
  			return;
  		}
  
 -		vfree_atomic(tsk->stack);
-+		vfree(tsk->stack);
++		if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++			vfree_atomic(tsk->stack);
++		else
++			vfree(tsk->stack);
  		return;
  	}
  #endif
-@@ -705,6 +706,19 @@ void __mmdrop(struct mm_struct *mm)
+@@ -705,6 +708,19 @@ void __mmdrop(struct mm_struct *mm)
  }
  EXPORT_SYMBOL_GPL(__mmdrop);
  
 +#ifdef CONFIG_PREEMPT_RT
 +/*
-+ * RCU callback for delayed mm drop. Not strictly rcu, but we don't
-+ * want another facility to make this work.
++ * RCU callback for delayed mm drop. Not strictly RCU, but call_rcu() is
++ * by far the least expensive way to do that.
 + */
 +void __mmdrop_delayed(struct rcu_head *rhp)
 +{
@@ -4516,22 +4582,6 @@ index 38681ad44c76b..a040f0cfe45d1 100644
  static void mmdrop_async_fn(struct work_struct *work)
  {
  	struct mm_struct *mm;
-@@ -746,6 +760,15 @@ void __put_task_struct(struct task_struct *tsk)
- 	WARN_ON(refcount_read(&tsk->usage));
- 	WARN_ON(tsk == current);
- 
-+	/*
-+	 * Remove function-return probe instances associated with this
-+	 * task and put them back on the free list.
-+	 */
-+	kprobe_flush_task(tsk);
-+
-+	/* Task is done with its stack. */
-+	put_task_stack(tsk);
-+
- 	io_uring_free(tsk);
- 	cgroup_free(tsk);
- 	task_numa_free(tsk, true);
 diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
 index 221d80c31e94c..1543934f26d2b 100644
 --- a/kernel/irq/handle.c
@@ -4919,6 +4969,25 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  		if (!area)
  			return -ENOMEM;
  		per_cpu_ptr(&kcov_percpu_data, cpu)->irq_area = area;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 790a573bbe00c..9a38e7581a5ce 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1250,10 +1250,10 @@ void kprobe_busy_end(void)
+ }
+ 
+ /*
+- * This function is called from finish_task_switch when task tk becomes dead,
+- * so that we can recycle any function-return probe instances associated
+- * with this task. These left over instances represent probed functions
+- * that have been called but will never return.
++ * This function is called from delayed_put_task_struct() when a task is
++ * dead and cleaned up to recycle any function-return probe instances
++ * associated with this task. These left over instances represent probed
++ * functions that have been called but will never return.
+  */
+ void kprobe_flush_task(struct task_struct *tk)
+ {
 diff --git a/kernel/ksysfs.c b/kernel/ksysfs.c
 index 35859da8bd4f7..dfff31ed644a6 100644
 --- a/kernel/ksysfs.c
@@ -5132,52 +5201,55 @@ index 5c9299aaabae1..900220941caac 100644
   * rt_mutex_trylock - try to lock a rt_mutex
   *
 diff --git a/kernel/locking/spinlock_rt.c b/kernel/locking/spinlock_rt.c
-index d2912e44d61fd..1d1e85e317385 100644
+index d2912e44d61fd..9e396a09fe0fd 100644
 --- a/kernel/locking/spinlock_rt.c
 +++ b/kernel/locking/spinlock_rt.c
-@@ -24,6 +24,14 @@
+@@ -24,6 +24,17 @@
  #define RT_MUTEX_BUILD_SPINLOCKS
  #include "rtmutex.c"
  
 +/*
-+ * Use ___might_sleep() which skips the state check and take RCU nesting
-+ * into account as spin/read/write_lock() can legitimately nest into an RCU
-+ * read side critical section:
++ * __might_resched() skips the state check as rtlocks are state
++ * preserving. Take RCU nesting into account as spin/read/write_lock() can
++ * legitimately nest into an RCU read side critical section.
 + */
-+#define rtlock_might_sleep()					\
-+	___might_sleep(__FILE__, __LINE__, rcu_preempt_depth())
++#define RTLOCK_RESCHED_OFFSETS						\
++	(rcu_preempt_depth() << MIGHT_RESCHED_RCU_SHIFT)
++
++#define rtlock_might_resched()						\
++	__might_resched(__FILE__, __LINE__, RTLOCK_RESCHED_OFFSETS)
 +
  static __always_inline void rtlock_lock(struct rt_mutex_base *rtm)
  {
  	if (unlikely(!rt_mutex_cmpxchg_acquire(rtm, NULL, current)))
-@@ -32,7 +40,7 @@ static __always_inline void rtlock_lock(struct rt_mutex_base *rtm)
+@@ -32,7 +43,7 @@ static __always_inline void rtlock_lock(struct rt_mutex_base *rtm)
  
  static __always_inline void __rt_spin_lock(spinlock_t *lock)
  {
 -	___might_sleep(__FILE__, __LINE__, 0);
-+	rtlock_might_sleep();
++	rtlock_might_resched();
  	rtlock_lock(&lock->lock);
  	rcu_read_lock();
  	migrate_disable();
-@@ -210,7 +218,7 @@ EXPORT_SYMBOL(rt_write_trylock);
+@@ -210,7 +221,7 @@ EXPORT_SYMBOL(rt_write_trylock);
  
  void __sched rt_read_lock(rwlock_t *rwlock)
  {
 -	___might_sleep(__FILE__, __LINE__, 0);
-+	rtlock_might_sleep();
++	rtlock_might_resched();
  	rwlock_acquire_read(&rwlock->dep_map, 0, 0, _RET_IP_);
  	rwbase_read_lock(&rwlock->rwbase, TASK_RTLOCK_WAIT);
  	rcu_read_lock();
-@@ -220,7 +228,7 @@ EXPORT_SYMBOL(rt_read_lock);
+@@ -220,7 +231,7 @@ EXPORT_SYMBOL(rt_read_lock);
  
  void __sched rt_write_lock(rwlock_t *rwlock)
  {
 -	___might_sleep(__FILE__, __LINE__, 0);
-+	rtlock_might_sleep();
++	rtlock_might_resched();
  	rwlock_acquire(&rwlock->dep_map, 0, 0, _RET_IP_);
  	rwbase_write_lock(&rwlock->rwbase, TASK_RTLOCK_WAIT);
  	rcu_read_lock();
-@@ -246,12 +254,6 @@ void __sched rt_write_unlock(rwlock_t *rwlock)
+@@ -246,12 +257,6 @@ void __sched rt_write_unlock(rwlock_t *rwlock)
  }
  EXPORT_SYMBOL(rt_write_unlock);
  
@@ -6983,7 +7055,7 @@ index bce848e50512e..937b96ce1510a 100644
  	div = div < 0 ? 7 : div > sizeof(long) * 8 - 2 ? sizeof(long) * 8 - 2 : div;
  	bl = max(rdp->blimit, pending >> div);
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 1bba4128a3e68..261508bac047d 100644
+index 1bba4128a3e68..1ddd50f2a3d7f 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -74,7 +74,11 @@ __read_mostly int sysctl_resched_latency_warn_once = 1;
@@ -7130,36 +7202,36 @@ index 1bba4128a3e68..261508bac047d 100644
  #ifdef CONFIG_SMP
  	plist_node_init(&p->pushable_tasks, MAX_PRIO);
  	RB_CLEAR_NODE(&p->pushable_dl_tasks);
-@@ -4834,23 +4884,18 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+@@ -4834,22 +4884,21 @@ static struct rq *finish_task_switch(struct task_struct *prev)
  	 *   provided by mmdrop(),
  	 * - a sync_core for SYNC_CORE.
  	 */
-+	/*
-+	 * We use mmdrop_delayed() here so we don't have to do the
-+	 * full __mmdrop() when we are the last user.
-+	 */
++
  	if (mm) {
  		membarrier_mm_sync_core_before_usermode(mm);
 -		mmdrop(mm);
-+		mmdrop_delayed(mm);
++		mmdrop_sched(mm);
  	}
  	if (unlikely(prev_state == TASK_DEAD)) {
  		if (prev->sched_class->task_dead)
  			prev->sched_class->task_dead(prev);
  
--		/*
+ 		/*
 -		 * Remove function-return probe instances associated with this
 -		 * task and put them back on the free list.
--		 */
++		 * Release VMAP'ed task stack immediate for reuse. On RT
++		 * enabled kernels this is delayed for latency reasons.
+ 		 */
 -		kprobe_flush_task(prev);
 -
 -		/* Task is done with its stack. */
 -		put_task_stack(prev);
--
++		if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++			put_task_stack(prev);
+ 
  		put_task_struct_rcu_user(prev);
  	}
- 
-@@ -6250,6 +6295,7 @@ static void __sched notrace __schedule(unsigned int sched_mode)
+@@ -6250,6 +6299,7 @@ static void __sched notrace __schedule(unsigned int sched_mode)
  
  	next = pick_next_task(rq, prev, &rf);
  	clear_tsk_need_resched(prev);
@@ -7167,7 +7239,7 @@ index 1bba4128a3e68..261508bac047d 100644
  	clear_preempt_need_resched();
  #ifdef CONFIG_SCHED_DEBUG
  	rq->last_seen_need_resched_ns = 0;
-@@ -6467,6 +6513,30 @@ static void __sched notrace preempt_schedule_common(void)
+@@ -6467,6 +6517,30 @@ static void __sched notrace preempt_schedule_common(void)
  	} while (need_resched());
  }
  
@@ -7198,7 +7270,7 @@ index 1bba4128a3e68..261508bac047d 100644
  #ifdef CONFIG_PREEMPTION
  /*
   * This is the entry point to schedule() from in-kernel preemption
-@@ -6480,7 +6550,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
+@@ -6480,7 +6554,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
  	 */
  	if (likely(!preemptible()))
  		return;
@@ -7208,7 +7280,7 @@ index 1bba4128a3e68..261508bac047d 100644
  	preempt_schedule_common();
  }
  NOKPROBE_SYMBOL(preempt_schedule);
-@@ -6513,6 +6584,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
+@@ -6513,6 +6588,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
  	if (likely(!preemptible()))
  		return;
  
@@ -7218,7 +7290,7 @@ index 1bba4128a3e68..261508bac047d 100644
  	do {
  		/*
  		 * Because the function tracer can trace preempt_count_sub()
-@@ -8674,7 +8748,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
+@@ -8674,7 +8752,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
  
  	/* Set the preempt count _outside_ the spinlocks! */
  	init_idle_preempt_count(idle, cpu);
@@ -7229,14 +7301,114 @@ index 1bba4128a3e68..261508bac047d 100644
  	/*
  	 * The idle tasks have their own, simple scheduling class:
  	 */
-@@ -8779,6 +8855,7 @@ void sched_setnuma(struct task_struct *p, int nid)
- #endif /* CONFIG_NUMA_BALANCING */
+@@ -9468,14 +9548,8 @@ void __init sched_init(void)
+ }
  
- #ifdef CONFIG_HOTPLUG_CPU
+ #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+-static inline int preempt_count_equals(int preempt_offset)
+-{
+-	int nested = preempt_count() + rcu_preempt_depth();
+ 
+-	return (nested == preempt_offset);
+-}
+-
+-void __might_sleep(const char *file, int line, int preempt_offset)
++void __might_sleep(const char *file, int line)
+ {
+ 	unsigned int state = get_current_state();
+ 	/*
+@@ -9489,11 +9563,32 @@ void __might_sleep(const char *file, int line, int preempt_offset)
+ 			(void *)current->task_state_change,
+ 			(void *)current->task_state_change);
+ 
+-	___might_sleep(file, line, preempt_offset);
++	__might_resched(file, line, 0);
+ }
+ EXPORT_SYMBOL(__might_sleep);
+ 
+-void ___might_sleep(const char *file, int line, int preempt_offset)
++static void print_preempt_disable_ip(int preempt_offset, unsigned long ip)
++{
++	if (!IS_ENABLED(CONFIG_DEBUG_PREEMPT))
++		return;
 +
- /*
-  * Ensure that the idle task is using init_mm right before its CPU goes
-  * offline.
++	if (preempt_count() == preempt_offset)
++		return;
++
++	pr_err("Preemption disabled at:");
++	print_ip_sym(KERN_ERR, ip);
++}
++
++static inline bool resched_offsets_ok(unsigned int offsets)
++{
++	unsigned int nested = preempt_count();
++
++	nested += rcu_preempt_depth() << MIGHT_RESCHED_RCU_SHIFT;
++
++	return nested == offsets;
++}
++
++void __might_resched(const char *file, int line, unsigned int offsets)
+ {
+ 	/* Ratelimiting timestamp: */
+ 	static unsigned long prev_jiffy;
+@@ -9503,7 +9598,7 @@ void ___might_sleep(const char *file, int line, int preempt_offset)
+ 	/* WARN_ON_ONCE() by default, no rate limit required: */
+ 	rcu_sleep_check();
+ 
+-	if ((preempt_count_equals(preempt_offset) && !irqs_disabled() &&
++	if ((resched_offsets_ok(offsets) && !irqs_disabled() &&
+ 	     !is_idle_task(current) && !current->non_block_count) ||
+ 	    system_state == SYSTEM_BOOTING || system_state > SYSTEM_RUNNING ||
+ 	    oops_in_progress)
+@@ -9516,29 +9611,33 @@ void ___might_sleep(const char *file, int line, int preempt_offset)
+ 	/* Save this before calling printk(), since that will clobber it: */
+ 	preempt_disable_ip = get_preempt_disable_ip(current);
+ 
+-	printk(KERN_ERR
+-		"BUG: sleeping function called from invalid context at %s:%d\n",
+-			file, line);
+-	printk(KERN_ERR
+-		"in_atomic(): %d, irqs_disabled(): %d, non_block: %d, pid: %d, name: %s\n",
+-			in_atomic(), irqs_disabled(), current->non_block_count,
+-			current->pid, current->comm);
++	pr_err("BUG: sleeping function called from invalid context at %s:%d\n",
++	       file, line);
++	pr_err("in_atomic(): %d, irqs_disabled(): %d, non_block: %d, pid: %d, name: %s\n",
++	       in_atomic(), irqs_disabled(), current->non_block_count,
++	       current->pid, current->comm);
++	pr_err("preempt_count: %x, expected: %x\n", preempt_count(),
++	       offsets & MIGHT_RESCHED_PREEMPT_MASK);
++
++	if (IS_ENABLED(CONFIG_PREEMPT_RCU)) {
++		pr_err("RCU nest depth: %d, expected: %u\n",
++		       rcu_preempt_depth(), offsets >> MIGHT_RESCHED_RCU_SHIFT);
++	}
+ 
+ 	if (task_stack_end_corrupted(current))
+-		printk(KERN_EMERG "Thread overran stack, or stack corrupted\n");
++		pr_emerg("Thread overran stack, or stack corrupted\n");
+ 
+ 	debug_show_held_locks(current);
+ 	if (irqs_disabled())
+ 		print_irqtrace_events(current);
+-	if (IS_ENABLED(CONFIG_DEBUG_PREEMPT)
+-	    && !preempt_count_equals(preempt_offset)) {
+-		pr_err("Preemption disabled at:");
+-		print_ip_sym(KERN_ERR, preempt_disable_ip);
+-	}
++
++	print_preempt_disable_ip(offsets & MIGHT_RESCHED_PREEMPT_MASK,
++				 preempt_disable_ip);
++
+ 	dump_stack();
+ 	add_taint(TAINT_WARN, LOCKDEP_STILL_OK);
+ }
+-EXPORT_SYMBOL(___might_sleep);
++EXPORT_SYMBOL(__might_resched);
+ 
+ void __cant_sleep(const char *file, int line, int preempt_offset)
+ {
 diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
 index e94314633b39d..fd7c4f972aaff 100644
 --- a/kernel/sched/deadline.c
@@ -7510,7 +7682,7 @@ index 952741f6d0f9f..e08864368db8e 100644
  		cgroup_leave_frozen(true);
  	} else {
 diff --git a/kernel/smp.c b/kernel/smp.c
-index f43ede0ab183a..c37cc3ab3ceb3 100644
+index f43ede0ab183a..2364fd9acb09b 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
 @@ -690,10 +690,21 @@ void flush_smp_call_function_from_idle(void)
@@ -7530,7 +7702,7 @@ index f43ede0ab183a..c37cc3ab3ceb3 100644
 +		} else {
 +			struct task_struct *ksoftirqd = this_cpu_ksoftirqd();
 +
-+			if (ksoftirqd && task_is_running(ksoftirqd))
++			if (ksoftirqd && !task_is_running(ksoftirqd))
 +				wake_up_process(ksoftirqd);
 +		}
 +	}
@@ -8607,6 +8779,19 @@ index d16ba9249bc53..9f1e0098522c2 100644
  	select COMPACTION
  	select XARRAY_MULTI
  	help
+diff --git a/mm/memory.c b/mm/memory.c
+index 25fc46e872142..1cd1792c00f2d 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -5255,7 +5255,7 @@ void __might_fault(const char *file, int line)
+ 		return;
+ 	if (pagefault_disabled())
+ 		return;
+-	__might_sleep(file, line, 0);
++	__might_sleep(file, line);
+ #if defined(CONFIG_DEBUG_ATOMIC_SLEEP)
+ 	if (current->mm)
+ 		might_lock_read(&current->mm->mmap_lock);
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
 index b37435c274cf1..fb5868922508e 100644
 --- a/mm/page_alloc.c
@@ -9454,7 +9639,7 @@ index f64f3d62d6c2a..e4087b2d3fc4b 100644
  		return ret;
  
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index cacbe75185194..fd9e6b54907ee 100644
+index cacbe75185194..95bd604c38199 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
 @@ -51,8 +51,10 @@
@@ -9489,8 +9674,9 @@ index cacbe75185194..fd9e6b54907ee 100644
  					    SMK_CONNECTING);
  		}
 -		if (__is_defined(SMACK_IPV6_PORT_LABELING))
+-			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
 +#ifdef SMACK_IPV6_PORT_LABELING
- 			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
++		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
 +#endif
  
  		return rc;
