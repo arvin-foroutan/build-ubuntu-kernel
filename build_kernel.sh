@@ -281,6 +281,13 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
     patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
+    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0008-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0011-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
@@ -422,6 +429,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
     patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
     patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
@@ -595,7 +603,7 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
-    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
+    echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.13.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
     patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
@@ -809,7 +817,7 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
+    echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
@@ -1084,7 +1092,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     echo "*** Copying and applying modules patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/modules/*.patch .;
     patch -p1 < ./0001-modules-disinherit-taint-proprietary-module.patch;
-    echo "*** Copying and applying xanmod patches.. ✓";
+    echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
