@@ -190,9 +190,6 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
-    echo "*** Copying and applying memcg regression patch for 5.15-rc.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/fixes/5.15/memcg-regression-5.15-rc.patch .;
-    patch -p1 < ./memcg-regression-5.15-rc.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
