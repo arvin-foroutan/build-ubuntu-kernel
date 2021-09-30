@@ -1,0 +1,96 @@
+[PATCH] Introduce the pkill_on_warn boot parameter
+@ 2021-09-29 18:58 Alexander Popov
+  2021-09-29 19:01 ` Alexander Popov
+  2021-09-29 19:03 ` Dave Hansen
+  0 siblings, 2 replies; 8+ messages in thread
+From: Alexander Popov @ 2021-09-29 18:58 UTC (permalink / raw)
+  To: Jonathan Corbet, Paul McKenney, Andrew Morton, Thomas Gleixner,
+	Peter Zijlstra, Joerg Roedel, Maciej Rozycki, Muchun Song,
+	Viresh Kumar, Robin Murphy, Randy Dunlap, Lu Baolu, Petr Mladek,
+	Kees Cook, Luis Chamberlain, Wei Liu, John Ogness,
+	Andy Shevchenko, Alexey Kardashevskiy, Christophe Leroy,
+	Jann Horn, Greg Kroah-Hartman, Mark Rutland, Andy Lutomirski,
+	Dave Hansen, Steven Rostedt, Thomas Garnier, Will Deacon,
+	Ard Biesheuvel, Laura Abbott, David S Miller, Borislav Petkov,
+	Alexander Popov, kernel-hardening, linux-hardening, linux-doc,
+	linux-kernel
+  Cc: notify
+
+Currently, the Linux kernel provides two types of reaction to kernel
+warnings:
+ 1. Do nothing (by default),
+ 2. Call panic() if panic_on_warn is set. That's a very strong reaction,
+    so panic_on_warn is usually disabled on production systems.
+
+From a safety point of view, the Linux kernel misses a middle way of
+handling kernel warnings:
+ - The kernel should stop the activity that provokes a warning,
+ - But the kernel should avoid complete denial of service.
+
+From a security point of view, kernel warning messages provide a lot of
+useful information for attackers. Many GNU/Linux distributions allow
+unprivileged users to read the kernel log, so attackers use kernel
+warning infoleak in vulnerability exploits. See the examples:
+  https://a13xp0p0v.github.io/2020/02/15/CVE-2019-18683.html
+  https://a13xp0p0v.github.io/2021/02/09/CVE-2021-26708.html
+
+Let's introduce the pkill_on_warn boot parameter.
+If this parameter is set, the kernel kills all threads in a process
+that provoked a kernel warning. This behavior is reasonable from a safety
+point of view described above. It is also useful for kernel security
+hardening because the system kills an exploit process that hits a
+kernel warning.
+
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+---
+ Documentation/admin-guide/kernel-parameters.txt | 4 ++++
+ kernel/panic.c                                  | 5 +++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 91ba391f9b32..86c748907666 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4112,6 +4112,10 @@
+ 	pirq=		[SMP,APIC] Manual mp-table setup
+ 			See Documentation/x86/i386/IO-APIC.rst.
+ 
++	pkill_on_warn=	Kill all threads in a process that provoked a
++			kernel warning.
++			Format: { "0" | "1" }
++
+ 	plip=		[PPT,NET] Parallel port network link
+ 			Format: { parport<nr> | timid | 0 }
+ 			See also Documentation/admin-guide/parport.rst.
+diff --git a/kernel/panic.c b/kernel/panic.c
+index cefd7d82366f..47b728bfb1d3 100644
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -53,6 +53,7 @@ static int pause_on_oops_flag;
+ static DEFINE_SPINLOCK(pause_on_oops_lock);
+ bool crash_kexec_post_notifiers;
+ int panic_on_warn __read_mostly;
++int pkill_on_warn __read_mostly;
+ unsigned long panic_on_taint;
+ bool panic_on_taint_nousertaint = false;
+ 
+@@ -610,6 +611,9 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
+ 
+ 	print_oops_end_marker();
+ 
++	if (pkill_on_warn && system_state >= SYSTEM_RUNNING)
++		do_group_exit(SIGKILL);
++
+ 	/* Just a warning, don't kill lockdep. */
+ 	add_taint(taint, LOCKDEP_STILL_OK);
+ }
+@@ -694,6 +698,7 @@ core_param(panic, panic_timeout, int, 0644);
+ core_param(panic_print, panic_print, ulong, 0644);
+ core_param(pause_on_oops, pause_on_oops, int, 0644);
+ core_param(panic_on_warn, panic_on_warn, int, 0644);
++core_param(pkill_on_warn, pkill_on_warn, int, 0644);
+ core_param(crash_kexec_post_notifiers, crash_kexec_post_notifiers, bool, 0644);
+ 
+ static int __init oops_setup(char *s)
+-- 
+2.31.1

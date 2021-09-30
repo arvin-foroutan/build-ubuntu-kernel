@@ -190,6 +190,9 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
+    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
+    patch -p1 < ./pkill-on-warn.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
@@ -302,6 +305,9 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
 elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
+    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
+    patch -p1 < ./pkill-on-warn.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
@@ -467,6 +473,9 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
         patch -p1 < ./0004-mm-ksm-proc-add-remote-KSM-documentation.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/21)
+    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
+    patch -p1 < ./pkill-on-warn.patch;
     echo "*** Copying and applying alsa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/alsa-patches-v2/*.patch .;
     patch -p1 < ./0001-alsa-patches.patch;
@@ -643,6 +652,9 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
         patch -p1 < ./0001-ksm-patches.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
+    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
+    patch -p1 < ./pkill-on-warn.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v14/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
