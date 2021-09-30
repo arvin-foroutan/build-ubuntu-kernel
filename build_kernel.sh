@@ -339,7 +339,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
     else
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v4/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v5/*.patch .;
     fi
     patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
