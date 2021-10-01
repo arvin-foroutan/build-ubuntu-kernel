@@ -3023,7 +3023,7 @@ index 0ee140176f102..4a2230e409d2a 100644
 +
  #endif
 diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
-index ec2a47a81e423..cfc3804ec9a09 100644
+index ec2a47a81e423..3ae8ba3fad3af 100644
 --- a/include/linux/irq_work.h
 +++ b/include/linux/irq_work.h
 @@ -3,6 +3,7 @@
@@ -3054,7 +3054,7 @@ index ec2a47a81e423..cfc3804ec9a09 100644
  
 +static inline bool irq_work_is_hard(struct irq_work *work)
 +{
-+       return atomic_read(&work->node.a_flags) & IRQ_WORK_HARD_IRQ;
++	return atomic_read(&work->node.a_flags) & IRQ_WORK_HARD_IRQ;
 +}
 +
  bool irq_work_queue(struct irq_work *work);
@@ -4507,17 +4507,17 @@ index d5a61d565ad5d..a9579f8bf4f04 100644
  	}
  }
 diff --git a/kernel/exit.c b/kernel/exit.c
-index 91a43e57a32eb..acd7aa9700db3 100644
+index 91a43e57a32eb..1d099609568db 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
-@@ -60,6 +60,7 @@
- #include <linux/writeback.h>
- #include <linux/shm.h>
- #include <linux/kcov.h>
-+#include <linux/kprobes.h>
- #include <linux/random.h>
+@@ -64,6 +64,7 @@
  #include <linux/rcuwait.h>
  #include <linux/compat.h>
+ #include <linux/io_uring.h>
++#include <linux/kprobes.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/unistd.h>
 @@ -168,8 +169,14 @@ static void delayed_put_task_struct(struct rcu_head *rhp)
  {
  	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
@@ -4595,10 +4595,18 @@ index 221d80c31e94c..1543934f26d2b 100644
  	if (!irq_settings_no_debug(desc))
  		note_interrupt(desc, retval);
 diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 27667e82ecc91..894e4db1fffcc 100644
+index 27667e82ecc91..ac072b1d1a2d2 100644
 --- a/kernel/irq/manage.c
 +++ b/kernel/irq/manage.c
-@@ -1259,6 +1259,8 @@ static int irq_thread(void *data)
+@@ -26,6 +26,7 @@
+ 
+ #if defined(CONFIG_IRQ_FORCED_THREADING) && !defined(CONFIG_PREEMPT_RT)
+ DEFINE_STATIC_KEY_FALSE(force_irqthreads_key);
++EXPORT_SYMBOL_GPL(force_irqthreads_key);
+ 
+ static int __init setup_forced_irqthreads(char *arg)
+ {
+@@ -1259,6 +1260,8 @@ static int irq_thread(void *data)
  	irqreturn_t (*handler_fn)(struct irq_desc *desc,
  			struct irqaction *action);
  
@@ -4607,7 +4615,7 @@ index 27667e82ecc91..894e4db1fffcc 100644
  	if (force_irqthreads() && test_bit(IRQTF_FORCED_THREAD,
  					   &action->thread_flags))
  		handler_fn = irq_forced_thread_fn;
-@@ -1279,6 +1281,12 @@ static int irq_thread(void *data)
+@@ -1279,6 +1282,12 @@ static int irq_thread(void *data)
  		if (action_ret == IRQ_WAKE_THREAD)
  			irq_wake_secondary(desc, action);
  
@@ -4620,7 +4628,7 @@ index 27667e82ecc91..894e4db1fffcc 100644
  		wake_threads_waitq(desc);
  	}
  
-@@ -1424,8 +1432,6 @@ setup_irq_thread(struct irqaction *new, unsigned int irq, bool secondary)
+@@ -1424,8 +1433,6 @@ setup_irq_thread(struct irqaction *new, unsigned int irq, bool secondary)
  	if (IS_ERR(t))
  		return PTR_ERR(t);
  
@@ -4629,7 +4637,7 @@ index 27667e82ecc91..894e4db1fffcc 100644
  	/*
  	 * We keep the reference to the task struct even if
  	 * the thread dies to avoid that the interrupt code
-@@ -2827,7 +2833,7 @@ EXPORT_SYMBOL_GPL(irq_get_irqchip_state);
+@@ -2827,7 +2834,7 @@ EXPORT_SYMBOL_GPL(irq_get_irqchip_state);
   *	This call sets the internal irqchip state of an interrupt,
   *	depending on the value of @which.
   *
@@ -4665,7 +4673,7 @@ index c481d84583257..02b2daf074414 100644
  	printk(KERN_WARNING "Misrouted IRQ fixup and polling support "
  				"enabled\n");
 diff --git a/kernel/irq_work.c b/kernel/irq_work.c
-index db8c248ebc8c8..14c2aba4c9479 100644
+index db8c248ebc8c8..ee27f56381ee2 100644
 --- a/kernel/irq_work.c
 +++ b/kernel/irq_work.c
 @@ -18,6 +18,7 @@
@@ -4695,8 +4703,8 @@ index db8c248ebc8c8..14c2aba4c9479 100644
 +	if (work_flags & IRQ_WORK_LAZY)
 +		lazy_work = true;
 +	else if (IS_ENABLED(CONFIG_PREEMPT_RT) &&
-+		!(work_flags & IRQ_WORK_HARD_IRQ))
-+			lazy_work = true;
++		 !(work_flags & IRQ_WORK_HARD_IRQ))
++		lazy_work = true;
 +	else
 +		lazy_work = false;
 +
@@ -4711,7 +4719,7 @@ index db8c248ebc8c8..14c2aba4c9479 100644
  			arch_irq_work_raise();
  	}
  }
-@@ -104,7 +119,14 @@ bool irq_work_queue_on(struct irq_work *work, int cpu)
+@@ -104,7 +119,13 @@ bool irq_work_queue_on(struct irq_work *work, int cpu)
  	if (cpu != smp_processor_id()) {
  		/* Arch remote IPI send/receive backend aren't NMI safe */
  		WARN_ON_ONCE(in_nmi());
@@ -4719,7 +4727,6 @@ index db8c248ebc8c8..14c2aba4c9479 100644
 +
 +		if (IS_ENABLED(CONFIG_PREEMPT_RT) && !(atomic_read(&work->node.a_flags) & IRQ_WORK_HARD_IRQ)) {
 +			if (llist_add(&work->node.llist, &per_cpu(lazy_list, cpu)))
-+				/* && tick_nohz_tick_stopped_cpu(cpu) */
 +				arch_send_call_function_single_ipi(cpu);
 +		} else {
 +			__smp_call_single_queue(cpu, &work->node.llist);
@@ -4727,19 +4734,15 @@ index db8c248ebc8c8..14c2aba4c9479 100644
  	} else {
  		__irq_work_queue_local(work);
  	}
-@@ -122,9 +144,8 @@ bool irq_work_needs_cpu(void)
+@@ -121,7 +142,6 @@ bool irq_work_needs_cpu(void)
+ 
  	raised = this_cpu_ptr(&raised_list);
  	lazy = this_cpu_ptr(&lazy_list);
- 
--	if (llist_empty(raised) || arch_irq_work_has_interrupt())
--		if (llist_empty(lazy))
--			return false;
-+	if (llist_empty(raised) && llist_empty(lazy))
-+		return false;
- 
- 	/* All work should have been flushed before going offline */
- 	WARN_ON_ONCE(cpu_is_offline(smp_processor_id()));
-@@ -160,6 +181,10 @@ void irq_work_single(void *arg)
+-
+ 	if (llist_empty(raised) || arch_irq_work_has_interrupt())
+ 		if (llist_empty(lazy))
+ 			return false;
+@@ -160,6 +180,10 @@ void irq_work_single(void *arg)
  	 * else claimed it meanwhile.
  	 */
  	(void)atomic_cmpxchg(&work->node.a_flags, flags, flags & ~IRQ_WORK_BUSY);
@@ -4750,39 +4753,32 @@ index db8c248ebc8c8..14c2aba4c9479 100644
  }
  
  static void irq_work_run_list(struct llist_head *list)
-@@ -167,8 +192,12 @@ static void irq_work_run_list(struct llist_head *list)
+@@ -167,7 +191,11 @@ static void irq_work_run_list(struct llist_head *list)
  	struct irq_work *work, *tmp;
  	struct llist_node *llnode;
  
-+#ifndef CONFIG_PREEMPT_RT
+-	BUG_ON(!irqs_disabled());
 +	/*
-+	 * nort: On RT IRQ-work may run in SOFTIRQ context.
++	 * On PREEMPT_RT IRQ-work may run in SOFTIRQ context if it is not marked
++	 * explicitly that it needs to run in hardirq context.
 +	 */
- 	BUG_ON(!irqs_disabled());
--
-+#endif
++	BUG_ON(!in_hardirq() && !IS_ENABLED(CONFIG_PREEMPT_RT));
+ 
  	if (llist_empty(list))
  		return;
- 
-@@ -184,7 +213,16 @@ static void irq_work_run_list(struct llist_head *list)
+@@ -184,7 +212,10 @@ static void irq_work_run_list(struct llist_head *list)
  void irq_work_run(void)
  {
  	irq_work_run_list(this_cpu_ptr(&raised_list));
 -	irq_work_run_list(this_cpu_ptr(&lazy_list));
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
-+		/*
-+		 * NOTE: we raise softirq via IPI for safety,
-+		 * and execute in irq_work_tick() to move the
-+		 * overhead from hard to soft irq context.
-+		 */
-+		if (!llist_empty(this_cpu_ptr(&lazy_list)))
-+			raise_softirq(TIMER_SOFTIRQ);
-+	} else
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
 +		irq_work_run_list(this_cpu_ptr(&lazy_list));
++	else if (!llist_empty(this_cpu_ptr(&lazy_list)))
++		raise_softirq(TIMER_SOFTIRQ);
  }
  EXPORT_SYMBOL_GPL(irq_work_run);
  
-@@ -194,8 +232,17 @@ void irq_work_tick(void)
+@@ -194,8 +225,17 @@ void irq_work_tick(void)
  
  	if (!llist_empty(raised) && !arch_irq_work_has_interrupt())
  		irq_work_run_list(raised);
@@ -4800,7 +4796,7 @@ index db8c248ebc8c8..14c2aba4c9479 100644
  
  /*
   * Synchronize against the irq_work @entry, ensures the entry is not
-@@ -204,6 +251,14 @@ void irq_work_tick(void)
+@@ -204,6 +244,14 @@ void irq_work_tick(void)
  void irq_work_sync(struct irq_work *work)
  {
  	lockdep_assert_irqs_enabled();
@@ -7042,7 +7038,7 @@ index bce848e50512e..937b96ce1510a 100644
  	div = div < 0 ? 7 : div > sizeof(long) * 8 - 2 ? sizeof(long) * 8 - 2 : div;
  	bl = max(rdp->blimit, pending >> div);
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 1bba4128a3e68..1ddd50f2a3d7f 100644
+index 1bba4128a3e68..5c7c0d0ad1d51 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -74,7 +74,11 @@ __read_mostly int sysctl_resched_latency_warn_once = 1;
@@ -7189,11 +7185,8 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  #ifdef CONFIG_SMP
  	plist_node_init(&p->pushable_tasks, MAX_PRIO);
  	RB_CLEAR_NODE(&p->pushable_dl_tasks);
-@@ -4834,22 +4884,21 @@ static struct rq *finish_task_switch(struct task_struct *prev)
- 	 *   provided by mmdrop(),
- 	 * - a sync_core for SYNC_CORE.
+@@ -4836,20 +4886,18 @@ static struct rq *finish_task_switch(struct task_struct *prev)
  	 */
-+
  	if (mm) {
  		membarrier_mm_sync_core_before_usermode(mm);
 -		mmdrop(mm);
@@ -7218,7 +7211,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  
  		put_task_struct_rcu_user(prev);
  	}
-@@ -6250,6 +6299,7 @@ static void __sched notrace __schedule(unsigned int sched_mode)
+@@ -6250,6 +6298,7 @@ static void __sched notrace __schedule(unsigned int sched_mode)
  
  	next = pick_next_task(rq, prev, &rf);
  	clear_tsk_need_resched(prev);
@@ -7226,7 +7219,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  	clear_preempt_need_resched();
  #ifdef CONFIG_SCHED_DEBUG
  	rq->last_seen_need_resched_ns = 0;
-@@ -6467,6 +6517,30 @@ static void __sched notrace preempt_schedule_common(void)
+@@ -6467,6 +6516,30 @@ static void __sched notrace preempt_schedule_common(void)
  	} while (need_resched());
  }
  
@@ -7257,7 +7250,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  #ifdef CONFIG_PREEMPTION
  /*
   * This is the entry point to schedule() from in-kernel preemption
-@@ -6480,7 +6554,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
+@@ -6480,7 +6553,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
  	 */
  	if (likely(!preemptible()))
  		return;
@@ -7267,7 +7260,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  	preempt_schedule_common();
  }
  NOKPROBE_SYMBOL(preempt_schedule);
-@@ -6513,6 +6588,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
+@@ -6513,6 +6587,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
  	if (likely(!preemptible()))
  		return;
  
@@ -7277,7 +7270,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  	do {
  		/*
  		 * Because the function tracer can trace preempt_count_sub()
-@@ -8674,7 +8752,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
+@@ -8674,7 +8751,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
  
  	/* Set the preempt count _outside_ the spinlocks! */
  	init_idle_preempt_count(idle, cpu);
@@ -7288,7 +7281,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  	/*
  	 * The idle tasks have their own, simple scheduling class:
  	 */
-@@ -9468,14 +9548,8 @@ void __init sched_init(void)
+@@ -9468,14 +9547,8 @@ void __init sched_init(void)
  }
  
  #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
@@ -7304,7 +7297,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  {
  	unsigned int state = get_current_state();
  	/*
-@@ -9489,11 +9563,32 @@ void __might_sleep(const char *file, int line, int preempt_offset)
+@@ -9489,11 +9562,32 @@ void __might_sleep(const char *file, int line, int preempt_offset)
  			(void *)current->task_state_change,
  			(void *)current->task_state_change);
  
@@ -7339,7 +7332,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  {
  	/* Ratelimiting timestamp: */
  	static unsigned long prev_jiffy;
-@@ -9503,7 +9598,7 @@ void ___might_sleep(const char *file, int line, int preempt_offset)
+@@ -9503,7 +9597,7 @@ void ___might_sleep(const char *file, int line, int preempt_offset)
  	/* WARN_ON_ONCE() by default, no rate limit required: */
  	rcu_sleep_check();
  
@@ -7348,7 +7341,7 @@ index 1bba4128a3e68..1ddd50f2a3d7f 100644
  	     !is_idle_task(current) && !current->non_block_count) ||
  	    system_state == SYSTEM_BOOTING || system_state > SYSTEM_RUNNING ||
  	    oops_in_progress)
-@@ -9516,29 +9611,33 @@ void ___might_sleep(const char *file, int line, int preempt_offset)
+@@ -9516,29 +9610,33 @@ void ___might_sleep(const char *file, int line, int preempt_offset)
  	/* Save this before calling printk(), since that will clobber it: */
  	preempt_disable_ip = get_preempt_disable_ip(current);
  
@@ -7599,15 +7592,14 @@ index e1c655f928c74..f230b1ac7f910 100644
  	list_splice_init(&q->task_list, &tmp);
  	while (!list_empty(&tmp)) {
 diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index 4e8698e62f075..27cd0052a2224 100644
+index 4e8698e62f075..3d0157bd4e144 100644
 --- a/kernel/sched/topology.c
 +++ b/kernel/sched/topology.c
-@@ -526,7 +526,8 @@ static int init_rootdomain(struct root_domain *rd)
+@@ -526,7 +526,7 @@ static int init_rootdomain(struct root_domain *rd)
  #ifdef HAVE_RT_PUSH_IPI
  	rd->rto_cpu = -1;
  	raw_spin_lock_init(&rd->rto_lock);
 -	init_irq_work(&rd->rto_push_work, rto_push_irq_work_func);
-+//	init_irq_work(&rd->rto_push_work, rto_push_irq_work_func);
 +	rd->rto_push_work = IRQ_WORK_INIT_HARD(rto_push_irq_work_func);
  #endif
  
@@ -7669,10 +7661,10 @@ index 952741f6d0f9f..e08864368db8e 100644
  		cgroup_leave_frozen(true);
  	} else {
 diff --git a/kernel/smp.c b/kernel/smp.c
-index f43ede0ab183a..2364fd9acb09b 100644
+index f43ede0ab183a..f0f26e1a00314 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
-@@ -690,10 +690,21 @@ void flush_smp_call_function_from_idle(void)
+@@ -690,10 +690,20 @@ void flush_smp_call_function_from_idle(void)
  
  	cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->idle, CFD_SEQ_NOCPU,
  		      smp_processor_id(), CFD_SEQ_IDLE);
@@ -7683,7 +7675,6 @@ index f43ede0ab183a..2364fd9acb09b 100644
 -		do_softirq();
 +
 +	if (local_softirq_pending()) {
-+
 +		if (!IS_ENABLED(CONFIG_PREEMPT_RT)) {
 +			do_softirq();
 +		} else {
@@ -8070,46 +8061,20 @@ index 6b7f1bf6715d8..6e8ae42c7e273 100644
  EXPORT_SYMBOL(dump_stack_lvl);
  
 diff --git a/lib/irq_poll.c b/lib/irq_poll.c
-index 2f17b488d58e1..7557bf7ecf1f1 100644
+index 2f17b488d58e1..2b9f797642f60 100644
 --- a/lib/irq_poll.c
 +++ b/lib/irq_poll.c
-@@ -37,6 +37,7 @@ void irq_poll_sched(struct irq_poll *iop)
- 	list_add_tail(&iop->list, this_cpu_ptr(&blk_cpu_iopoll));
- 	raise_softirq_irqoff(IRQ_POLL_SOFTIRQ);
- 	local_irq_restore(flags);
-+	preempt_check_resched_rt();
- }
- EXPORT_SYMBOL(irq_poll_sched);
- 
-@@ -72,6 +73,7 @@ void irq_poll_complete(struct irq_poll *iop)
- 	local_irq_save(flags);
- 	__irq_poll_complete(iop);
- 	local_irq_restore(flags);
-+	preempt_check_resched_rt();
- }
- EXPORT_SYMBOL(irq_poll_complete);
- 
-@@ -96,6 +98,7 @@ static void __latent_entropy irq_poll_softirq(struct softirq_action *h)
- 		}
- 
- 		local_irq_enable();
-+		preempt_check_resched_rt();
- 
- 		/* Even though interrupts have been re-enabled, this
- 		 * access is safe because interrupts can only add new
-@@ -133,6 +136,7 @@ static void __latent_entropy irq_poll_softirq(struct softirq_action *h)
- 		__raise_softirq_irqoff(IRQ_POLL_SOFTIRQ);
- 
- 	local_irq_enable();
-+	preempt_check_resched_rt();
- }
- 
- /**
-@@ -196,6 +200,7 @@ static int irq_poll_cpu_dead(unsigned int cpu)
+@@ -191,11 +191,13 @@ static int irq_poll_cpu_dead(unsigned int cpu)
+ 	 * If a CPU goes away, splice its entries to the current CPU
+ 	 * and trigger a run of the softirq
+ 	 */
++	local_bh_disable();
+ 	local_irq_disable();
+ 	list_splice_init(&per_cpu(blk_cpu_iopoll, cpu),
  			 this_cpu_ptr(&blk_cpu_iopoll));
  	__raise_softirq_irqoff(IRQ_POLL_SOFTIRQ);
  	local_irq_enable();
-+	preempt_check_resched_rt();
++	local_bh_enable();
  
  	return 0;
  }
@@ -8741,10 +8706,40 @@ index e01a93f46f833..524cf65dce53c 100644
  			}
  		}
 diff --git a/lib/scatterlist.c b/lib/scatterlist.c
-index abb3432ed7441..fa1a7d8dc4ca8 100644
+index abb3432ed7441..d5e82e4a57ad0 100644
 --- a/lib/scatterlist.c
 +++ b/lib/scatterlist.c
-@@ -922,7 +922,7 @@ void sg_miter_stop(struct sg_mapping_iter *miter)
+@@ -828,8 +828,7 @@ static bool sg_miter_get_next_page(struct sg_mapping_iter *miter)
+  *   stops @miter.
+  *
+  * Context:
+- *   Don't care if @miter is stopped, or not proceeded yet.
+- *   Otherwise, preemption disabled if the SG_MITER_ATOMIC is set.
++ *   Don't care.
+  *
+  * Returns:
+  *   true if @miter contains the valid mapping.  false if end of sg
+@@ -865,8 +864,7 @@ EXPORT_SYMBOL(sg_miter_skip);
+  *   @miter->addr and @miter->length point to the current mapping.
+  *
+  * Context:
+- *   Preemption disabled if SG_MITER_ATOMIC.  Preemption must stay disabled
+- *   till @miter is stopped.  May sleep if !SG_MITER_ATOMIC.
++ *   May sleep if !SG_MITER_ATOMIC.
+  *
+  * Returns:
+  *   true if @miter contains the next mapping.  false if end of sg
+@@ -906,8 +904,7 @@ EXPORT_SYMBOL(sg_miter_next);
+  *   need to be released during iteration.
+  *
+  * Context:
+- *   Preemption disabled if the SG_MITER_ATOMIC is set.  Don't care
+- *   otherwise.
++ *   Don't care otherwise.
+  */
+ void sg_miter_stop(struct sg_mapping_iter *miter)
+ {
+@@ -922,7 +919,7 @@ void sg_miter_stop(struct sg_mapping_iter *miter)
  			flush_dcache_page(miter->page);
  
  		if (miter->__flags & SG_MITER_ATOMIC) {
@@ -8874,7 +8869,7 @@ index d5b81e4f4cbe8..d7ceee62e3c6a 100644
  	if (node->count && node->count == node->nr_values) {
  		if (list_empty(&node->private_list)) {
 diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 68e8831068f4b..d597df37bfb7c 100644
+index 68e8831068f4b..22c18ac605b5f 100644
 --- a/mm/zsmalloc.c
 +++ b/mm/zsmalloc.c
 @@ -57,6 +57,7 @@
@@ -8946,7 +8941,7 @@ index 68e8831068f4b..d597df37bfb7c 100644
 +#ifdef CONFIG_PREEMPT_RT
 +static struct zsmalloc_handle *zs_get_pure_handle(unsigned long handle)
 +{
-+	return (void *)(handle &~((1 << OBJ_TAG_BITS) - 1));
++	return (void *)(handle & ~((1 << OBJ_TAG_BITS) - 1));
 +}
 +#endif
 +
@@ -8972,19 +8967,18 @@ index 68e8831068f4b..d597df37bfb7c 100644
  }
  
  /* zpool driver */
-@@ -455,7 +494,10 @@ MODULE_ALIAS("zpool-zsmalloc");
+@@ -455,7 +494,9 @@ MODULE_ALIAS("zpool-zsmalloc");
  #endif /* CONFIG_ZPOOL */
  
  /* per-cpu VM mapping areas for zspage accesses that cross page boundaries */
 -static DEFINE_PER_CPU(struct mapping_area, zs_map_area);
 +static DEFINE_PER_CPU(struct mapping_area, zs_map_area) = {
-+	/* XXX remove this and use a spin_lock_t in pin_tag() */
 +	.lock	= INIT_LOCAL_LOCK(lock),
 +};
  
  static bool is_zspage_isolated(struct zspage *zspage)
  {
-@@ -862,7 +904,13 @@ static unsigned long location_to_obj(struct page *page, unsigned int obj_idx)
+@@ -862,7 +903,13 @@ static unsigned long location_to_obj(struct page *page, unsigned int obj_idx)
  
  static unsigned long handle_to_obj(unsigned long handle)
  {
@@ -8998,7 +8992,7 @@ index 68e8831068f4b..d597df37bfb7c 100644
  }
  
  static unsigned long obj_to_head(struct page *page, void *obj)
-@@ -876,22 +924,46 @@ static unsigned long obj_to_head(struct page *page, void *obj)
+@@ -876,22 +923,46 @@ static unsigned long obj_to_head(struct page *page, void *obj)
  
  static inline int testpin_tag(unsigned long handle)
  {
@@ -9045,7 +9039,7 @@ index 68e8831068f4b..d597df37bfb7c 100644
  }
  
  static void reset_page(struct page *page)
-@@ -1274,7 +1346,8 @@ void *zs_map_object(struct zs_pool *pool, unsigned long handle,
+@@ -1274,7 +1345,8 @@ void *zs_map_object(struct zs_pool *pool, unsigned long handle,
  	class = pool->size_class[class_idx];
  	off = (class->size * obj_idx) & ~PAGE_MASK;
  
@@ -9055,7 +9049,7 @@ index 68e8831068f4b..d597df37bfb7c 100644
  	area->vm_mm = mm;
  	if (off + class->size <= PAGE_SIZE) {
  		/* this object is contained entirely within a page */
-@@ -1328,7 +1401,7 @@ void zs_unmap_object(struct zs_pool *pool, unsigned long handle)
+@@ -1328,7 +1400,7 @@ void zs_unmap_object(struct zs_pool *pool, unsigned long handle)
  
  		__zs_unmap_object(area, pages, off, class->size);
  	}
@@ -9077,6 +9071,48 @@ index fb13460c6dab3..074472dfa94ae 100644
  
  config BQL
  	bool
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 3523c8c7068fd..f3d751105343c 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1677,8 +1677,6 @@ static void br_multicast_update_querier(struct net_bridge_mcast *brmctx,
+ 					int ifindex,
+ 					struct br_ip *saddr)
+ {
+-	lockdep_assert_held_once(&brmctx->br->multicast_lock);
+-
+ 	write_seqcount_begin(&querier->seq);
+ 	querier->port_ifidx = ifindex;
+ 	memcpy(&querier->addr, saddr, sizeof(*saddr));
+@@ -3867,13 +3865,13 @@ void br_multicast_ctx_init(struct net_bridge *br,
+ 
+ 	brmctx->ip4_other_query.delay_time = 0;
+ 	brmctx->ip4_querier.port_ifidx = 0;
+-	seqcount_init(&brmctx->ip4_querier.seq);
++	seqcount_spinlock_init(&brmctx->ip4_querier.seq, &br->multicast_lock);
+ 	brmctx->multicast_igmp_version = 2;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	brmctx->multicast_mld_version = 1;
+ 	brmctx->ip6_other_query.delay_time = 0;
+ 	brmctx->ip6_querier.port_ifidx = 0;
+-	seqcount_init(&brmctx->ip6_querier.seq);
++	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
+ #endif
+ 
+ 	timer_setup(&brmctx->ip4_mc_router_timer,
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index b4cef3a97f12b..e8136db44462c 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -82,7 +82,7 @@ struct bridge_mcast_other_query {
+ struct bridge_mcast_querier {
+ 	struct br_ip addr;
+ 	int port_ifidx;
+-	seqcount_t seq;
++	seqcount_spinlock_t seq;
+ };
+ 
+ /* IGMP/MLD statistics */
 diff --git a/net/core/dev.c b/net/core/dev.c
 index 7ee9fecd3affc..b3f1942aeb5d4 100644
 --- a/net/core/dev.c
