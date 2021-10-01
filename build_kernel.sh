@@ -366,7 +366,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0015-SUNRPC-Simplify-socket-shutdown-when-not-reusing-TCP.patch;
     patch -p1 < ./0016-SUNRPC-Tweak-TCP-socket-shutdown-in-the-RPC-client.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v12/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v13/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-sep/*.patch .;
