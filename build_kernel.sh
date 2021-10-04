@@ -245,6 +245,9 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
+    echo "*** Copying and applying hwmon patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches/*.patch .;
+    patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/lqx-patches-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
@@ -370,6 +373,9 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0014-NFS-Always-provide-aligned-buffers-to-the-RPC-read-l.patch;
     patch -p1 < ./0015-SUNRPC-Simplify-socket-shutdown-when-not-reusing-TCP.patch;
     patch -p1 < ./0016-SUNRPC-Tweak-TCP-socket-shutdown-in-the-RPC-client.patch;
+    echo "*** Copying and applying hwmon patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches/*.patch .;
+    patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v13/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
@@ -478,6 +484,9 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
         patch -p1 < ./0004-mm-ksm-proc-add-remote-KSM-documentation.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/21)
+    echo "*** Copying and applying hwmon patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches/*.patch .;
+    patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
@@ -799,6 +808,9 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying futex misc patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-patches.patch;
+    echo "*** Copying and applying hwmon patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches/*.patch .;
+    patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v4/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
