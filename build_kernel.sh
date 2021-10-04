@@ -388,7 +388,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v12/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-mm-compaction-optimize-proactive-compaction-deferral.patch;
     patch -p1 < ./0002-mm-compaction-support-triggering-of-proactive-compac.patch;
     patch -p1 < ./0003-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
@@ -398,6 +398,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0007-namei-add-mapping-aware-lookup-helper.patch;
     patch -p1 < ./0008-mac80211-rate-replace-WARN_ON-with-pr_warn.patch;
     patch -p1 < ./0009-mac80211-airtime-replace-WARN_ON_ONCE-with-pr_warn_o.patch;
+    patch -p1 < ./0010-mac80211-rate-replace-WARN_ON_ONCE-with-pr_warn_once.patch;
     echo "*** Copying and applying security patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/security-patches-sep/*.patch .;
     patch -p1 < ./0001-security-Add-LSM-hook-at-the-point-where-a-task-gets.patch;
