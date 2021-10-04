@@ -1334,10 +1334,10 @@ index a1202536fc57c..a26a7c3849f54 100644
  #define orc_warn_current(args...)					\
  ({									\
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 28ef141557264..0d98d28079242 100644
+index aabd3a2ec1bc7..fc16b3ea796ee 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8402,6 +8402,14 @@ int kvm_arch_init(void *opaque)
+@@ -8416,6 +8416,14 @@ int kvm_arch_init(void *opaque)
  		goto out;
  	}
  
@@ -3596,7 +3596,7 @@ index 9deedfeec2b17..7d049883a08ac 100644
  
  extern void rt_mutex_unlock(struct rt_mutex *lock);
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 39039ce8ac4c1..79852a2ebe5b4 100644
+index c1a927ddec646..4401d0f05cb30 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
 @@ -118,12 +118,8 @@ struct task_group;
@@ -3623,7 +3623,7 @@ index 39039ce8ac4c1..79852a2ebe5b4 100644
  	unsigned long			sas_ss_sp;
  	size_t				sas_ss_size;
  	unsigned int			sas_ss_flags;
-@@ -1730,6 +1730,16 @@ static inline bool is_percpu_thread(void)
+@@ -1730,6 +1730,16 @@ static __always_inline bool is_percpu_thread(void)
  #endif
  }
  
@@ -7403,7 +7403,7 @@ index e94314633b39d..fd7c4f972aaff 100644
  		dl_se->runtime = pi_of(dl_se)->dl_runtime;
  	}
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index ff69f245b9395..fd58b957c1888 100644
+index f6a05d9b54436..e4867129445d5 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
 @@ -4237,10 +4237,7 @@ static inline void check_schedstat_required(void)
@@ -7454,7 +7454,7 @@ index ff69f245b9395..fd58b957c1888 100644
  }
  
  static __always_inline
-@@ -5514,7 +5511,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
+@@ -5518,7 +5515,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
  
  		if (delta < 0) {
  			if (task_current(rq, p))
@@ -7463,7 +7463,7 @@ index ff69f245b9395..fd58b957c1888 100644
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -7204,7 +7201,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
+@@ -7208,7 +7205,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	return;
  
  preempt:
@@ -7472,7 +7472,7 @@ index ff69f245b9395..fd58b957c1888 100644
  	/*
  	 * Only set the backward buddy when the current task is still
  	 * on the rq. This can happen when a wakeup gets interleaved
-@@ -11105,7 +11102,7 @@ static void task_fork_fair(struct task_struct *p)
+@@ -11109,7 +11106,7 @@ static void task_fork_fair(struct task_struct *p)
  		 * 'current' within the tree based on its new key value.
  		 */
  		swap(curr->vruntime, se->vruntime);
@@ -7481,7 +7481,7 @@ index ff69f245b9395..fd58b957c1888 100644
  	}
  
  	se->vruntime -= cfs_rq->min_vruntime;
-@@ -11132,7 +11129,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
+@@ -11136,7 +11133,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)
@@ -9071,48 +9071,6 @@ index fb13460c6dab3..074472dfa94ae 100644
  
  config BQL
  	bool
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 3523c8c7068fd..f3d751105343c 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1677,8 +1677,6 @@ static void br_multicast_update_querier(struct net_bridge_mcast *brmctx,
- 					int ifindex,
- 					struct br_ip *saddr)
- {
--	lockdep_assert_held_once(&brmctx->br->multicast_lock);
--
- 	write_seqcount_begin(&querier->seq);
- 	querier->port_ifidx = ifindex;
- 	memcpy(&querier->addr, saddr, sizeof(*saddr));
-@@ -3867,13 +3865,13 @@ void br_multicast_ctx_init(struct net_bridge *br,
- 
- 	brmctx->ip4_other_query.delay_time = 0;
- 	brmctx->ip4_querier.port_ifidx = 0;
--	seqcount_init(&brmctx->ip4_querier.seq);
-+	seqcount_spinlock_init(&brmctx->ip4_querier.seq, &br->multicast_lock);
- 	brmctx->multicast_igmp_version = 2;
- #if IS_ENABLED(CONFIG_IPV6)
- 	brmctx->multicast_mld_version = 1;
- 	brmctx->ip6_other_query.delay_time = 0;
- 	brmctx->ip6_querier.port_ifidx = 0;
--	seqcount_init(&brmctx->ip6_querier.seq);
-+	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
- #endif
- 
- 	timer_setup(&brmctx->ip4_mc_router_timer,
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b4cef3a97f12b..e8136db44462c 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -82,7 +82,7 @@ struct bridge_mcast_other_query {
- struct bridge_mcast_querier {
- 	struct br_ip addr;
- 	int port_ifidx;
--	seqcount_t seq;
-+	seqcount_spinlock_t seq;
- };
- 
- /* IGMP/MLD statistics */
 diff --git a/net/core/dev.c b/net/core/dev.c
 index 7ee9fecd3affc..b3f1942aeb5d4 100644
 --- a/net/core/dev.c
@@ -9421,10 +9379,10 @@ index 55c290d556059..9bad345cba9a0 100644
  	return err;
  }
 diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 5e90e9b160e3d..bc5c8266545f3 100644
+index 12f39a2dffd47..487b2b905a812 100644
 --- a/net/sched/sch_api.c
 +++ b/net/sched/sch_api.c
-@@ -1258,7 +1258,7 @@ static struct Qdisc *qdisc_create(struct net_device *dev,
+@@ -1264,7 +1264,7 @@ static struct Qdisc *qdisc_create(struct net_device *dev,
  		rcu_assign_pointer(sch->stab, stab);
  	}
  	if (tca[TCA_RATE]) {
@@ -9672,7 +9630,7 @@ index 21a0e7c3b8dee..e7dd316da5517 100644
  		return rc;
  	}
 diff --git a/sound/soc/mediatek/common/mtk-afe-fe-dai.c b/sound/soc/mediatek/common/mtk-afe-fe-dai.c
-index baaa5881b1d48..0c2482b7ce584 100644
+index e95c7c018e7d4..4f2c2379531b9 100644
 --- a/sound/soc/mediatek/common/mtk-afe-fe-dai.c
 +++ b/sound/soc/mediatek/common/mtk-afe-fe-dai.c
 @@ -288,7 +288,6 @@ const struct snd_soc_dai_ops mtk_afe_fe_ops = {
