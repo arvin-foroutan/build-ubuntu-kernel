@@ -256,13 +256,14 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches-v2/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/pf-patches-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/pf-patches-v8-sep/*.patch .;
     patch -p1 < ./0003-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
     patch -p1 < ./0004-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
     patch -p1 < ./0005-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     patch -p1 < ./0006-x86-ACPI-State-Optimize-C3-entry-on-AMD-CPUs.patch;
     patch -p1 < ./0008-mac80211-rate-replace-WARN_ON-with-pr_warn.patch;
     patch -p1 < ./0009-mac80211-airtime-replace-WARN_ON_ONCE-with-pr_warn_o.patch;
+    patch -p1 < ./0010-mac80211-rate-replace-WARN_ON_ONCE-with-pr_warn_once.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-5.14-merge-v0.12.5.patch;
