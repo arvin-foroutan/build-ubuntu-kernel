@@ -1,0 +1,81 @@
+From: Jens Axboe <axboe@kernel.dk>
+To: linux-block@vger.kernel.org
+Cc: tj@kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 2/2] block: inherit request start time from bio for BLK_CGROUP
+Date: Tue,  5 Oct 2021 09:29:22 -0600	[thread overview]
+Message-ID: <20211005152922.57326-3-axboe@kernel.dk> (raw)
+In-Reply-To: <20211005152922.57326-1-axboe@kernel.dk>
+
+Doing high IOPS testing with blk-cgroups enabled spends ~15-20% of the
+time just doing ktime_get_ns() -> readtsc. We essentially read and
+set the start time twice, one for the bio and then again when that bio
+is mapped to a request.
+
+Given that the time between the two is very short, inherit the bio
+start time instead of reading it again. This cuts 1/3rd of the overhead
+of the time keeping.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ block/blk-mq.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index a8c437afc2c3..a40c94505680 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -718,7 +718,14 @@ void blk_mq_start_request(struct request *rq)
+ 	trace_block_rq_issue(rq);
+ 
+ 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
+-		rq->io_start_time_ns = ktime_get_ns();
++		u64 start_time;
++#ifdef CONFIG_BLK_CGROUP
++		if (rq->bio)
++			start_time = bio_issue_time(&rq->bio->bi_issue);
++		else
++#endif
++			start_time = ktime_get_ns();
++		rq->io_start_time_ns = start_time;
+ 		rq->stats_sectors = blk_rq_sectors(rq);
+ 		rq->rq_flags |= RQF_STATS;
+ 		rq_qos_issue(q, rq);
+-- 
+2.33.0
+
+next prev parent reply	other threads:[~2021-10-05 15:29 UTC|newest]
+
+Thread overview: 4+ messages / expand[flat|nested]  mbox.gz  Atom feed  top
+2021-10-05 15:29 [PATCHSET 0/2] Reduce overhead of CONFIG_BLK_CGROUP Jens Axboe
+2021-10-05 15:29 ` [PATCH 1/2] block: move blk-throtl fast path inline Jens Axboe
+2021-10-05 15:29 ` Jens Axboe [this message]
+2021-10-05 16:06 ` [PATCHSET 0/2] Reduce overhead of CONFIG_BLK_CGROUP Tejun Heo
+
+Reply instructions:
+
+You may reply publicly to this message via plain-text email
+using any one of the following methods:
+
+* Save the following mbox file, import it into your mail client,
+  and reply-to-all from there: mbox
+
+  Avoid top-posting and favor interleaved quoting:
+  https://en.wikipedia.org/wiki/Posting_style#Interleaved_style
+
+* Reply using the --to, --cc, and --in-reply-to
+  switches of git-send-email(1):
+
+  git send-email \
+    --in-reply-to=20211005152922.57326-3-axboe@kernel.dk \
+    --to=axboe@kernel.dk \
+    --cc=linux-block@vger.kernel.org \
+    --cc=tj@kernel.org \
+    --subject='Re: [PATCH 2/2] block: inherit request start time from bio for BLK_CGROUP' \
+    /path/to/YOUR_REPLY
+
+  https://kernel.org/pub/software/scm/git/docs/git-send-email.html
+
+* If your mail client supports setting the In-Reply-To header
+  via mailto: links, try the mailto: link
+
+

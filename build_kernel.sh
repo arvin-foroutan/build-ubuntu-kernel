@@ -310,6 +310,10 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
+    echo "*** Copying and applying block io_uring tweaks by Jens Axboe.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/000*-block-io_uring.patch .;
+    patch -p1 < ./0001-block-io_uring.patch;
+    patch -p1 < ./0002-block-io_uring.patch;
 elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
@@ -481,6 +485,10 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
         patch -p1 < ./0002-mm-ksm-introduce-ksm_madvise_unmerge-helper.patch;
         patch -p1 < ./0003-mm-ksm-proc-introduce-remote-merge.patch;
         patch -p1 < ./0004-mm-ksm-proc-add-remote-KSM-documentation.patch;
+        echo "*** Copying and applying block io_uring tweaks by Jens Axboe.. ✓";
+        cp -v ${CUSTOM_PATCH_PATH}/tweaks/000*-block-io_uring.patch .;
+        patch -p1 < ./0001-block-io_uring.patch;
+        patch -p1 < ./0002-block-io_uring.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/21)
     echo "*** Copying and applying hwmon patches.. ✓";
