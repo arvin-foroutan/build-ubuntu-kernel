@@ -504,6 +504,7 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0002-block-bfq-consider-also-creation-time-in-delayed-sta.patch;
         patch -p1 < ./0003-block-bfq-boost-throughput-by-extending-queue-mergin.patch;
+        patch -p1 < ./0012-Revert-block-return-ELEVATOR_DISCARD_MERGE-if-possib.patch;
     fi
     patch -p1 < ./0004-block-bfq-check-waker-only-for-queues-with-no-in-fli.patch;
     patch -p1 < ./0005-block-Do-not-pull-requests-from-the-scheduler-when-w.patch;
@@ -511,7 +512,6 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     patch -p1 < ./0007-bfq-Remove-merged-request-already-in-bfq_requests_me.patch;
     patch -p1 < ./0008-blk-Fix-lock-inversion-between-ioc-lock-and-bfqd-loc.patch;
     patch -p1 < ./0009-block-bfq-remove-the-repeated-declaration.patch;
-    patch -p1 < ./0012-Revert-block-return-ELEVATOR_DISCARD_MERGE-if-possib.patch;
     patch -p1 < ./0013-block-return-ELEVATOR_DISCARD_MERGE-if-possible.patch;
     patch -p1 < ./0014-Revert-block-bfq-remove-the-repeated-declaration.patch;
     patch -p1 < ./0015-block-bfq-cleanup-the-repeated-declaration.patch;
@@ -600,7 +600,7 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
     patch -p1 < ./0003-netfilter-New-full-cone-SNAT-upstream.patch;
     echo "*** Copying and applying le9ec mm patch.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-${KERNEL_BASE_VER}.y-xanmod/mm/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-${KERNEL_BASE_VER}.y-xanmod/mm/*.patch .;
     patch -p1 < ./0001-mm-vmscan-add-sysctl-knobs-for-protecting-the-workin.patch;
     echo "*** Copying and applying zstd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches-v5/*.patch .;
@@ -619,11 +619,11 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
-    #https://github.com/xanmod/linux-patches/tree/master/linux-5.13.y-xanmod
+    #https://github.com/xanmod/linux-patches/tree/master/eol/linux-5.13.y-xanmod
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
     echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.13.y-xanmod/xanmod/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.13.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
     patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
     patch -p1 < ./0008-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
