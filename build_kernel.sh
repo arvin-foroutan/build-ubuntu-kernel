@@ -7,8 +7,8 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.150"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504150"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.151"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504151"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"} # cfs, cacule
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -707,14 +707,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0023-bfq-Use-only-idle-IO-periods-for-think-time-calculat.patch;
     patch -p1 < ./0024-bfq-Remove-stale-comment.patch;
     patch -p1 < ./0025-Revert-bfq-Remove-stale-comment.patch;
-    if [ ${KERNEL_TYPE} == "rt" ]; then
-        patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
-    else
-        # regular non-RT builds don't patch cleanly with below, let's add a merge fix
-        cp -v ${CUSTOM_PATCH_PATH}/fixes/${KERNEL_BASE_VER}/0019-block-bfq*.patch .;
-        patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues.patch;
-        patch -p1 < ./0019-block-bfq-merge-bursts-of-newly-created-queues-merge-fix.patch;
-    fi
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v3/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
@@ -1158,11 +1150,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.4.150-0504150+customidle-generic
-# 5.4.150-0504150+customfull-generic
-# 5.4.150-0504150+customrt-generic
+# 5.4.151-0504151+customidle-generic
+# 5.4.151-0504151+customfull-generic
+# 5.4.151-0504151+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.4.150-0504150+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.4.151-0504151+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1303,7 +1295,7 @@ rm -rf ${KERNEL_BUILD_DIR};
 # Also note: Running 'sudo update-grub2' will list your installed kernels,
 # and you can manually delete the ones that have uninstall as time goes on.
 #
-# To uninstall a kernel: $ sudo apt purge *5.4.150-0504150+customidle-generic*
+# To uninstall a kernel: $ sudo apt purge *5.4.151-0504151+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
