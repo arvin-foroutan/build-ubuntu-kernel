@@ -42,7 +42,7 @@ index 1d5716bc060be..2526fd3be5fd7 100644
  #endif
  
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index fc196421b2ced..cb15514029ca0 100644
+index 59baf6c132a74..f310fc1234f5e 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
 @@ -32,6 +32,7 @@ config ARM
@@ -235,7 +235,7 @@ index efa4020250315..59487ee9fd612 100644
  	return 0;
  }
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 5c7ae4c3954be..c0b1b75cd9f9b 100644
+index fee914c716aa2..aeaa2c2ecc23a 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -88,6 +88,7 @@ config ARM64
@@ -694,10 +694,10 @@ index de10a26972581..0bb560240b2b2 100644
  		}
  
 diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
-index 551b653228c47..2a226cad64493 100644
+index c4f1d6b7d9923..02e17a57da83f 100644
 --- a/arch/powerpc/kernel/irq.c
 +++ b/arch/powerpc/kernel/irq.c
-@@ -684,6 +684,7 @@ static inline void check_stack_overflow(void)
+@@ -690,6 +690,7 @@ static inline void check_stack_overflow(void)
  	}
  }
  
@@ -705,7 +705,7 @@ index 551b653228c47..2a226cad64493 100644
  static __always_inline void call_do_softirq(const void *sp)
  {
  	/* Temporarily switch r1 to sp, call __do_softirq() then restore r1. */
-@@ -702,6 +703,7 @@ static __always_inline void call_do_softirq(const void *sp)
+@@ -708,6 +709,7 @@ static __always_inline void call_do_softirq(const void *sp)
  		   "r11", "r12"
  	);
  }
@@ -713,7 +713,7 @@ index 551b653228c47..2a226cad64493 100644
  
  static __always_inline void call_do_irq(struct pt_regs *regs, void *sp)
  {
-@@ -814,10 +816,12 @@ void *mcheckirq_ctx[NR_CPUS] __read_mostly;
+@@ -820,10 +822,12 @@ void *mcheckirq_ctx[NR_CPUS] __read_mostly;
  void *softirq_ctx[NR_CPUS] __read_mostly;
  void *hardirq_ctx[NR_CPUS] __read_mostly;
  
@@ -768,7 +768,7 @@ index 9cc7d3dbf4392..294fa880d5be6 100644
  {
  	smp_send_nmi_ipi(NMI_IPI_ALL_OTHERS, debugger_ipi_callback, 1000000);
 diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index aac8c0412ff9f..9c065dc4d7d2b 100644
+index 11741703d26e0..7e4e1f489f56a 100644
 --- a/arch/powerpc/kernel/traps.c
 +++ b/arch/powerpc/kernel/traps.c
 @@ -260,12 +260,17 @@ static char *get_mmu_str(void)
@@ -991,7 +991,7 @@ index c8848bb681a11..41fa1be980a33 100644
  #ifdef CONFIG_HOTPLUG_CPU
  void fixup_irqs(void)
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index ab83c22d274e7..574af649039bb 100644
+index bd70e8a39fbfc..3795286a7d595 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
 @@ -107,6 +107,7 @@ config X86
@@ -2757,7 +2757,7 @@ index df5184979b282..d4ad211dce7a3 100644
  /**
   * struct hsm_irqfd - Properties of HSM irqfd
 diff --git a/fs/afs/dir_silly.c b/fs/afs/dir_silly.c
-index dae9a57d7ec0c..9a6a0ec4d1fb5 100644
+index 45cfd50a95210..502b56597f107 100644
 --- a/fs/afs/dir_silly.c
 +++ b/fs/afs/dir_silly.c
 @@ -239,7 +239,7 @@ int afs_silly_iput(struct dentry *dentry, struct inode *inode)
@@ -10046,10 +10046,10 @@ index e491b083b3485..b7d8e477897e1 100644
  EXPORT_SYMBOL(__gnet_stats_copy_queue);
  
 diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 80aeaf9e6e16e..e8ed955479187 100644
+index bfb522e513461..ee98d1c1a7457 100644
 --- a/net/ipv4/inet_hashtables.c
 +++ b/net/ipv4/inet_hashtables.c
-@@ -635,7 +635,9 @@ int __inet_hash(struct sock *sk, struct sock *osk)
+@@ -637,7 +637,9 @@ int __inet_hash(struct sock *sk, struct sock *osk)
  	int err = 0;
  
  	if (sk->sk_state != TCP_LISTEN) {
@@ -10059,7 +10059,7 @@ index 80aeaf9e6e16e..e8ed955479187 100644
  		return 0;
  	}
  	WARN_ON(!sk_unhashed(sk));
-@@ -667,11 +669,8 @@ int inet_hash(struct sock *sk)
+@@ -669,11 +671,8 @@ int inet_hash(struct sock *sk)
  {
  	int err = 0;
  
@@ -10072,7 +10072,7 @@ index 80aeaf9e6e16e..e8ed955479187 100644
  
  	return err;
  }
-@@ -682,17 +681,20 @@ void inet_unhash(struct sock *sk)
+@@ -684,17 +683,20 @@ void inet_unhash(struct sock *sk)
  	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
  	struct inet_listen_hashbucket *ilb = NULL;
  	spinlock_t *lock;
@@ -10095,7 +10095,7 @@ index 80aeaf9e6e16e..e8ed955479187 100644
  	if (sk_unhashed(sk))
  		goto unlock;
  
-@@ -705,7 +707,10 @@ void inet_unhash(struct sock *sk)
+@@ -707,7 +709,10 @@ void inet_unhash(struct sock *sk)
  	__sk_nulls_del_node_init_rcu(sk);
  	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
  unlock:
@@ -10108,7 +10108,7 @@ index 80aeaf9e6e16e..e8ed955479187 100644
  EXPORT_SYMBOL_GPL(inet_unhash);
  
 diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
-index 55c290d556059..9bad345cba9a0 100644
+index 67c9114835c84..0a2e7f2283911 100644
 --- a/net/ipv6/inet6_hashtables.c
 +++ b/net/ipv6/inet6_hashtables.c
 @@ -333,11 +333,8 @@ int inet6_hash(struct sock *sk)
@@ -11110,10 +11110,10 @@ index 58a9d42b52b8f..0b7f9ba28deb0 100644
  	++sch->q.qlen;
  
 diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 1ab2fc933a214..aa08ea701cb7a 100644
+index b9fd18d986464..9ab068fa2672b 100644
 --- a/net/sched/sch_taprio.c
 +++ b/net/sched/sch_taprio.c
-@@ -1973,7 +1973,7 @@ static int taprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
+@@ -1977,7 +1977,7 @@ static int taprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
  	struct netdev_queue *dev_queue = taprio_queue_get(sch, cl);
  
  	sch = dev_queue->qdisc_sleeping;
