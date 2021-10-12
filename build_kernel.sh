@@ -1199,10 +1199,10 @@ echo "*** Running fakeroot debian/rules clean... ✓";
 fakeroot debian/rules clean;
 
 echo "*** Copying over our custom configs... ✓";
-cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.amd64 ./debian.master/config/amd64;
-cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.generic ./debian.master/config/amd64;
-cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.lowlatency ./debian.master/config/amd64;
-cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.ubuntu ./debian.master/config;
+cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.amd64 ./debian.master/config/amd64;
+cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.generic ./debian.master/config/amd64;
+cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.flavour.lowlatency ./debian.master/config/amd64;
+cp -fv ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE}/config.common.ubuntu ./debian.master/config;
 
 AMDGPU_BUILTIN=${AMDGPU_BUILTIN:-"no"}
 if [ ${AMDGPU_BUILTIN} == "yes" ]; then
@@ -1238,8 +1238,8 @@ read yno;
 case $yno in
     [yY] | [yY][Ee][Ss] )
         echo "*** Copying configs... ✓";
-        cp -fv ./debian.master/config/amd64/config.* ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
-        cp -fv ./debian.master/config/config.common.ubuntu ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
+        cp -fv ./debian.master/config/amd64/config.* ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
+        cp -fv ./debian.master/config/config.common.ubuntu ${CONFIG_PATH}/ubuntu-${KERNEL_BASE_VER}/ubuntu-${KERNEL_BASE_VER}-${KERNEL_TYPE};
         ;;
     [nN] | [n|N][O|o] )
         ;&
