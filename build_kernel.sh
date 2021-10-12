@@ -246,7 +246,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches-v2/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/lqx-patches-sep/*.patch .;
@@ -376,7 +376,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0015-SUNRPC-Simplify-socket-shutdown-when-not-reusing-TCP.patch;
     patch -p1 < ./0016-SUNRPC-Tweak-TCP-socket-shutdown-in-the-RPC-client.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v2/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v17/*.patch .;
