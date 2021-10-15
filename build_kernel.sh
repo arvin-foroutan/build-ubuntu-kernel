@@ -433,7 +433,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches-v2/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zstd upstream patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches-v4/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches-v7/*.patch .;
     patch -p1 < ./0001-zstd-upstream-patches.patch;
     # Misc / Tweaks
     sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
