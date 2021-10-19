@@ -200,11 +200,12 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     cp -v ${LUCJAN_PATCH_PATH}/5.14/bbr2-patches/*.patch .;
     patch -p1 < ./0001-bbr2-5.14-introduce-BBRv2.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/block-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
     patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
     patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O.patch;
     patch -p1 < ./0005-block-Add-CONFIG-to-rename-the-mq-deadline-scheduler.patch;
+    patch -p1 < ./0006-block-remove-plug-based-merging.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
@@ -339,12 +340,13 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-v2-sep/*.patch .;
     patch -p1 < ./0002-block-bfq-cleanup-the-repeated-declaration.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
     patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
     patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O.patch;
     patch -p1 < ./0004-block-fix-trivial-typos-in-comments.patch;
     patch -p1 < ./0005-block-Add-CONFIG-to-rename-the-mq-deadline-scheduler.patch;
+    patch -p1 < ./0006-block-remove-plug-based-merging.patch;
     echo "*** Copying and applying btrfs patches.. ✓";
     if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
