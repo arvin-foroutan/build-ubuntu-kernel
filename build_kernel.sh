@@ -292,8 +292,8 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
-    patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/${KERNEL_SCHEDULER}-zen-tweaks.patch .;
+    patch -p1 < ./${KERNEL_SCHEDULER}-zen-tweaks.patch;
     echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
@@ -314,10 +314,6 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    echo "*** Copying and applying block io_uring tweaks by Jens Axboe.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/000*-block-io_uring.patch .;
-    patch -p1 < ./0001-block-io_uring.patch;
-    patch -p1 < ./0002-block-io_uring.patch;
 elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
@@ -455,8 +451,8 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
-    patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/${KERNEL_SCHEDULER}-zen-tweaks.patch .;
+    patch -p1 < ./${KERNEL_SCHEDULER}-zen-tweaks.patch;
     echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
@@ -649,8 +645,8 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
     patch -p1 < ./0011-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/zen-tweaks-${KERNEL_SCHEDULER}.patch .;
-    patch -p1 < ./zen-tweaks-${KERNEL_SCHEDULER}.patch;
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/${KERNEL_SCHEDULER}-zen-tweaks.patch .;
+    patch -p1 < ./${KERNEL_SCHEDULER}-zen-tweaks.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
