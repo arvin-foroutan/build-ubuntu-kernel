@@ -364,7 +364,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches/*.patch .;
     patch -p1 < ./0001-cpu-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v5-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v7-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-kbuild-add-fcf-protection-none-to-retpoline-flags.patch;
@@ -380,6 +380,12 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0014-NFS-Always-provide-aligned-buffers-to-the-RPC-read-l.patch;
     patch -p1 < ./0015-SUNRPC-Simplify-socket-shutdown-when-not-reusing-TCP.patch;
     patch -p1 < ./0016-SUNRPC-Tweak-TCP-socket-shutdown-in-the-RPC-client.patch;
+    patch -p1 < ./0017-Revert-ZEN-Add-OpenRGB-patches.patch;
+    patch -p1 < ./0018-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
+    patch -p1 < ./0020-mm-secretmem-Fix-NULL-page-mapping-dereference-in-pa.patch;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0019-nvme-don-t-memset-the-normal-read-write-command.patch;
+    fi
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v5/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
