@@ -240,12 +240,15 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/fixes-miscellaneous-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/fixes-miscellaneous-v7-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0008-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
     patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
+    patch -p1 < ./0017-Revert-ZEN-Add-OpenRGB-patches.patch;
+    patch -p1 < ./0018-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
+    patch -p1 < ./0020-mm-secretmem-Fix-NULL-page-mapping-dereference-in-pa.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches-v2/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
