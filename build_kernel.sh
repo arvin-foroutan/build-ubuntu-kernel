@@ -944,22 +944,22 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
         patch -p1 < ./v9-${i}.patch;
     done
     echo "*** Copying and applying block 5.4 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
     patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
     patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O-.patch;
     echo "*** Copying and applying block 5.6 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.6/block-patches-v3-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.6/block-patches-v3-sep/*.patch .;
     patch -p1 < ./0004-blk-mq-remove-the-bio-argument-to-prepare_request.patch;
     patch -p1 < ./0005-block-Flag-elevators-suitable-for-single-queue.patch;
     echo "*** Copying and applying block 5.7 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.7/block-patches-v5-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.7/block-patches-v5-sep/*.patch .;
     patch -p1 < ./0006-block-bfq-iosched-fix-duplicated-word.patch;
     patch -p1 < ./0007-block-bio-delete-duplicated-words.patch;
     patch -p1 < ./0008-block-elevator-delete-duplicated-word-and-fix-typos.patch;
     patch -p1 < ./0009-block-blk-timeout-delete-duplicated-word.patch;
     echo "*** Copying and applying block 5.8 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.8/block-patches-v6-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.8/block-patches-v6-sep/*.patch .;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro*.patch .;
     patch -p1 < ./5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro-part1.patch;
     patch -p1 < ./5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro-part2.patch;
@@ -972,12 +972,12 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks.patch;
     patch -p1 < ./5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks-part2.patch;
     echo "*** Copying and applying BFQ 5.4 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-patches-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/bfq-patches-sep/*.patch .;
     patch -p1 < ./0001-blkcg-Make-bfq-disable-iocost-when-enabled.patch;
     patch -p1 < ./0002-block-bfq-present-a-double-cgroups-interface.patch;
     patch -p1 < ./0003-block-bfq-Skip-tracing-hooks-if-possible.patch;
     echo "*** Copying and applying BFQ 5.7 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.7/bfq-patches-v5-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.7/bfq-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-bfq-Fix-check-detecting-whether-waker-queue-should-b.patch;
     patch -p1 < ./0002-bfq-Allow-short_ttime-queues-to-have-waker.patch;
     echo "*** Copying and applying BFQ 5.10 patches.. ✓";
@@ -1025,7 +1025,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${LUCJAN_PATCH_PATH}/5.10/futex-patches/0001-futex-patches.patch .;
     patch -p1 < ./0001-futex-patches.patch;
     echo "*** Copying and applying misc fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v5/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/fixes-miscellaneous-v5/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying misc fixes 5.14 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/0004-mm-Stop-kswapd-early-when-nothing-s-waiting-for-it-t.patch .;
@@ -1040,13 +1040,13 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.14-0010-scsi-sd-Optimal-I-O-size-merge-fix.patch .;
     patch -p1 < ./5.4-from-5.14-0010-scsi-sd-Optimal-I-O-size-merge-fix.patch;
     echo "*** Copying and applying cve patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cve-patches-v8-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/cve-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-consolemap-Fix-a-memory-leaking-bug-in-drivers-tty-v.patch;
     echo "*** Copying and applying exfat patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/exfat-patches/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/exfat-patches/*.patch .;
     patch -p1 < ./0001-exfat-patches.patch;
     echo "*** Copying and applying SCSI patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/scsi-patches/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/scsi-patches/*.patch .;
     patch -p1 < ./0001-scsi-patches.patch;
     echo "*** Copying and applying ll patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
@@ -1060,7 +1060,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.4-cfs-xanmod-tweaks.patch .;
     patch -p1 < ./5.4-cfs-xanmod-tweaks.patch;
     echo "*** Copying and applying intel_cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.6/xanmod-patches/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.6/0001-cpufreq*.patch .;
     patch -p1 < ./0001-cpufreq-intel_pstate-Set-default-cpufreq_driver-to-i.patch;
     # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
@@ -1085,10 +1085,10 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${CUSTOM_PATCH_PATH}/O3-optimization/0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch .;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying arch 5.7 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.7/arch-patches-v9-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.7/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0004-virt-vbox-Add-support-for-the-new-VBG_IOCTL_ACQUIRE_.patch;
     echo "*** Copying and applying arch 5.9 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.9/arch-patches-v9-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.9/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0004-HID-quirks-Add-Apple-Magic-Trackpad-2-to-hid_have_sp.patch;
     echo "*** Copying and applying arch 5.12 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.12/arch-patches-v7-sep/*.patch .;
@@ -1101,7 +1101,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./5.4-from-5.12-arch-reserve_bios_regions.patch;
     patch -p1 < ./0007-x86-crash-remove-crash_reserve_low_1M.patch;
     echo "*** Copying and applying Clear Linux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v6-sep/*.patch .;
+    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/clearlinux-patches-v6-sep/*.patch .;
     patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
     patch -p1 < ./0009-raid6-add-Kconfig-option-to-skip-raid6-benchmarking.patch;
     patch -p1 < ./0016-Add-boot-option-to-allow-unsigned-modules.patch;
@@ -1132,7 +1132,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0025-nvme-workaround.patch;
     patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     if [ ${KERNEL_TYPE} == "rt" ]; then
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-rt-v3-sep/*.patch .;
+        cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/arch-patches-rt-v3-sep/*.patch .;
         patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
         patch -p1 < ./0007-iwlwifi-pcie-restore-support-for-Killer-Qu-C0-NICs.patch;
         patch -p1 < ./0008-drm-i915-save-AUD_FREQ_CNTRL-state-at-audio-domain-s.patch;
@@ -1145,7 +1145,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     else
         patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
         echo "*** Copying and applying arch 5.4 patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v25-sep/*.patch .;
+        cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/arch-patches-v25-sep/*.patch .;
         patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
         patch -p1 < ./0005-iwlwifi-pcie-restore-support-for-Killer-Qu-C0-NICs.patch;
         patch -p1 < ./0006-drm-i915-save-AUD_FREQ_CNTRL-state-at-audio-domain-s.patch;
