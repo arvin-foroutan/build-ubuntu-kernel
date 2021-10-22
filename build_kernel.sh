@@ -280,7 +280,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying lrng patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches-v3/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/pf-patches-v8-sep/*.patch .;
@@ -439,7 +439,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying lrng patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v3/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v14/*.patch .;
