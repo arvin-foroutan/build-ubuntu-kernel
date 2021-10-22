@@ -4531,21 +4531,24 @@ index 83a6d07921806..4a5833108083f 100644
  	struct red_stats *xstats[MAX_DPs];
  };
 diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index c0069ac00e62d..21fd95665ca02 100644
+index c0069ac00e62d..bb10190d726d2 100644
 --- a/include/net/sch_generic.h
 +++ b/include/net/sch_generic.h
-@@ -38,6 +38,10 @@ enum qdisc_state_t {
- 	__QDISC_STATE_DEACTIVATED,
- 	__QDISC_STATE_MISSED,
+@@ -40,6 +40,13 @@ enum qdisc_state_t {
  	__QDISC_STATE_DRAINING,
+ };
+ 
++enum qdisc_state2_t {
 +	/* Only for !TCQ_F_NOLOCK qdisc. Never access it directly.
 +	 * Use qdisc_run_begin/end() or qdisc_is_running() instead.
 +	 */
-+	__QDISC_STATE_RUNNING,
- };
- 
++	__QDISC_STATE2_RUNNING,
++};
++
  #define QDISC_STATE_MISSED	BIT(__QDISC_STATE_MISSED)
-@@ -97,7 +101,7 @@ struct Qdisc {
+ #define QDISC_STATE_DRAINING	BIT(__QDISC_STATE_DRAINING)
+ 
+@@ -97,7 +104,7 @@ struct Qdisc {
  	struct netdev_queue	*dev_queue;
  
  	struct net_rate_estimator __rcu *rate_est;
@@ -4554,7 +4557,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  	struct gnet_stats_queue	__percpu *cpu_qstats;
  	int			pad;
  	refcount_t		refcnt;
-@@ -107,8 +111,7 @@ struct Qdisc {
+@@ -107,10 +114,10 @@ struct Qdisc {
  	 */
  	struct sk_buff_head	gso_skb ____cacheline_aligned_in_smp;
  	struct qdisc_skb_head	q;
@@ -4563,8 +4566,11 @@ index c0069ac00e62d..21fd95665ca02 100644
 +	struct gnet_stats_basic_sync bstats;
  	struct gnet_stats_queue	qstats;
  	unsigned long		state;
++	unsigned long		state2; /* must be written under qdisc spinlock */
  	struct Qdisc            *next_sched;
-@@ -143,11 +146,15 @@ static inline struct Qdisc *qdisc_refcount_inc_nz(struct Qdisc *qdisc)
+ 	struct sk_buff_head	skb_bad_txq;
+ 
+@@ -143,11 +150,15 @@ static inline struct Qdisc *qdisc_refcount_inc_nz(struct Qdisc *qdisc)
  	return NULL;
  }
  
@@ -4577,11 +4583,11 @@ index c0069ac00e62d..21fd95665ca02 100644
  	if (qdisc->flags & TCQ_F_NOLOCK)
  		return spin_is_locked(&qdisc->seqlock);
 -	return (raw_read_seqcount(&qdisc->running) & 1) ? true : false;
-+	return test_bit(__QDISC_STATE_RUNNING, &qdisc->state);
++	return test_bit(__QDISC_STATE2_RUNNING, &qdisc->state2);
  }
  
  static inline bool nolock_qdisc_is_empty(const struct Qdisc *qdisc)
-@@ -167,6 +174,9 @@ static inline bool qdisc_is_empty(const struct Qdisc *qdisc)
+@@ -167,6 +178,9 @@ static inline bool qdisc_is_empty(const struct Qdisc *qdisc)
  	return !READ_ONCE(qdisc->q.qlen);
  }
  
@@ -4591,7 +4597,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  static inline bool qdisc_run_begin(struct Qdisc *qdisc)
  {
  	if (qdisc->flags & TCQ_F_NOLOCK) {
-@@ -206,15 +216,8 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
+@@ -206,15 +220,8 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
  		 * after it releases the lock at the end of qdisc_run_end().
  		 */
  		return spin_trylock(&qdisc->seqlock);
@@ -4604,20 +4610,20 @@ index c0069ac00e62d..21fd95665ca02 100644
 -	raw_write_seqcount_begin(&qdisc->running);
 -	seqcount_acquire(&qdisc->running.dep_map, 0, 1, _RET_IP_);
 -	return true;
-+	return test_and_set_bit(__QDISC_STATE_RUNNING, &qdisc->state);
++	return !__test_and_set_bit(__QDISC_STATE2_RUNNING, &qdisc->state2);
  }
  
  static inline void qdisc_run_end(struct Qdisc *qdisc)
-@@ -226,7 +229,7 @@ static inline void qdisc_run_end(struct Qdisc *qdisc)
+@@ -226,7 +233,7 @@ static inline void qdisc_run_end(struct Qdisc *qdisc)
  				      &qdisc->state)))
  			__netif_schedule(qdisc);
  	} else {
 -		write_seqcount_end(&qdisc->running);
-+		clear_bit(__QDISC_STATE_RUNNING, &qdisc->state);
++		__clear_bit(__QDISC_STATE2_RUNNING, &qdisc->state2);
  	}
  }
  
-@@ -590,14 +593,6 @@ static inline spinlock_t *qdisc_root_sleeping_lock(const struct Qdisc *qdisc)
+@@ -590,14 +597,6 @@ static inline spinlock_t *qdisc_root_sleeping_lock(const struct Qdisc *qdisc)
  	return qdisc_lock(root);
  }
  
@@ -4632,7 +4638,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  static inline struct net_device *qdisc_dev(const struct Qdisc *qdisc)
  {
  	return qdisc->dev_queue->dev;
-@@ -845,14 +840,16 @@ static inline int qdisc_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+@@ -845,14 +844,16 @@ static inline int qdisc_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  	return sch->enqueue(skb, sch, to_free);
  }
  
@@ -4653,7 +4659,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  				 const struct sk_buff *skb)
  {
  	_bstats_update(bstats,
-@@ -860,26 +857,10 @@ static inline void bstats_update(struct gnet_stats_basic_packed *bstats,
+@@ -860,26 +861,10 @@ static inline void bstats_update(struct gnet_stats_basic_packed *bstats,
  		       skb_is_gso(skb) ? skb_shinfo(skb)->gso_segs : 1);
  }
  
@@ -4681,7 +4687,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  }
  
  static inline void qdisc_bstats_update(struct Qdisc *sch,
-@@ -968,10 +949,9 @@ static inline void qdisc_qstats_qlen_backlog(struct Qdisc *sch,  __u32 *qlen,
+@@ -968,10 +953,9 @@ static inline void qdisc_qstats_qlen_backlog(struct Qdisc *sch,  __u32 *qlen,
  					     __u32 *backlog)
  {
  	struct gnet_stats_queue qstats = { 0 };
@@ -4694,7 +4700,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  	*backlog = qstats.backlog;
  }
  
-@@ -1312,7 +1292,7 @@ void psched_ppscfg_precompute(struct psched_pktrate *r, u64 pktrate64);
+@@ -1312,7 +1296,7 @@ void psched_ppscfg_precompute(struct psched_pktrate *r, u64 pktrate64);
  struct mini_Qdisc {
  	struct tcf_proto *filter_list;
  	struct tcf_block *block;
@@ -4703,7 +4709,7 @@ index c0069ac00e62d..21fd95665ca02 100644
  	struct gnet_stats_queue	__percpu *cpu_qstats;
  	struct rcu_head rcu;
  };
-@@ -1320,7 +1300,7 @@ struct mini_Qdisc {
+@@ -1320,7 +1304,7 @@ struct mini_Qdisc {
  static inline void mini_qdisc_bstats_cpu_update(struct mini_Qdisc *miniq,
  						const struct sk_buff *skb)
  {
@@ -9852,7 +9858,7 @@ index 8e582e29a41e3..4fcbdd71c59fa 100644
  	return gen_new_estimator(bstats, cpu_bstats, rate_est,
  				 lock, running, opt);
 diff --git a/net/core/gen_stats.c b/net/core/gen_stats.c
-index e491b083b3485..5516ea0d5da0b 100644
+index e491b083b3485..a10335b4ba2d0 100644
 --- a/net/core/gen_stats.c
 +++ b/net/core/gen_stats.c
 @@ -18,7 +18,7 @@
@@ -9864,7 +9870,7 @@ index e491b083b3485..5516ea0d5da0b 100644
  
  static inline int
  gnet_stats_copy(struct gnet_dump *d, int type, void *buf, int size, int padattr)
-@@ -114,63 +114,81 @@ gnet_stats_start_copy(struct sk_buff *skb, int type, spinlock_t *lock,
+@@ -114,63 +114,112 @@ gnet_stats_start_copy(struct sk_buff *skb, int type, spinlock_t *lock,
  }
  EXPORT_SYMBOL(gnet_stats_start_copy);
  
@@ -9922,7 +9928,7 @@ index e491b083b3485..5516ea0d5da0b 100644
 +	u64 bytes = 0;
 +	u64 packets = 0;
 +
-+	WARN_ON_ONCE((cpu || running) && !in_task());
++	WARN_ON_ONCE((cpu || running) && in_hardirq());
  
  	if (cpu) {
 -		__gnet_stats_copy_basic_cpu(bstats, cpu);
@@ -9941,9 +9947,45 @@ index e491b083b3485..5516ea0d5da0b 100644
 +	} while (running && u64_stats_fetch_retry_irq(&b->syncp, start));
 +
 +	_bstats_update(bstats, bytes, packets);
++}
++EXPORT_SYMBOL(gnet_stats_add_basic);
++
++static void gnet_stats_read_basic(u64 *ret_bytes, u64 *ret_packets,
++				  struct gnet_stats_basic_sync __percpu *cpu,
++				  struct gnet_stats_basic_sync *b, bool running)
++{
++	unsigned int start;
++
++	if (cpu) {
++		u64 t_bytes = 0, t_packets = 0;
++		int i;
++
++		for_each_possible_cpu(i) {
++			struct gnet_stats_basic_sync *bcpu = per_cpu_ptr(cpu, i);
++			unsigned int start;
++			u64 bytes, packets;
++
++			do {
++				start = u64_stats_fetch_begin_irq(&bcpu->syncp);
++				bytes = u64_stats_read(&bcpu->bytes);
++				packets = u64_stats_read(&bcpu->packets);
++			} while (u64_stats_fetch_retry_irq(&bcpu->syncp, start));
++
++			t_bytes += bytes;
++			t_packets += packets;
++		}
++		*ret_bytes = t_bytes;
++		*ret_packets = t_packets;
++		return;
++	}
++	do {
++		if (running)
++			start = u64_stats_fetch_begin_irq(&b->syncp);
++		*ret_bytes = u64_stats_read(&b->bytes);
++		*ret_packets = u64_stats_read(&b->packets);
++	} while (running && u64_stats_fetch_retry_irq(&b->syncp, start));
  }
 -EXPORT_SYMBOL(__gnet_stats_copy_basic);
-+EXPORT_SYMBOL(gnet_stats_add_basic);
  
  static int
 -___gnet_stats_copy_basic(const seqcount_t *running,
@@ -9957,15 +9999,10 @@ index e491b083b3485..5516ea0d5da0b 100644
 +			 int type, bool running)
  {
 -	struct gnet_stats_basic_packed bstats = {0};
-+	struct gnet_stats_basic_sync bstats;
 +	u64 bstats_bytes, bstats_packets;
  
 -	__gnet_stats_copy_basic(running, &bstats, cpu, b);
-+	gnet_stats_basic_sync_init(&bstats);
-+	gnet_stats_add_basic(&bstats, cpu, b, running);
-+
-+	bstats_bytes = u64_stats_read(&bstats.bytes);
-+	bstats_packets = u64_stats_read(&bstats.packets);
++	gnet_stats_read_basic(&bstats_bytes, &bstats_packets, cpu, b, running);
  
  	if (d->compat_tc_stats && type == TCA_STATS_BASIC) {
 -		d->tc_stats.bytes = bstats.bytes;
@@ -9975,7 +10012,7 @@ index e491b083b3485..5516ea0d5da0b 100644
  	}
  
  	if (d->tail) {
-@@ -178,24 +196,28 @@ ___gnet_stats_copy_basic(const seqcount_t *running,
+@@ -178,24 +227,28 @@ ___gnet_stats_copy_basic(const seqcount_t *running,
  		int res;
  
  		memset(&sb, 0, sizeof(sb));
@@ -10010,7 +10047,7 @@ index e491b083b3485..5516ea0d5da0b 100644
   *
   * Appends the basic statistics to the top level TLV created by
   * gnet_stats_start_copy().
-@@ -204,22 +226,25 @@ ___gnet_stats_copy_basic(const seqcount_t *running,
+@@ -204,22 +257,25 @@ ___gnet_stats_copy_basic(const seqcount_t *running,
   * if the room in the socket buffer was not sufficient.
   */
  int
@@ -10043,7 +10080,7 @@ index e491b083b3485..5516ea0d5da0b 100644
   *
   * Appends the basic statistics to the top level TLV created by
   * gnet_stats_start_copy().
-@@ -228,13 +253,12 @@ EXPORT_SYMBOL(gnet_stats_copy_basic);
+@@ -228,13 +284,12 @@ EXPORT_SYMBOL(gnet_stats_copy_basic);
   * if the room in the socket buffer was not sufficient.
   */
  int
@@ -10062,7 +10099,7 @@ index e491b083b3485..5516ea0d5da0b 100644
  }
  EXPORT_SYMBOL(gnet_stats_copy_basic_hw);
  
-@@ -282,16 +306,15 @@ gnet_stats_copy_rate_est(struct gnet_dump *d,
+@@ -282,16 +337,15 @@ gnet_stats_copy_rate_est(struct gnet_dump *d,
  }
  EXPORT_SYMBOL(gnet_stats_copy_rate_est);
  
@@ -10082,7 +10119,7 @@ index e491b083b3485..5516ea0d5da0b 100644
  		qstats->backlog += qcpu->backlog;
  		qstats->drops += qcpu->drops;
  		qstats->requeues += qcpu->requeues;
-@@ -299,24 +322,21 @@ __gnet_stats_copy_queue_cpu(struct gnet_stats_queue *qstats,
+@@ -299,24 +353,21 @@ __gnet_stats_copy_queue_cpu(struct gnet_stats_queue *qstats,
  	}
  }
  
@@ -10117,7 +10154,7 @@ index e491b083b3485..5516ea0d5da0b 100644
  
  /**
   * gnet_stats_copy_queue - copy queue statistics into statistics TLV
-@@ -339,7 +359,8 @@ gnet_stats_copy_queue(struct gnet_dump *d,
+@@ -339,7 +390,8 @@ gnet_stats_copy_queue(struct gnet_dump *d,
  {
  	struct gnet_stats_queue qstats = {0};
  
@@ -10626,7 +10663,7 @@ index 642cd179b7a75..18e4f7a0b2912 100644
  	    gnet_stats_copy_queue(d, cl_q->cpu_qstats, &cl_q->qstats, qlen) < 0)
  		return -1;
 diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
-index 1f857ffd1ac23..52b9b0dcf88c6 100644
+index 1f857ffd1ac23..0eae9ff5edf6f 100644
 --- a/net/sched/sch_ets.c
 +++ b/net/sched/sch_ets.c
 @@ -41,7 +41,7 @@ struct ets_class {
@@ -10648,14 +10685,46 @@ index 1f857ffd1ac23..52b9b0dcf88c6 100644
  	    qdisc_qstats_copy(d, cl_q) < 0)
  		return -1;
  
-@@ -662,6 +661,7 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
+@@ -661,7 +660,6 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
+ 
  	q->nbands = nbands;
  	for (i = nstrict; i < q->nstrict; i++) {
- 		INIT_LIST_HEAD(&q->classes[i].alist);
-+		gnet_stats_basic_sync_init(&q->classes[i].bstats);
+-		INIT_LIST_HEAD(&q->classes[i].alist);
  		if (q->classes[i].qdisc->q.qlen) {
  			list_add_tail(&q->classes[i].alist, &q->active);
  			q->classes[i].deficit = quanta[i];
+@@ -687,7 +685,11 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
+ 	ets_offload_change(sch);
+ 	for (i = q->nbands; i < oldbands; i++) {
+ 		qdisc_put(q->classes[i].qdisc);
+-		memset(&q->classes[i], 0, sizeof(q->classes[i]));
++		q->classes[i].qdisc = NULL;
++		q->classes[i].quantum = 0;
++		q->classes[i].deficit = 0;
++		gnet_stats_basic_sync_init(&q->classes[i].bstats);
++		memset(&q->classes[i].qstats, 0, sizeof(q->classes[i].qstats));
+ 	}
+ 	return 0;
+ }
+@@ -696,7 +698,7 @@ static int ets_qdisc_init(struct Qdisc *sch, struct nlattr *opt,
+ 			  struct netlink_ext_ack *extack)
+ {
+ 	struct ets_sched *q = qdisc_priv(sch);
+-	int err;
++	int err, i;
+ 
+ 	if (!opt)
+ 		return -EINVAL;
+@@ -706,6 +708,9 @@ static int ets_qdisc_init(struct Qdisc *sch, struct nlattr *opt,
+ 		return err;
+ 
+ 	INIT_LIST_HEAD(&q->active);
++	for (i = 0; i < TCQ_ETS_MAX_BANDS; i++)
++		INIT_LIST_HEAD(&q->classes[i].alist);
++
+ 	return ets_qdisc_change(sch, opt, extack);
+ }
+ 
 diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
 index a8dd06c74e318..f4cf675943bb1 100644
 --- a/net/sched/sch_generic.c
