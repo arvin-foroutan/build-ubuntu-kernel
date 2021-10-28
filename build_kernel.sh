@@ -263,7 +263,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/fixes-miscellaneous-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.14/fixes-miscellaneous-v8-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0008-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
     patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
@@ -271,7 +271,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
     patch -p1 < ./0017-Revert-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0018-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
-    patch -p1 < ./0020-mm-secretmem-Fix-NULL-page-mapping-dereference-in-pa.patch;
+    patch -p1 < ./0019-nvme-don-t-memset-the-normal-read-write-command.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches-v2/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
@@ -406,7 +406,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches/*.patch .;
     patch -p1 < ./0001-cpu-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v8-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-kbuild-add-fcf-protection-none-to-retpoline-flags.patch;
@@ -424,7 +424,6 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0016-SUNRPC-Tweak-TCP-socket-shutdown-in-the-RPC-client.patch;
     patch -p1 < ./0017-Revert-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0018-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
-    patch -p1 < ./0020-mm-secretmem-Fix-NULL-page-mapping-dereference-in-pa.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0019-nvme-don-t-memset-the-normal-read-write-command.patch;
     fi
