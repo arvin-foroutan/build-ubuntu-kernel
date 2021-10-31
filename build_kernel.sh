@@ -428,7 +428,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
         patch -p1 < ./0019-nvme-don-t-memset-the-normal-read-write-command.patch;
     fi
     echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v6/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v7/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v20/*.patch .;
