@@ -1763,38 +1763,33 @@ index 209cf265bf746..6e1b9068d944c 100644
  }
  
 diff --git a/drivers/gpu/drm/i915/gt/intel_context.h b/drivers/gpu/drm/i915/gt/intel_context.h
-index c410989507466..bed60dff93eff 100644
+index c410989507466..601274ba86e46 100644
 --- a/drivers/gpu/drm/i915/gt/intel_context.h
 +++ b/drivers/gpu/drm/i915/gt/intel_context.h
-@@ -161,9 +161,11 @@ static inline void intel_context_enter(struct intel_context *ce)
- 		ce->ops->enter(ce);
- }
+@@ -163,7 +163,8 @@ static inline void intel_context_enter(struct intel_context *ce)
  
--static inline void intel_context_mark_active(struct intel_context *ce)
-+static inline void intel_context_mark_active(struct intel_context *ce,
-+					     bool timeline_mutex_needed)
+ static inline void intel_context_mark_active(struct intel_context *ce)
  {
 -	lockdep_assert_held(&ce->timeline->mutex);
-+	if (timeline_mutex_needed)
-+		lockdep_assert_held(&ce->timeline->mutex);
++	lockdep_assert(lockdep_is_held(&ce->timeline->mutex) ||
++		       test_bit(CONTEXT_IS_PARKED, &ce->flags));
  	++ce->active_count;
  }
  
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-index 74775ae961b2b..02c0ab9fbb4b8 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-@@ -42,7 +42,7 @@ heartbeat_create(struct intel_context *ce, gfp_t gfp)
- 	struct i915_request *rq;
+diff --git a/drivers/gpu/drm/i915/gt/intel_context_types.h b/drivers/gpu/drm/i915/gt/intel_context_types.h
+index e54351a170e2c..1022be795e682 100644
+--- a/drivers/gpu/drm/i915/gt/intel_context_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_context_types.h
+@@ -112,6 +112,7 @@ struct intel_context {
+ #define CONTEXT_FORCE_SINGLE_SUBMISSION	7
+ #define CONTEXT_NOPREEMPT		8
+ #define CONTEXT_LRCA_DIRTY		9
++#define CONTEXT_IS_PARKED		10
  
- 	intel_context_enter(ce);
--	rq = __i915_request_create(ce, gfp);
-+	rq = __i915_request_create(ce, gfp, true);
- 	intel_context_exit(ce);
- 
- 	return rq;
+ 	struct {
+ 		u64 timeout_us;
 diff --git a/drivers/gpu/drm/i915/gt/intel_engine_pm.c b/drivers/gpu/drm/i915/gt/intel_engine_pm.c
-index 1f07ac4e0672a..d75638d1d561e 100644
+index 1f07ac4e0672a..e84f03a276d18 100644
 --- a/drivers/gpu/drm/i915/gt/intel_engine_pm.c
 +++ b/drivers/gpu/drm/i915/gt/intel_engine_pm.c
 @@ -80,39 +80,6 @@ static int __engine_unpark(struct intel_wakeref *wf)
@@ -1845,23 +1840,21 @@ index 1f07ac4e0672a..d75638d1d561e 100644
  	bool result = true;
  
  	/* GPU is pointing to the void, as good as in the kernel context. */
-@@ -201,10 +167,9 @@ static bool switch_to_kernel_context(struct intel_engine_cs *engine)
+@@ -201,7 +167,7 @@ static bool switch_to_kernel_context(struct intel_engine_cs *engine)
  	 * engine->wakeref.count, we may see the request completion and retire
  	 * it causing an underflow of the engine->wakeref.
  	 */
 -	flags = __timeline_mark_lock(ce);
++	set_bit(CONTEXT_IS_PARKED, &ce->flags);
  	GEM_BUG_ON(atomic_read(&ce->timeline->active_count) < 0);
  
--	rq = __i915_request_create(ce, GFP_NOWAIT);
-+	rq = __i915_request_create(ce, GFP_NOWAIT, false);
- 	if (IS_ERR(rq))
- 		/* Context switch failed, hope for the best! Maybe reset? */
- 		goto out_unlock;
-@@ -233,7 +198,6 @@ static bool switch_to_kernel_context(struct intel_engine_cs *engine)
+ 	rq = __i915_request_create(ce, GFP_NOWAIT);
+@@ -233,7 +199,7 @@ static bool switch_to_kernel_context(struct intel_engine_cs *engine)
  
  	result = false;
  out_unlock:
 -	__timeline_mark_unlock(ce, flags);
++	clear_bit(CONTEXT_IS_PARKED, &ce->flags);
  	return result;
  }
  
@@ -1953,7 +1946,7 @@ index 9bc4f4a8e12ec..547347241a47c 100644
  	spin_unlock_irqrestore(&dev_priv->uncore.lock, irqflags);
  
 diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 79da5eca60af5..3bab8f651b4e7 100644
+index 79da5eca60af5..b9dd6100c6d17 100644
 --- a/drivers/gpu/drm/i915/i915_request.c
 +++ b/drivers/gpu/drm/i915/i915_request.c
 @@ -559,7 +559,6 @@ bool __i915_request_submit(struct i915_request *request)
@@ -1972,48 +1965,20 @@ index 79da5eca60af5..3bab8f651b4e7 100644
  	lockdep_assert_held(&engine->sched_engine->lock);
  
  	/*
-@@ -835,7 +833,8 @@ static void __i915_request_ctor(void *arg)
- }
- 
- struct i915_request *
--__i915_request_create(struct intel_context *ce, gfp_t gfp)
-+__i915_request_create(struct intel_context *ce, gfp_t gfp,
-+		      bool timeline_mutex_needed)
- {
- 	struct intel_timeline *tl = ce->timeline;
- 	struct i915_request *rq;
-@@ -959,7 +958,7 @@ __i915_request_create(struct intel_context *ce, gfp_t gfp)
- 
- 	rq->infix = rq->ring->emit; /* end of header; start of user payload */
- 
--	intel_context_mark_active(ce);
-+	intel_context_mark_active(ce, timeline_mutex_needed);
- 	list_add_tail_rcu(&rq->link, &tl->requests);
- 
- 	return rq;
-@@ -995,7 +994,7 @@ i915_request_create(struct intel_context *ce)
- 		i915_request_retire(rq);
- 
- 	intel_context_enter(ce);
--	rq = __i915_request_create(ce, GFP_KERNEL);
-+	rq = __i915_request_create(ce, GFP_KERNEL, true);
- 	intel_context_exit(ce); /* active reference transferred to request */
- 	if (IS_ERR(rq))
- 		goto err_unlock;
 diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
-index 1bc1349ba3c25..ba1ced79c8d2c 100644
+index 1bc1349ba3c25..a2f713b4ac2f9 100644
 --- a/drivers/gpu/drm/i915/i915_request.h
 +++ b/drivers/gpu/drm/i915/i915_request.h
-@@ -320,7 +320,8 @@ static inline bool dma_fence_is_i915(const struct dma_fence *fence)
- struct kmem_cache *i915_request_slab_cache(void);
+@@ -609,7 +609,8 @@ i915_request_timeline(const struct i915_request *rq)
+ {
+ 	/* Valid only while the request is being constructed (or retired). */
+ 	return rcu_dereference_protected(rq->timeline,
+-					 lockdep_is_held(&rcu_access_pointer(rq->timeline)->mutex));
++					 lockdep_is_held(&rcu_access_pointer(rq->timeline)->mutex) ||
++					 test_bit(CONTEXT_IS_PARKED, &rq->context->flags));
+ }
  
- struct i915_request * __must_check
--__i915_request_create(struct intel_context *ce, gfp_t gfp);
-+__i915_request_create(struct intel_context *ce, gfp_t gfp,
-+		      bool timeline_mutex_needed);
- struct i915_request * __must_check
- i915_request_create(struct intel_context *ce);
- 
+ static inline struct i915_gem_context *
 diff --git a/drivers/gpu/drm/i915/i915_trace.h b/drivers/gpu/drm/i915/i915_trace.h
 index 806ad688274bf..5ff6c0a37fdfa 100644
 --- a/drivers/gpu/drm/i915/i915_trace.h
@@ -2038,6 +2003,31 @@ index 806ad688274bf..5ff6c0a37fdfa 100644
  DEFINE_EVENT(i915_request, i915_request_guc_submit,
  	     TP_PROTO(struct i915_request *rq),
  	     TP_ARGS(rq)
+diff --git a/drivers/gpu/drm/i915/i915_utils.h b/drivers/gpu/drm/i915/i915_utils.h
+index 5259edacde380..b36b27c090496 100644
+--- a/drivers/gpu/drm/i915/i915_utils.h
++++ b/drivers/gpu/drm/i915/i915_utils.h
+@@ -343,7 +343,7 @@ wait_remaining_ms_from_jiffies(unsigned long timestamp_jiffies, int to_wait_ms)
+ #define wait_for(COND, MS)		_wait_for((COND), (MS) * 1000, 10, 1000)
+ 
+ /* If CONFIG_PREEMPT_COUNT is disabled, in_atomic() always reports false. */
+-#if defined(CONFIG_DRM_I915_DEBUG) && defined(CONFIG_PREEMPT_COUNT)
++#if defined(CONFIG_DRM_I915_DEBUG) && defined(CONFIG_PREEMPT_COUNT) && !defined(CONFIG_PREEMPT_RT)
+ # define _WAIT_FOR_ATOMIC_CHECK(ATOMIC) WARN_ON_ONCE((ATOMIC) && !in_atomic())
+ #else
+ # define _WAIT_FOR_ATOMIC_CHECK(ATOMIC) do { } while (0)
+diff --git a/drivers/gpu/drm/selftests/test-drm_damage_helper.c b/drivers/gpu/drm/selftests/test-drm_damage_helper.c
+index 1c19a5d3eefbf..8d8d8e214c283 100644
+--- a/drivers/gpu/drm/selftests/test-drm_damage_helper.c
++++ b/drivers/gpu/drm/selftests/test-drm_damage_helper.c
+@@ -30,6 +30,7 @@ static void mock_setup(struct drm_plane_state *state)
+ 	mock_device.driver = &mock_driver;
+ 	mock_device.mode_config.prop_fb_damage_clips = &mock_prop;
+ 	mock_plane.dev = &mock_device;
++	mock_obj_props.count = 0;
+ 	mock_plane.base.properties = &mock_obj_props;
+ 	mock_prop.base.id = 1; /* 0 is an invalid id */
+ 	mock_prop.dev = &mock_device;
 diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
 index d030577ad6a2c..ef1db3367df78 100644
 --- a/drivers/hv/hyperv_vmbus.h
@@ -2885,6 +2875,95 @@ index cf871a81f4fdc..f34344ceece70 100644
  	dentry->d_wait = NULL;
  	hlist_bl_unlock(b);
  	INIT_HLIST_NODE(&dentry->d_u.d_alias);
+diff --git a/fs/fscache/internal.h b/fs/fscache/internal.h
+index c3e4804b8fcbf..9edb87e11680b 100644
+--- a/fs/fscache/internal.h
++++ b/fs/fscache/internal.h
+@@ -81,7 +81,6 @@ extern unsigned fscache_debug;
+ extern struct kobject *fscache_root;
+ extern struct workqueue_struct *fscache_object_wq;
+ extern struct workqueue_struct *fscache_op_wq;
+-DECLARE_PER_CPU(wait_queue_head_t, fscache_object_cong_wait);
+ 
+ extern unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n);
+ 
+diff --git a/fs/fscache/main.c b/fs/fscache/main.c
+index 4207f98e405fd..85f8cf3a323d5 100644
+--- a/fs/fscache/main.c
++++ b/fs/fscache/main.c
+@@ -41,8 +41,6 @@ struct kobject *fscache_root;
+ struct workqueue_struct *fscache_object_wq;
+ struct workqueue_struct *fscache_op_wq;
+ 
+-DEFINE_PER_CPU(wait_queue_head_t, fscache_object_cong_wait);
+-
+ /* these values serve as lower bounds, will be adjusted in fscache_init() */
+ static unsigned fscache_object_max_active = 4;
+ static unsigned fscache_op_max_active = 2;
+@@ -138,7 +136,6 @@ unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n)
+ static int __init fscache_init(void)
+ {
+ 	unsigned int nr_cpus = num_possible_cpus();
+-	unsigned int cpu;
+ 	int ret;
+ 
+ 	fscache_object_max_active =
+@@ -161,9 +158,6 @@ static int __init fscache_init(void)
+ 	if (!fscache_op_wq)
+ 		goto error_op_wq;
+ 
+-	for_each_possible_cpu(cpu)
+-		init_waitqueue_head(&per_cpu(fscache_object_cong_wait, cpu));
+-
+ 	ret = fscache_proc_init();
+ 	if (ret < 0)
+ 		goto error_proc;
+diff --git a/fs/fscache/object.c b/fs/fscache/object.c
+index 6a675652129b2..78f332f2e98c8 100644
+--- a/fs/fscache/object.c
++++ b/fs/fscache/object.c
+@@ -798,6 +798,8 @@ void fscache_object_destroy(struct fscache_object *object)
+ }
+ EXPORT_SYMBOL(fscache_object_destroy);
+ 
++static DECLARE_WAIT_QUEUE_HEAD(fscache_object_cong_wait);
++
+ /*
+  * enqueue an object for metadata-type processing
+  */
+@@ -806,12 +808,10 @@ void fscache_enqueue_object(struct fscache_object *object)
+ 	_enter("{OBJ%x}", object->debug_id);
+ 
+ 	if (fscache_get_object(object, fscache_obj_get_queue) >= 0) {
+-		wait_queue_head_t *cong_wq =
+-			&get_cpu_var(fscache_object_cong_wait);
+ 
+ 		if (queue_work(fscache_object_wq, &object->work)) {
+ 			if (fscache_object_congested())
+-				wake_up(cong_wq);
++				wake_up(&fscache_object_cong_wait);
+ 		} else
+ 			fscache_put_object(object, fscache_obj_put_queue);
+ 
+@@ -833,16 +833,15 @@ void fscache_enqueue_object(struct fscache_object *object)
+  */
+ bool fscache_object_sleep_till_congested(signed long *timeoutp)
+ {
+-	wait_queue_head_t *cong_wq = this_cpu_ptr(&fscache_object_cong_wait);
+ 	DEFINE_WAIT(wait);
+ 
+ 	if (fscache_object_congested())
+ 		return true;
+ 
+-	add_wait_queue_exclusive(cong_wq, &wait);
++	add_wait_queue_exclusive(&fscache_object_cong_wait, &wait);
+ 	if (!fscache_object_congested())
+ 		*timeoutp = schedule_timeout(*timeoutp);
+-	finish_wait(cong_wq, &wait);
++	finish_wait(&fscache_object_cong_wait, &wait);
+ 
+ 	return fscache_object_congested();
+ }
 diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
 index bc267832310c7..3176913fae6c5 100644
 --- a/fs/fuse/readdir.c
@@ -2934,27 +3013,32 @@ index 1946d96677908..d89890a17f1bf 100644
  	if (unlikely(IS_DEADDIR(dir_inode)))
  		return ERR_PTR(-ENOENT);
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 659a8f39c61af..c6e1e24be9408 100644
+index 659a8f39c61af..3ab45b47b2860 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -14,6 +14,7 @@
- #include <linux/mnt_namespace.h>
- #include <linux/user_namespace.h>
- #include <linux/namei.h>
-+#include <linux/hrtimer.h>
- #include <linux/security.h>
- #include <linux/cred.h>
- #include <linux/idr.h>
-@@ -343,8 +344,11 @@ int __mnt_want_write(struct vfsmount *m)
+@@ -343,8 +343,24 @@ int __mnt_want_write(struct vfsmount *m)
  	 * incremented count after it has set MNT_WRITE_HOLD.
  	 */
  	smp_mb();
 -	while (READ_ONCE(mnt->mnt.mnt_flags) & MNT_WRITE_HOLD)
 -		cpu_relax();
++	might_lock(&mount_lock.lock);
 +	while (READ_ONCE(mnt->mnt.mnt_flags) & MNT_WRITE_HOLD) {
-+		preempt_enable();
-+		cpu_chill();
-+		preempt_disable();
++		if (!IS_ENABLED(CONFIG_PREEMPT_RT)) {
++			cpu_relax();
++		} else {
++			/*
++			 * This prevents priority inversion, if the task
++			 * setting MNT_WRITE_HOLD got preempted on a remote
++			 * CPU, and it prevents life lock if the task setting
++			 * MNT_WRITE_HOLD has a lower priority and is bound to
++			 * the same CPU as the task that is spinning here.
++			 */
++			preempt_enable();
++			lock_mount_hash();
++			unlock_mount_hash();
++			preempt_disable();
++		}
 +	}
  	/*
  	 * After the slowpath clears MNT_WRITE_HOLD, mnt_is_readonly will
@@ -3050,19 +3134,6 @@ index eceeecf6a5bd8..d3e2d81656e04 100644
  void do_softirq_own_stack(void);
  #else
  static inline void do_softirq_own_stack(void)
-diff --git a/include/drm/drm_mode_object.h b/include/drm/drm_mode_object.h
-index c34a3e8030e12..1e5399e47c3a5 100644
---- a/include/drm/drm_mode_object.h
-+++ b/include/drm/drm_mode_object.h
-@@ -60,7 +60,7 @@ struct drm_mode_object {
- 	void (*free_cb)(struct kref *kref);
- };
- 
--#define DRM_OBJECT_MAX_PROPERTY 24
-+#define DRM_OBJECT_MAX_PROPERTY 42
- /**
-  * struct drm_object_properties - property tracking for &drm_mode_object
-  */
 diff --git a/include/linux/console.h b/include/linux/console.h
 index 20874db50bc8a..dedbcf82fa0fa 100644
 --- a/include/linux/console.h
@@ -3167,37 +3238,6 @@ index e7a633353fd20..5ff6117d59f54 100644
  	};
  
  	__u32			i_generation;
-diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
-index 0ee140176f102..4a2230e409d2a 100644
---- a/include/linux/hrtimer.h
-+++ b/include/linux/hrtimer.h
-@@ -42,6 +42,7 @@ enum hrtimer_mode {
- 	HRTIMER_MODE_PINNED	= 0x02,
- 	HRTIMER_MODE_SOFT	= 0x04,
- 	HRTIMER_MODE_HARD	= 0x08,
-+	HRTIMER_MODE_CHILL	= 0x10,
- 
- 	HRTIMER_MODE_ABS_PINNED = HRTIMER_MODE_ABS | HRTIMER_MODE_PINNED,
- 	HRTIMER_MODE_REL_PINNED = HRTIMER_MODE_REL | HRTIMER_MODE_PINNED,
-@@ -124,6 +125,7 @@ struct hrtimer {
- 	u8				is_rel;
- 	u8				is_soft;
- 	u8				is_hard;
-+	u8				is_chill;
- };
- 
- /**
-@@ -536,4 +538,10 @@ int hrtimers_dead_cpu(unsigned int cpu);
- #define hrtimers_dead_cpu	NULL
- #endif
- 
-+#ifdef CONFIG_PREEMPT_RT
-+extern void cpu_chill(void);
-+#else
-+# define cpu_chill()	cpu_relax()
-+#endif
-+
- #endif
 diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
 index ec2a47a81e423..8cd11a2232605 100644
 --- a/include/linux/irq_work.h
@@ -4719,9 +4759,18 @@ index c0069ac00e62d..bb10190d726d2 100644
  
  static inline void mini_qdisc_qstats_cpu_drop(struct mini_Qdisc *miniq)
 diff --git a/init/Kconfig b/init/Kconfig
-index 11f8a845f259d..28fd7b8e8c7d6 100644
+index 11f8a845f259d..0b8a65ae1d72f 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
+@@ -901,7 +901,7 @@ config NUMA_BALANCING
+ 	bool "Memory placement aware NUMA scheduler"
+ 	depends on ARCH_SUPPORTS_NUMA_BALANCING
+ 	depends on !ARCH_WANT_NUMA_VARIABLE_LOCALITY
+-	depends on SMP && NUMA && MIGRATION
++	depends on SMP && NUMA && MIGRATION && !PREEMPT_RT
+ 	help
+ 	  This option adds support for automatic NUMA aware memory/task placement.
+ 	  The mechanism is quite primitive and is based on migrating memory when
 @@ -938,6 +938,7 @@ config PAGE_COUNTER
  
  config MEMCG
@@ -8199,62 +8248,6 @@ index 003ccf338d201..00fc43605c6b1 100644
  	return 0;
  }
  
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 0ea8702eb5163..295e065d27905 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1570,6 +1570,7 @@ static void __hrtimer_init(struct hrtimer *timer, clockid_t clock_id,
- 	base += hrtimer_clockid_to_base(clock_id);
- 	timer->is_soft = softtimer;
- 	timer->is_hard = !!(mode & HRTIMER_MODE_HARD);
-+	timer->is_chill = !!(mode & HRTIMER_MODE_CHILL);
- 	timer->base = &cpu_base->clock_base[base];
- 	timerqueue_init(&timer->node);
- }
-@@ -1936,7 +1937,7 @@ static enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer)
- 
- 	t->task = NULL;
- 	if (task)
--		wake_up_process(task);
-+		wake_up_state(task, timer->is_chill ? TASK_RTLOCK_WAIT : TASK_NORMAL);
- 
- 	return HRTIMER_NORESTART;
- }
-@@ -2154,6 +2155,34 @@ SYSCALL_DEFINE2(nanosleep_time32, struct old_timespec32 __user *, rqtp,
- }
- #endif
- 
-+#ifdef CONFIG_PREEMPT_RT
-+/*
-+ * Sleep for 1 ms in hope whoever holds what we want will let it go.
-+ */
-+void cpu_chill(void)
-+{
-+	unsigned int freeze_flag = current->flags & PF_NOFREEZE;
-+	ktime_t chill_time;
-+
-+	local_irq_disable();
-+	current_save_and_set_rtlock_wait_state();
-+	local_irq_enable();
-+
-+	chill_time = ktime_set(0, NSEC_PER_MSEC);
-+
-+	current->flags |= PF_NOFREEZE;
-+	schedule_hrtimeout(&chill_time,
-+			   HRTIMER_MODE_REL_HARD| HRTIMER_MODE_CHILL);
-+	if (!freeze_flag)
-+		current->flags &= ~PF_NOFREEZE;
-+
-+	local_irq_disable();
-+	current_restore_rtlock_saved_state();
-+	local_irq_enable();
-+}
-+EXPORT_SYMBOL(cpu_chill);
-+#endif
-+
- /*
-  * Functions related to boot-time initialization:
-  */
 diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
 index 406dccb79c2b6..829d7797811fb 100644
 --- a/kernel/time/ntp.c
