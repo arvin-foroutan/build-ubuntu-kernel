@@ -431,7 +431,7 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v7/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v20/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v21/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-sep/*.patch .;
