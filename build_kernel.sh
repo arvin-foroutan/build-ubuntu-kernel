@@ -473,6 +473,10 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-5.13-merge-v1.0.14.patch;
+    echo "*** Copying and applying spectre patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spectre-patches-sep/*.patch .;
+    patch -p1 < ./0001-x86-change-default-to-spec_store_bypass_disable-prct.patch;
+    patch -p1 < ./0002-x86-deduplicate-the-spectre_v2_user-documentation.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-5.14-merge-v0.12.5.patch;
