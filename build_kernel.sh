@@ -512,11 +512,8 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying Valve fsync patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-zen-patches/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-zen-patches-v2/*.patch .;
         patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
-        echo "*** Copying and applying Valve fsync patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex2-zen-patches/*.patch .;
-        patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
         echo "*** Copying and applying lru patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-zen-patches-v4/*.patch .;
         patch -p1 < ./0001-lru-zen-patches.patch;
