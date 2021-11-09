@@ -144,13 +144,13 @@ UBUNTU_PATCHES=${UBUNTU_PATCHES:-"yes"}
 if [ ${UBUNTU_PATCHES} == "yes" ]; then
     # Deprecated as of 5.4.45 but can still be applied
     # See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
-    echo "*** Copying and applying Ubuntu patches... 1/3 ✓";
+    echo "*** Copying and applying Ubuntu patches... 1/4 ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ubuntu-${KERNEL_BASE_VER}/*.patch .;
     patch -p1 < ./0001-base-packaging.patch;
     patch -p1 < ./0002-UBUNTU-SAUCE-add-vmlinux.strip-to-BOOT_TARGETS1-on-p.patch;
     patch -p1 < ./0003-UBUNTU-SAUCE-tools-hv-lsvmbus-add-manual-page.patch;
 
-    echo "*** Updating version number in changelog... 2/3 ✓";
+    echo "*** Updating version number in changelog... 2/4 ✓";
     # Update the version in the changelog to latest version since the patches
     # are no longer maintained and because we want to keep our kernel as Ubuntu-like
     # as possible (with ABI and all)
@@ -161,9 +161,14 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     fi
     patch -p1 < ./0004-debian-changelog.patch;
 
-    echo "*** Updating patch version number... 3/3 ✓";
+    echo "*** Updating patch version number... 3/4 ✓";
     [ ${KERNEL_BASE_VER} == "5.4" ] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
     patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
+
+    echo "*** Update debian compat level from 9 to 10... 4/4 ✓";
+    # Solves the following:
+    # dh_installdeb: warning: Compatibility levels before 10 are deprecated (level 9 in use)
+    sed -i "s/9/10/g" ./debian/compat;
     echo "*** Successfully applied all Ubuntu patches. ✓";
 fi
 
