@@ -2,13 +2,13 @@
 
 # Compile the Linux kernel for Ubuntu.
 
-# Supported kernels: 5.4 LTS / 5.10 LTS / 5.13 EOL / 5.14 / 5.15-rc
+# Supported kernels: 5.4 LTS / 5.10 LTS / 5.13 EOL / 5.14 / 5.15
 
 set -euo pipefail
 
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.4"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.4.156"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"0504156"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.15"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.15.1"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051501"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"} # cfs, cacule
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -194,25 +194,21 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
-    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
-    patch -p1 < ./pkill-on-warn.patch;
+if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline
+    echo "*** Copying and applying amd64 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
+    patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/arch-patches-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/bbr2-patches/*.patch .;
-    patch -p1 < ./0001-bbr2-5.14-introduce-BBRv2.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
+    patch -p1 < ./0001-bbr2-${KERNEL_BASE_VER}-introduce-BBRv2.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/block-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
-    patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
-    patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O.patch;
-    patch -p1 < ./0005-block-Add-CONFIG-to-rename-the-mq-deadline-scheduler.patch;
-    patch -p1 < ./0006-block-remove-plug-based-merging.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2/*.patch .;
+    patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/clearlinux-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
     patch -p1 < ./0002-increase-the-ext4-default-commit-age.patch;
     patch -p1 < ./0003-silence-rapl.patch;
@@ -222,7 +218,7 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0007-port-print-fsync-count-for-bootchart.patch;
     patch -p1 < ./0008-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
     patch -p1 < ./0009-smpboot-reuse-timer-calibration.patch;
-    patch -p1 < ./0010-initialize-ata-before-graphics.patch;
+    patch -p1 < ./0010-port-initialize-ata-before-graphics.patch;
     patch -p1 < ./0011-give-rdrand-some-credit.patch;
     patch -p1 < ./0012-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
     patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
@@ -236,99 +232,86 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     patch -p1 < ./0021-ata-libahci-ignore-staggered-spin-up.patch;
     patch -p1 < ./0022-print-CPU-that-faults.patch;
     patch -p1 < ./0024-nvme-workaround.patch;
-    patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/cpufreq-patches-sep/*.patch .;
-    patch -p1 < ./0001-x86-cpufreatures-add-AMD-Collaborative-Processor-Per.patch;
-    patch -p1 < ./0002-x86-msr-add-AMD-CPPC-MSR-definitions.patch;
-    patch -p1 < ./0003-ACPI-CPPC-Check-online-CPUs-for-determining-_CPC-is-.patch;
-    patch -p1 < ./0004-ACPI-CPPC-add-cppc-enable-register-function.patch;
-    patch -p1 < ./0005-cpufreq-amd-introduce-a-new-amd-pstate-driver-to-sup.patch;
-    patch -p1 < ./0006-cpufreq-amd-add-fast-switch-function-for-amd-pstate-.patch;
-    patch -p1 < ./0007-cpufreq-amd-add-acpi-cppc-function-as-the-backend-fo.patch;
-    patch -p1 < ./0008-cpufreq-amd-add-trace-for-amd-pstate-module.patch;
-    patch -p1 < ./0009-cpufreq-amd-add-boost-mode-support-for-amd-pstate.patch;
-    patch -p1 < ./0010-cpufreq-amd-add-amd-pstate-checking-support-check-at.patch;
-    patch -p1 < ./0011-cpufreq-amd-add-amd-pstate-frequencies-attributes.patch;
-    patch -p1 < ./0012-cpufreq-amd-add-amd-pstate-performance-attributes.patch;
-    patch -p1 < ./0013-cpupower-add-AMD-P-state-capability-flag.patch;
-    patch -p1 < ./0014-cpupower-add-the-function-to-check-amd-pstate-enable.patch;
-    patch -p1 < ./0015-cpupower-initial-AMD-P-state-capability.patch;
-    patch -p1 < ./0016-cpupower-add-the-function-to-get-the-sysfs-value-fro.patch;
-    patch -p1 < ./0017-cpupower-add-amd-pstate-sysfs-definition-and-access-.patch;
-    patch -p1 < ./0018-cpupower-enable-boost-state-support-for-amd-pstate-m.patch;
-    patch -p1 < ./0019-cpupower-move-print_speed-function-into-misc-helper.patch;
-    patch -p1 < ./0020-cpupower-print-amd-pstate-information-on-cpupower.patch;
-    patch -p1 < ./0021-Documentation-amd-pstate-add-amd-pstate-driver-intro.patch;
-    echo "*** Copying and applying cpu graysky patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/cpu-patches-sep/*.patch .;
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.15.patch .;
-    patch -p1 < ./graysky-gcc-5.15.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v2/*.patch .;
+    patch -p1 < ./0001-cpufreq-patches.patch;
+    echo "*** Copying and applying graysky patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-sep/*.patch .;
+    patch -p1 < ./0001-cpu-5.15-merge-graysky-s-patchset.patch;
     patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/fixes-miscellaneous-v8-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v4-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
-    patch -p1 < ./0008-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
-    patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
-    patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
-    patch -p1 < ./0011-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
-    patch -p1 < ./0017-Revert-ZEN-Add-OpenRGB-patches.patch;
-    patch -p1 < ./0018-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
-    patch -p1 < ./0019-nvme-don-t-memset-the-normal-read-write-command.patch;
+    patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
+    patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
+    patch -p1 < ./0004-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
+    patch -p1 < ./0005-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
+    patch -p1 < ./0007-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
+    patch -p1 < ./0008-nvme-don-t-memset-the-normal-read-write-command.patch;
+    patch -p1 < ./0009-mm-Stop-kswapd-early-when-nothing-s-waiting-for-it-t.patch;
+    patch -p1 < ./0010-mm-Fully-disable-watermark-boosting-when-it-isn-t-us.patch;
+    patch -p1 < ./0011-mm-Don-t-stop-kswapd-on-a-per-node-basis-when-there-.patch;
+    patch -p1 < ./0012-mm-Disable-watermark-boosting-by-default.patch;
+    patch -p1 < ./0013-Disable-stack-conservation-for-GCC.patch;
+    echo "*** Copying and applying futex (Valve fsync) patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-zen-patches/*.patch .;
+    patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
+    echo "*** Copying and applying futex2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex2-zen-patches/*.patch .;
+    patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/hwmon-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
+    echo "*** Copying and applying ksmbd patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v3/*.patch .;
+    patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/lqx-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying lrng patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/lrng-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/pf-patches-v8-sep/*.patch .;
-    patch -p1 < ./0003-genirq-i2c-Provide-and-use-generic_dispatch_irq.patch;
-    patch -p1 < ./0004-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
-    patch -p1 < ./0005-net-replace-WARN_ONCE-with-pr_warn_once.patch;
-    patch -p1 < ./0006-x86-ACPI-State-Optimize-C3-entry-on-AMD-CPUs.patch;
-    patch -p1 < ./0008-mac80211-rate-replace-WARN_ON-with-pr_warn.patch;
-    patch -p1 < ./0009-mac80211-airtime-replace-WARN_ON_ONCE-with-pr_warn_o.patch;
-    patch -p1 < ./0010-mac80211-rate-replace-WARN_ON_ONCE-with-pr_warn_once.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
+    patch -p1 < ./0001-pf-patches.patch;
+    echo "*** Copying and applying sbitmap patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sbitmap-patches-v2/*.patch .;
+    patch -p1 < ./0001-sbitmap-patches.patch;
+    echo "*** Copying and applying spectre patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spectre-patches/*.patch .;
+    patch -p1 < ./0001-spectre-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-5.14-merge-v0.12.5.patch;
-    echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/xanmod-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    echo "*** Copying and applying zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/zen-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-${KERNEL_BASE_VER}-merge-v0.12.5.patch;
+    echo "*** Copying and applying lucjan's xanmod patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
+    patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
+    echo "*** Copying and applying lucjan's zen patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
+    patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
+    patch -p1 < ./0003-ZEN-Update-VHBA-driver.patch;
     echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/zstd-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zstd upstream patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.14/zstd-upstream-patches-v7/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches/*.patch .;
     patch -p1 < ./0001-zstd-upstream-patches.patch;
-    # Misc / Tweaks
-    sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-    echo "*** Copying and applying cjktty 5.13 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.13/cjktty-patches/*.patch .;
-    patch -p1 < ./0001-cjktty-5.13-initial-import-from-https-github.com-zhm.patch;
-    echo "*** Copying and applying cfs xanmod tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-cfs-xanmod-tweaks.patch .;
-    patch -p1 < ./5.13-cfs-xanmod-tweaks.patch;
+    echo "*** Copying and applying misc xanmod tweaks.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-${KERNEL_BASE_VER}.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0005-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0006-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0008-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
+    patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    patch -p1 < ./0013-XANMOD-fair-Remove-all-energy-efficiency-functions.patch;
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/${KERNEL_SCHEDULER}-zen-tweaks.patch .;
     patch -p1 < ./${KERNEL_SCHEDULER}-zen-tweaks.patch;
-    echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
-    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-    patch -p1 < ./0008-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0011-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
@@ -338,11 +321,15 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline, in -rc right now
     echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
     patch -p1 < ./enable-background-reclaim-hugepages.patch;
-    echo "*** Copying and applying ll patches.. ✓";
+    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
+    patch -p1 < ./pkill-on-warn.patch;
+    echo "*** Copying and applying lucjan custom patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
+    sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Latest stable kernel
+elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Stable kernel
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
@@ -1188,11 +1175,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.4.156-0504156+customidle-generic
-# 5.4.156-0504156+customfull-generic
-# 5.4.156-0504156+customrt-generic
+# 5.15.1-051501+customidle-generic
+# 5.15.1-051501+customfull-generic
+# 5.15.1-051501+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.4.156-0504156+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.15.1-051501+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1333,7 +1320,7 @@ rm -rf ${KERNEL_BUILD_DIR};
 # Also note: Running 'sudo update-grub2' will list your installed kernels,
 # and you can manually delete the ones that have uninstall as time goes on.
 #
-# To uninstall a kernel: $ sudo apt purge *5.4.156-0504156+customidle-generic*
+# To uninstall a kernel: $ sudo apt purge *5.15.1-051501+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
