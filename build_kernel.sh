@@ -235,7 +235,10 @@ if [ ${KERNEL_BASE_VER} == "5.15" ]; then   # Latest mainline
     echo "*** Copying and applying cpufreq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v2/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
-    echo "*** Copying and applying graysky patches.. ✓";
+    echo "*** Copying and applying damon patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches/*.patch .;
+    patch -p1 < ./0001-damon-patches.patch;
+    echo "*** Copying an applying graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-sep/*.patch .;
     patch -p1 < ./0001-cpu-5.15-merge-graysky-s-patchset.patch;
     patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
