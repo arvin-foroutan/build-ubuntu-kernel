@@ -1859,7 +1859,7 @@ index 1f07ac4e0672a..e84f03a276d18 100644
  }
  
 diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-index de5f9c86b9a44..dbf44f9567449 100644
+index cafb0608ffb46..07156996fc823 100644
 --- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
 +++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
 @@ -1283,7 +1283,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
@@ -1912,7 +1912,7 @@ index de5f9c86b9a44..dbf44f9567449 100644
  static void clear_ports(struct i915_request **ports, int count)
  {
  	memset_p((void **)ports, NULL, count);
-@@ -2427,7 +2420,7 @@ static void execlists_submission_tasklet(struct tasklet_struct *t)
+@@ -2423,7 +2416,7 @@ static void execlists_submission_tasklet(struct tasklet_struct *t)
  	}
  
  	if (!engine->execlists.pending[0]) {
@@ -3050,10 +3050,10 @@ index 5fa11e1aca4c2..984f26eb888c1 100644
  	status = -EBUSY;
  	spin_lock(&dentry->d_lock);
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 533d5836eb9a4..8f82c12694597 100644
+index 1f394095eb880..fade2c7c705bd 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
-@@ -95,6 +95,7 @@
+@@ -96,6 +96,7 @@
  #include <linux/posix-timers.h>
  #include <linux/time_namespace.h>
  #include <linux/resctrl.h>
@@ -3061,7 +3061,7 @@ index 533d5836eb9a4..8f82c12694597 100644
  #include <linux/cn_proc.h>
  #include <trace/events/oom.h>
  #include "internal.h"
-@@ -2040,7 +2041,7 @@ bool proc_fill_cache(struct file *file, struct dir_context *ctx,
+@@ -2043,7 +2044,7 @@ bool proc_fill_cache(struct file *file, struct dir_context *ctx,
  
  	child = d_hash_and_lookup(dir, &qname);
  	if (!child) {
@@ -9224,24 +9224,15 @@ index 23d3339ac4e8e..e71b9634a3217 100644
  
  /*
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index e8a807c781107..eb714f00c1342 100644
+index e8a807c781107..3c5be440ab303 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
-@@ -1881,7 +1881,7 @@ static void *new_vmap_block(unsigned int order, gfp_t gfp_mask)
- 	struct vmap_block *vb;
- 	struct vmap_area *va;
- 	unsigned long vb_idx;
--	int node, err;
-+	int node, err, cpu;
- 	void *vaddr;
- 
- 	node = numa_node_id();
 @@ -1918,11 +1918,12 @@ static void *new_vmap_block(unsigned int order, gfp_t gfp_mask)
  		return ERR_PTR(err);
  	}
  
 -	vbq = &get_cpu_var(vmap_block_queue);
-+	cpu = get_cpu_light();
++	get_cpu_light();
 +	vbq = this_cpu_ptr(&vmap_block_queue);
  	spin_lock(&vbq->lock);
  	list_add_tail_rcu(&vb->free_list, &vbq->free);
@@ -9251,25 +9242,17 @@ index e8a807c781107..eb714f00c1342 100644
  
  	return vaddr;
  }
-@@ -1987,6 +1988,7 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
- 	struct vmap_block *vb;
- 	void *vaddr = NULL;
- 	unsigned int order;
-+	int cpu;
- 
- 	BUG_ON(offset_in_page(size));
- 	BUG_ON(size > PAGE_SIZE*VMAP_MAX_ALLOC);
-@@ -2001,7 +2003,8 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
+@@ -2001,7 +2002,8 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
  	order = get_order(size);
  
  	rcu_read_lock();
 -	vbq = &get_cpu_var(vmap_block_queue);
-+	cpu = get_cpu_light();
++	get_cpu_light();
 +	vbq = this_cpu_ptr(&vmap_block_queue);
  	list_for_each_entry_rcu(vb, &vbq->free, free_list) {
  		unsigned long pages_off;
  
-@@ -2024,7 +2027,7 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
+@@ -2024,7 +2026,7 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
  		break;
  	}
  
