@@ -340,13 +340,11 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # Stable kernel
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v10-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v11-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-Bluetooth-btusb-Add-support-for-IMC-Networks-Mediate.patch;
     patch -p1 < ./0003-Bluetooth-btusb-Add-support-for-Foxconn-Mediatek-Chi.patch;
-    patch -p1 < ./0004-ALSA-pcm-Check-mmap-capability-of-runtime-dma-buffer.patch;
-    patch -p1 < ./0005-ALSA-pci-rme-Set-up-buffer-type-properly.patch;
-    patch -p1 < ./0006-ALSA-pci-cs46xx-Fix-set-up-buffer-type-properly.patch;
+    patch -p1 < ./0004-ALSA-pci-rme-Set-up-buffer-type-properly.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20211018.patch;
