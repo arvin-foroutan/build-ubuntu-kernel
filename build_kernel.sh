@@ -287,6 +287,9 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
     patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     patch -p1 < ./0013-XANMOD-fair-Remove-all-energy-efficiency-functions.patch;
+    echo "*** Copying and applying tcp optimization patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.17_tcp_optimizations.patch .;
+    patch -p1 < ./5.17_tcp_optimizations.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
