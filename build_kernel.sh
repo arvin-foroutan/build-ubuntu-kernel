@@ -233,7 +233,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     cp -v ${LUCJAN_PATCH_PATH}/5.15/cpufreq-patches-v2/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying an applying graysky patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/cpu-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/cpu-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-cpu-5.15-merge-graysky-s-patchset.patch;
     patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
@@ -370,7 +370,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches/*.patch .;
     patch -p1 < ./0001-damon-patches.patch;
     echo "*** Copying an applying graysky patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-cpu-5.15-merge-graysky-s-patchset.patch;
     patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
