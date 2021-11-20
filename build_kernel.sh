@@ -259,9 +259,11 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0012-mm-Disable-watermark-boosting-by-default.patch;
     patch -p1 < ./0013-Disable-stack-conservation-for-GCC.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0003-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
+    patch -p1 < ./0004-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/pf-patches-sep/*.patch .;
     patch -p1 < ./0002-x86-ACPI-cstate-Optimize-C3-entry-on-AMD-CPUs.patch;
@@ -415,9 +417,11 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v4/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0003-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
+    patch -p1 < ./0004-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
