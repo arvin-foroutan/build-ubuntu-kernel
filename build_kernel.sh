@@ -422,6 +422,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     patch -p1 < ./0003-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
     patch -p1 < ./0004-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
+    echo "*** Copying and applying net patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches/*.patch .;
+    patch -p1 < ./0001-net-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
