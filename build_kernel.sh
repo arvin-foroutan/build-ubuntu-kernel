@@ -200,12 +200,8 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v3-sep/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0002-staging-r8188eu-Fix-breakage-introduced-when-5G-code.patch;
-    patch -p1 < ./0003-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
-    patch -p1 < ./0004-drm-amd-pm-avoid-duplicate-powergate-ungate-setting.patch;
-    patch -p1 < ./0005-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v5/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
@@ -262,8 +258,6 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    patch -p1 < ./0003-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
-    patch -p1 < ./0004-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/pf-patches-sep/*.patch .;
     patch -p1 < ./0002-x86-ACPI-cstate-Optimize-C3-entry-on-AMD-CPUs.patch;
@@ -339,11 +333,8 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3-sep/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0002-staging-r8188eu-Fix-breakage-introduced-when-5G-code.patch;
-    patch -p1 < ./0004-drm-amd-pm-avoid-duplicate-powergate-ungate-setting.patch;
-    patch -p1 < ./0005-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20211115.patch;
@@ -420,8 +411,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    patch -p1 < ./0003-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
-    patch -p1 < ./0004-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     echo "*** Copying and applying net patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
