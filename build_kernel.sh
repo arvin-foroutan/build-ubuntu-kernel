@@ -233,7 +233,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0022-print-CPU-that-faults.patch;
     patch -p1 < ./0024-nvme-workaround.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/cpufreq-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/cpufreq-patches-v3/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying an applying graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/cpu-patches-v2-sep/*.patch .;
@@ -370,7 +370,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0022-print-CPU-that-faults.patch;
     patch -p1 < ./0024-nvme-workaround.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v3/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying and applying damon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches/*.patch .;
