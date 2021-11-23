@@ -281,6 +281,9 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     echo "*** Copying and applying zstd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/zstd-patches/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
+    echo "*** Copying and applying ntfs3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/ntfs3-patches/*.patch .;
+    patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.15.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0005-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
@@ -414,6 +417,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying net patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
+    echo "*** Copying and applying ntfs3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches/*.patch .;
+    patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
