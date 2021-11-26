@@ -200,7 +200,7 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v6/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/block-patches-v2-sep/*.patch .;
@@ -340,7 +340,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
