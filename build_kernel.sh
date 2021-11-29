@@ -265,7 +265,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/pf-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/pf-patches-v4-sep/*.patch .;
     patch -p1 < ./0002-x86-ACPI-cstate-Optimize-C3-entry-on-AMD-CPUs.patch;
     patch -p1 < ./0003-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     patch -p1 < ./0004-mac80211-minstrel_ht-force-ampdu_len-to-be-0.patch;
@@ -273,7 +273,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0006-mac80211-airtime-replace-WARN_ON_ONCE-with-pr_warn_o.patch;
     patch -p1 < ./0007-mac80211-rate-replace-WARN_ON_ONCE-with-pr_warn_once.patch;
     patch -p1 < ./0008-mac80211-rate-replace-WARN_ON-with-pr_warn.patch;
-    patch -p1 < ./0010-Revert-net-replace-WARN_ONCE-with-pr_warn_once.patch;
+    patch -p1 < ./0009-Revert-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-5.15-merge-v0.12.5.patch;
@@ -431,7 +431,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v4/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying sbitmap patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sbitmap-patches-v2/*.patch .;
