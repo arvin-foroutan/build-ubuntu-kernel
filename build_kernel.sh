@@ -200,12 +200,12 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v7-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0003-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
-    patch -p1 < ./0004-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
-    patch -p1 < ./0006-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
-    patch -p1 < ./0007-lg-laptop-Recognize-more-models.patch;
+    patch -p1 < ./0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
+    patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
+    patch -p1 < ./0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
+    patch -p1 < ./0006-lg-laptop-Recognize-more-models.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
@@ -343,7 +343,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
