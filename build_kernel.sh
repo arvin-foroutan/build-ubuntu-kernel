@@ -200,8 +200,12 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v6/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v6-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0003-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
+    patch -p1 < ./0004-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
+    patch -p1 < ./0006-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
+    patch -p1 < ./0007-lg-laptop-Recognize-more-models.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
@@ -269,7 +273,6 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0006-mac80211-airtime-replace-WARN_ON_ONCE-with-pr_warn_o.patch;
     patch -p1 < ./0007-mac80211-rate-replace-WARN_ON_ONCE-with-pr_warn_once.patch;
     patch -p1 < ./0008-mac80211-rate-replace-WARN_ON-with-pr_warn.patch;
-    patch -p1 < ./0009-igb-fix-netpoll-exit-with-traffic.patch;
     patch -p1 < ./0010-Revert-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/v4l2loopback-patches/*.patch .;
