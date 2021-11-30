@@ -261,7 +261,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0015-x86-csum-rewrite-csum_partial.patch;
     patch -p1 < ./0016-x86-csum-Fix-compilation-error-for-UM.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying pf patches.. ✓";
@@ -421,9 +421,10 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v7/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0003-scsi-sd-Fix-sd_do_mode_sense-buffer-length-handling.patch;
     echo "*** Copying and applying net patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
