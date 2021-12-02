@@ -415,9 +415,11 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v6/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
-    echo "*** Copying and applying ksmbd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v7/*.patch .;
-    patch -p1 < ./0001-ksmbd-patches.patch;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        echo "*** Copying and applying ksmbd patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v9/*.patch .;
+        patch -p1 < ./0001-ksmbd-patches.patch;
+    fi
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
