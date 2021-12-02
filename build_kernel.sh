@@ -200,12 +200,13 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
     patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
     patch -p1 < ./0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     patch -p1 < ./0006-lg-laptop-Recognize-more-models.patch;
+    patch -p1 < ./0007-Revert-drm-i915-Implement-Wa_1508744258.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
@@ -342,9 +343,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying amd64 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
-    echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20211124.patch;
@@ -486,7 +484,14 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
+    if [ ${KERNEL_TYPE} == "rt" ]; then
+        echo "*** Copying and applying arch patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-rt-patches-v3/*.patch .;
+        patch -p1 < ./0001-arch-rt-patches.patch;
+    else
+        echo "*** Copying and applying arch patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8/*.patch .;
+        patch -p1 < ./0001-arch-patches.patch;
         echo "*** Copying and applying lrng patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v2/*.patch .;
         patch -p1 < ./0001-lrng-patches.patch;
