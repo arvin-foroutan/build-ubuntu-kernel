@@ -193,8 +193,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.78-rt55.patch .;
         patch -p1 < ./patch-5.10.78-rt55.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.154-rt65.patch .;
-        patch -p1 < ./patch-5.4.154-rt65.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.161-rt67-rc1.patch .;
+        patch -p1 < ./patch-5.4.161-rt67-rc1.patch;
     fi
 fi
 
