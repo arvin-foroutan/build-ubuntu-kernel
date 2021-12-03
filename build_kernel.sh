@@ -497,7 +497,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8/*.patch .;
         patch -p1 < ./0001-arch-patches.patch;
         echo "*** Copying and applying lrng patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v2/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v3/*.patch .;
         patch -p1 < ./0001-lrng-patches.patch;
         echo "*** Copying and applying lru patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf-v3/*.patch .;
