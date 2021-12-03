@@ -247,7 +247,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/fixes-miscellaneous-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/fixes-miscellaneous-v8-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -261,6 +261,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0013-Disable-stack-conservation-for-GCC.patch;
     patch -p1 < ./0015-x86-csum-rewrite-csum_partial.patch;
     patch -p1 < ./0016-x86-csum-Fix-compilation-error-for-UM.patch;
+    patch -p1 < ./0017-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
@@ -390,7 +391,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v8-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -406,6 +407,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0014-vfs-keep-inodes-with-page-cache-off-the-inode-shrink.patch;
     patch -p1 < ./0015-x86-csum-rewrite-csum_partial.patch;
     patch -p1 < ./0016-x86-csum-Fix-compilation-error-for-UM.patch;
+    patch -p1 < ./0017-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
     echo "*** Copying and applying futex (Valve fsync) patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-zen-patches/*.patch .;
     patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
