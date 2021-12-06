@@ -1,0 +1,44 @@
+From: Mel Gorman <mgorman@techsingularity.net>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Valentin Schneider <valentin.schneider@arm.com>,
+	Aubrey Li <aubrey.li@linux.intel.com>,
+	Barry Song <song.bao.hua@hisilicon.com>,
+	Mike Galbraith <efault@gmx.de>,
+	Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Mel Gorman <mgorman@techsingularity.net>
+Subject: [PATCH 1/2] sched/fair: Use weight of SD_NUMA domain in find_busiest_group
+Date: Wed,  1 Dec 2021 15:18:43 +0000	[thread overview]
+Message-ID: <20211201151844.20488-2-mgorman@techsingularity.net> (raw)
+In-Reply-To: <20211201151844.20488-1-mgorman@techsingularity.net>
+
+find_busiest_group uses the child domain's group weight instead of
+the sched_domain's weight that has SD_NUMA set when calculating the
+allowed imbalance between NUMA nodes. This is wrong and inconsistent
+with find_idlest_group.
+
+This patch uses the SD_NUMA weight in both.
+
+Fixes: c4e8f691d926 ("sched/fair: Adjust the allowed NUMA imbalance when SD_NUMA spans multiple LLCS")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 6e476f6d9435..0a969affca76 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9397,7 +9397,7 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
+ 		/* Consider allowing a small imbalance between NUMA groups */
+ 		if (env->sd->flags & SD_NUMA) {
+ 			env->imbalance = adjust_numa_imbalance(env->imbalance,
+-				busiest->sum_nr_running, busiest->group_weight);
++				busiest->sum_nr_running, env->sd->span_weight);
+ 		}
+ 
+ 		return;
+-- 
+2.31.1
