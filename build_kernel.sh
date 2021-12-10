@@ -348,7 +348,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     # patch -p1 < ./${KERNEL_SCHEDULER}-zen-tweaks.patch;
 elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying amd64 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches-v2/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
