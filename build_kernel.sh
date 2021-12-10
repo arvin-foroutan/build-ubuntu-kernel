@@ -423,6 +423,14 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v6/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
+    echo "*** Copying and applying intel patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-patches-sep/*.patch .;
+    patch -p1 < ./0001-x86-sched-Decrease-further-the-priorities-of-SMT-sib.patch;
+    patch -p1 < ./0002-sched-topology-Introduce-sched_group-flags.patch;
+    patch -p1 < ./0003-sched-fair-Optimize-checking-for-group_asym_packing.patch;
+    patch -p1 < ./0004-sched-fair-Provide-update_sg_lb_stats-with-sched-dom.patch;
+    patch -p1 < ./0005-sched-fair-Carve-out-logic-to-mark-a-group-for-asymm.patch;
+    patch -p1 < ./0006-sched-fair-Consider-SMT-in-ASYM_PACKING-load-balance.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying ksmbd patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v9/*.patch .;
