@@ -212,7 +212,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
     patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/clearlinux-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/clearlinux-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
     patch -p1 < ./0002-increase-the-ext4-default-commit-age.patch;
     patch -p1 < ./0003-silence-rapl.patch;
@@ -236,6 +236,9 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0021-ata-libahci-ignore-staggered-spin-up.patch;
     patch -p1 < ./0022-print-CPU-that-faults.patch;
     patch -p1 < ./0024-nvme-workaround.patch;
+    patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
+    patch -p1 < ./0026-Port-microcode-patches.patch;
+    patch -p1 < ./0027-clearlinux-5.15-backport-patches-from-clearlinux-rep.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/cpufreq-patches-v3/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
@@ -360,7 +363,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
     patch -p1 < ./0002-increase-the-ext4-default-commit-age.patch;
     patch -p1 < ./0003-silence-rapl.patch;
@@ -384,6 +387,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0021-ata-libahci-ignore-staggered-spin-up.patch;
     patch -p1 < ./0022-print-CPU-that-faults.patch;
     patch -p1 < ./0024-nvme-workaround.patch;
+    patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
+    patch -p1 < ./0026-Port-microcode-patches.patch;
+    patch -p1 < ./0027-clearlinux-5.15-backport-patches-from-clearlinux-rep.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v4/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
