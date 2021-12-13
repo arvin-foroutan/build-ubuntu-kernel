@@ -181,8 +181,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16-rc4-rt8.patch .;
         patch -p1 < ./patch-5.16-rc4-rt8.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.5-rt22.patch .;
-        patch -p1 < ./patch-5.15.5-rt22.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.7-rt23.patch .;
+        patch -p1 < ./patch-5.15.7-rt23.patch;
     elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14.2-rt21.patch .;
         patch -p1 < ./patch-5.14.2-rt21.patch;
@@ -517,8 +517,13 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     if [ ${KERNEL_TYPE} == "rt" ]; then
         echo "*** Copying and applying arch patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-rt-patches-v3/*.patch .;
-        patch -p1 < ./0001-arch-rt-patches.patch;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-rt-patches-v3-sep/*.patch .;
+        patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+        patch -p1 < ./0003-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
+        patch -p1 < ./0004-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
+        patch -p1 < ./0005-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
+        patch -p1 < ./0006-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
+        patch -p1 < ./0007-lg-laptop-Recognize-more-models.patch;
     else
         echo "*** Copying and applying arch patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9/*.patch .;
