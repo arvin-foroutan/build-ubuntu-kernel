@@ -827,10 +827,8 @@ elif [ ${KERNEL_BASE_VER} == "5.13" ]; then # EOL (End of Life, 5.13.19, 09/18/2
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/writeback-patches/*.patch .;
     patch -p1 < ./0001-writeback-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v3-sep/*.patch .;
-    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
-    patch -p1 < ./0003-netfilter-New-full-cone-SNAT-upstream.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v4/*.patch .;
+    patch -p1 < ./0001-xanmod-patches.patch;
     echo "*** Copying and applying le9ec mm patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/eol/linux-${KERNEL_BASE_VER}.y-xanmod/mm/*.patch .;
     patch -p1 < ./0001-mm-vmscan-add-sysctl-knobs-for-protecting-the-workin.patch;
