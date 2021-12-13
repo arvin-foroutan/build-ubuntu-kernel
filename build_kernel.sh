@@ -178,8 +178,8 @@ fi
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} == "5.16" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16-rc4-rt8.patch .;
-        patch -p1 < ./patch-5.16-rc4-rt8.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16-rc5-rt10.patch .;
+        patch -p1 < ./patch-5.16-rc5-rt10.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.7-rt23.patch .;
         patch -p1 < ./patch-5.15.7-rt23.patch;
