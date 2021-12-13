@@ -282,8 +282,12 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     cp -v ${LUCJAN_PATCH_PATH}/5.15/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-5.15-merge-v0.12.5.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/xanmod-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/xanmod-patches-v4-sep/*.patch .;
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
+    patch -p1 < ./0003-drm-i915-Add-workaround-numbers-to-GEN7_COMMON_SLICE.patch;
+    patch -p1 < ./0004-Revert-netfilter-Add-full-cone-NAT-support.patch;
+    patch -p1 < ./0005-Revert-drm-i915-Add-workaround-numbers-to-GEN7_COMMO.patch;
+    patch -p1 < ./0006-netfilter-Add-full-cone-NAT-support.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/zen-patches-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
