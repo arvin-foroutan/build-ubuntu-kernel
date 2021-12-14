@@ -7,8 +7,8 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.15"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.15.7"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051507"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.15.8"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051508"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"} # cfs, cacule
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -434,11 +434,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0004-sched-fair-Provide-update_sg_lb_stats-with-sched-dom.patch;
     patch -p1 < ./0005-sched-fair-Carve-out-logic-to-mark-a-group-for-asymm.patch;
     patch -p1 < ./0006-sched-fair-Consider-SMT-in-ASYM_PACKING-load-balance.patch;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        echo "*** Copying and applying ksmbd patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v9/*.patch .;
-        patch -p1 < ./0001-ksmbd-patches.patch;
-    fi
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
@@ -504,9 +499,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/amd-use_weight*.patch .;
     patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0001.patch;
     patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0002.patch;
-    echo "*** Copying and applying s2idle failure fix for some AMD laptops.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/misc-patches/fix_s2idle_failures_on_certain_amd_laptops.patch .;
-    patch -p1 < ./fix_s2idle_failures_on_certain_amd_laptops.patch;
     echo "*** Copying and applying lucjan custom patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
@@ -528,6 +520,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
         echo "*** Copying and applying damon patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches-v7/*.patch .;
         patch -p1 < ./0001-damon-patches.patch;
+        echo "*** Copying and applying ksmbd patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v9/*.patch .;
+        patch -p1 < ./0001-ksmbd-patches.patch;
         echo "*** Copying and applying lrng patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v3/*.patch .;
         patch -p1 < ./0001-lrng-patches.patch;
@@ -1377,11 +1372,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.15.7-051507+customidle-generic
-# 5.15.7-051507+customfull-generic
-# 5.15.7-051507+customrt-generic
+# 5.15.8-051508+customidle-generic
+# 5.15.8-051508+customfull-generic
+# 5.15.8-051508+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.15.7-051507+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.15.8-051508+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1522,7 +1517,7 @@ rm -rf ${KERNEL_BUILD_DIR};
 # Also note: Running 'sudo update-grub2' will list your installed kernels,
 # and you can manually delete the ones that have uninstall as time goes on.
 #
-# To uninstall a kernel: $ sudo apt purge *5.15.7-051507+customidle-generic*
+# To uninstall a kernel: $ sudo apt purge *5.15.8-051508+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
