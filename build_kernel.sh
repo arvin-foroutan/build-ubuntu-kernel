@@ -362,6 +362,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
+    echo "*** Copying and applying btrfs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v6/*.patch .;
+    patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
