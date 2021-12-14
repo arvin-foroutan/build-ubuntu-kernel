@@ -460,9 +460,13 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-${KERNEL_BASE_VER}-merge-v0.12.5.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v5-sep/*.patch .;
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
     patch -p1 < ./0003-drm-i915-Add-workaround-numbers-to-GEN7_COMMON_SLICE.patch;
+    patch -p1 < ./0004-Revert-netfilter-Add-full-cone-NAT-support.patch;
+    patch -p1 < ./0005-Revert-drm-i915-Add-workaround-numbers-to-GEN7_COMMO.patch;
+    patch -p1 < ./0006-netfilter-Add-full-cone-NAT-support.patch;
+    patch -p1 < ./0007-wait-Add-EXPORT_SYMBOL-for-__wake_up_pollfree.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
