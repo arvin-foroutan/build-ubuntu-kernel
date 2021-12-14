@@ -393,9 +393,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     echo "*** Copying and applying cpufreq patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v4/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
-    echo "*** Copying and applying damon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches-v5/*.patch .;
-    patch -p1 < ./0001-damon-patches.patch;
     echo "*** Copying an applying graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-cpu-5.15-merge-graysky-s-patchset.patch;
@@ -528,6 +525,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
         echo "*** Copying and applying arch patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9/*.patch .;
         patch -p1 < ./0001-arch-patches.patch;
+        echo "*** Copying and applying damon patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches-v7/*.patch .;
+        patch -p1 < ./0001-damon-patches.patch;
         echo "*** Copying and applying lrng patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v3/*.patch .;
         patch -p1 < ./0001-lrng-patches.patch;
