@@ -181,8 +181,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16-rc5-rt10.patch .;
         patch -p1 < ./patch-5.16-rc5-rt10.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.7-rt23.patch .;
-        patch -p1 < ./patch-5.15.7-rt23.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.10-rt24.patch .;
+        patch -p1 < ./patch-5.15.10-rt24.patch;
     elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14.2-rt21.patch .;
         patch -p1 < ./patch-5.14.2-rt21.patch;

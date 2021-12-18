@@ -1019,7 +1019,7 @@ index c8848bb681a1..41fa1be980a3 100644
  #ifdef CONFIG_HOTPLUG_CPU
  void fixup_irqs(void)
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 6ce906815bb2..e32cc543731f 100644
+index 1f96809606ac..3493d2b94530 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
 @@ -107,6 +107,7 @@ config X86
@@ -1362,10 +1362,10 @@ index a1202536fc57..a26a7c3849f5 100644
  #define orc_warn_current(args...)					\
  ({									\
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b7aa845f7bee..8feed8983b06 100644
+index eff065ce6f8e..d47927a4e8c3 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8506,6 +8506,14 @@ int kvm_arch_init(void *opaque)
+@@ -8511,6 +8511,14 @@ int kvm_arch_init(void *opaque)
  		goto out;
  	}
  
