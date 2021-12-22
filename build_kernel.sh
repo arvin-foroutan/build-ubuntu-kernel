@@ -357,7 +357,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-20211221.patch;
+    patch -p1 < ./0001-aufs-20211222.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-bbr2-${KERNEL_BASE_VER}-introduce-BBRv2.patch;
