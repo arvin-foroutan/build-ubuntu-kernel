@@ -296,7 +296,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     patch -p1 < ./0003-ZEN-Update-VHBA-driver.patch;
     echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/zstd-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/zstd-patches-v2/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/ntfs3-patches/*.patch .;
@@ -477,7 +477,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     patch -p1 < ./0003-ZEN-Update-VHBA-driver.patch;
     echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches-v2/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zstd upstream patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches-v2/*.patch .;
