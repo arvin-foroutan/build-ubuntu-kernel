@@ -240,7 +240,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0026-Port-microcode-patches.patch;
     patch -p1 < ./0027-clearlinux-5.15-backport-patches-from-clearlinux-rep.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/cpufreq-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/cpufreq-patches-v6/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying an applying graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/cpu-patches-v2-sep/*.patch .;
@@ -397,7 +397,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0026-Port-microcode-patches.patch;
     patch -p1 < ./0027-clearlinux-5.15-backport-patches-from-clearlinux-rep.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v6/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying an applying graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-v2-sep/*.patch .;
