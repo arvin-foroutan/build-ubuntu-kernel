@@ -205,7 +205,6 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
     patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
     patch -p1 < ./0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
-    patch -p1 < ./0007-HID-holtek-fix-mouse-probing.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/block-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
@@ -310,9 +309,6 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
     patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     patch -p1 < ./0013-XANMOD-fair-Remove-all-energy-efficiency-functions.patch;
-    echo "*** Copying and applying tcp optimization patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.17_tcp_optimizations.patch .;
-    patch -p1 < ./5.17_tcp_optimizations.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
