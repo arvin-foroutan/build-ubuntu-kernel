@@ -200,7 +200,7 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v10-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/arch-patches-v11-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
     patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
@@ -522,7 +522,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
         patch -p1 < ./0007-lg-laptop-Recognize-more-models.patch;
     else
         echo "*** Copying and applying arch patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v10/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v11/*.patch .;
         patch -p1 < ./0001-arch-patches.patch;
         echo "*** Copying and applying damon patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches-v7/*.patch .;
