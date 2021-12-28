@@ -528,7 +528,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches-v7/*.patch .;
         patch -p1 < ./0001-damon-patches.patch;
         echo "*** Copying and applying ksmbd patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v12/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v13/*.patch .;
         patch -p1 < ./0001-ksmbd-patches.patch;
         echo "*** Copying and applying lrng patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-v3/*.patch .;
