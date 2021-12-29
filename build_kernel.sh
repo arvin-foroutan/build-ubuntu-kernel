@@ -451,7 +451,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v4/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying sbitmap patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sbitmap-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sbitmap-patches-v3/*.patch .;
     patch -p1 < ./0001-sbitmap-patches.patch;
     echo "*** Copying and applying spectre patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spectre-patches/*.patch .;
