@@ -476,7 +476,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches-v2/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
     echo "*** Copying and applying zstd upstream patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-upstream-patches-v4/*.patch .;
     patch -p1 < ./0001-zstd-upstream-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-${KERNEL_BASE_VER}.y-xanmod/xanmod/*.patch .;
