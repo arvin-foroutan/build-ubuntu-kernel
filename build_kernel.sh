@@ -279,8 +279,8 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0008-mac80211-rate-replace-WARN_ON-with-pr_warn.patch;
     patch -p1 < ./0009-Revert-net-replace-WARN_ONCE-with-pr_warn_once.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-5.15-merge-v0.12.5.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/xanmod-patches-v5-sep/*.patch .;
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
@@ -457,8 +457,8 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spectre-patches/*.patch .;
     patch -p1 < ./0001-spectre-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-${KERNEL_BASE_VER}-merge-v0.12.5.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v5-sep/*.patch .;
     patch -p1 < ./0002-netfilter-Add-full-cone-NAT-support.patch;
