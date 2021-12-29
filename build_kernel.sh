@@ -442,7 +442,7 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     echo "*** Copying and applying net patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-v2/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches/*.patch .;
