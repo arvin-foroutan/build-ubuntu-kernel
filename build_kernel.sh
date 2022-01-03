@@ -265,9 +265,10 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest -rc, currently in developme
     patch -p1 < ./0017-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
     patch -p1 < ./0018-xfs-check-sb_meta_uuid-for-dabuf-buffer-recovery.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v4-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.15/lqx-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0003-Input-evdev-use-call_rcu-when-detaching-client.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.15/pf-patches-v4-sep/*.patch .;
     patch -p1 < ./0002-x86-ACPI-cstate-Optimize-C3-entry-on-AMD-CPUs.patch;
@@ -438,9 +439,10 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest mainline
     patch -p1 < ./0005-sched-fair-Carve-out-logic-to-mark-a-group-for-asymm.patch;
     patch -p1 < ./0006-sched-fair-Consider-SMT-in-ASYM_PACKING-load-balance.patch;
     echo "*** Copying and applying lqx patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v4-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0003-Input-evdev-use-call_rcu-when-detaching-client.patch;
     echo "*** Copying and applying net patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-v2/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
