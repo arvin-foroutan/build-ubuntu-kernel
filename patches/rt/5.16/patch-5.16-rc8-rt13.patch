@@ -112,7 +112,7 @@ index 645845e4982a6..73e321c6d1525 100644
    DEFINE(TI_TASK,		offsetof(struct thread_info, task));
  #endif
 diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index deff286eb5ea0..277238281cca8 100644
+index 5cd057859fe90..4db90d80d175f 100644
 --- a/arch/arm/kernel/entry-armv.S
 +++ b/arch/arm/kernel/entry-armv.S
 @@ -203,11 +203,18 @@ ENDPROC(__dabt_svc)
@@ -1294,7 +1294,7 @@ index 2de3c8c5eba9f..9cf5bd20e48af 100644
  #define orc_warn_current(args...)					\
  ({									\
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 9a2972fdae82b..2dfeb210621a2 100644
+index e50e97ac44084..1792cfb305c1a 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
 @@ -8655,6 +8655,12 @@ int kvm_arch_init(void *opaque)
@@ -2961,7 +2961,7 @@ index 1f9d2187c7655..49552c066ce57 100644
  	if (unlikely(IS_DEADDIR(dir_inode)))
  		return ERR_PTR(-ENOENT);
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 659a8f39c61af..3ab45b47b2860 100644
+index b696543adab84..4799232935ee4 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -343,8 +343,24 @@ int __mnt_want_write(struct vfsmount *m)
@@ -3285,7 +3285,7 @@ index 258cdde8d356b..9bca0d98db5a1 100644
  #endif /* ! CONFIG_KGDB */
  #endif /* _KGDB_H_ */
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index be5cb3360b944..5566dbc7eacd6 100644
+index 6aadcc0ecb5b0..4b041364ee2b1 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
 @@ -4003,8 +4003,17 @@ u32 bpf_prog_run_generic_xdp(struct sk_buff *skb, struct xdp_buff *xdp,
@@ -10276,7 +10276,7 @@ index b897ce3b399a1..7e03cc9363bb0 100644
  		goto err;
  
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 2a352e668d103..250e90116888e 100644
+index c4708e2487fb6..daed8ce42db1f 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -222,18 +222,38 @@ static inline struct hlist_head *dev_index_hash(struct net *net, int ifindex)
