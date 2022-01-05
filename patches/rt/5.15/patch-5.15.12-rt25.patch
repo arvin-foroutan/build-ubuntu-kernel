@@ -142,7 +142,7 @@ index a646a3f6440f..beb09d74684f 100644
    DEFINE(TI_CPU,		offsetof(struct thread_info, cpu));
    DEFINE(TI_CPU_DOMAIN,		offsetof(struct thread_info, cpu_domain));
 diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 241b73d64df7..f3a9dd2e98c6 100644
+index d8e28abd468c..6eef0eb99fe6 100644
 --- a/arch/arm/kernel/entry-armv.S
 +++ b/arch/arm/kernel/entry-armv.S
 @@ -206,11 +206,18 @@ ENDPROC(__dabt_svc)
@@ -235,7 +235,7 @@ index efa402025031..59487ee9fd61 100644
  	return 0;
  }
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index fee914c716aa..aeaa2c2ecc23 100644
+index 0758ea0717f9..ce63a0d3ad42 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -88,6 +88,7 @@ config ARM64
@@ -1362,10 +1362,10 @@ index a1202536fc57..a26a7c3849f5 100644
  #define orc_warn_current(args...)					\
  ({									\
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index eff065ce6f8e..d47927a4e8c3 100644
+index ccb256c377a6..2adb4580188b 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8511,6 +8511,14 @@ int kvm_arch_init(void *opaque)
+@@ -8523,6 +8523,14 @@ int kvm_arch_init(void *opaque)
  		goto out;
  	}
  
@@ -5542,7 +5542,7 @@ index d624231eab2b..823624b80b45 100644
  	if (!debug_locks)
  		print_irqtrace_events(current);
 diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index 6bb116c559b4..3665583361c0 100644
+index ea5a701ab240..547752d1e9c0 100644
 --- a/kernel/locking/rtmutex.c
 +++ b/kernel/locking/rtmutex.c
 @@ -1097,8 +1097,26 @@ static int __sched task_blocks_on_rt_mutex(struct rt_mutex_base *lock,
@@ -7348,7 +7348,7 @@ index 6591914af486..a404897d826f 100644
  
  #else /* #ifdef CONFIG_TASKS_RCU_GENERIC */
 diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index bdd1dc6de71a..9a04550cc54b 100644
+index 7ae10fab68b8..6f1249ea207e 100644
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
 @@ -2278,13 +2278,13 @@ rcu_report_qs_rdp(struct rcu_data *rdp)
@@ -8108,7 +8108,7 @@ index 406dccb79c2b..829d7797811f 100644
  	}
  
 diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index b348749a9fc6..a81beb312038 100644
+index dcdcb85121e4..5714e8b281ee 100644
 --- a/kernel/time/timekeeping.c
 +++ b/kernel/time/timekeeping.c
 @@ -203,22 +203,23 @@ static void timekeeping_check_update(struct timekeeper *tk, u64 offset)
@@ -8158,7 +8158,7 @@ index b348749a9fc6..a81beb312038 100644
  			tk->last_warning = jiffies;
  		}
  		tk->overflow_seen = 0;
-@@ -1669,9 +1671,7 @@ static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
+@@ -1668,9 +1670,7 @@ static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
  					   const struct timespec64 *delta)
  {
  	if (!timespec64_valid_strict(delta)) {
@@ -10452,7 +10452,7 @@ index 642cd179b7a7..18e4f7a0b291 100644
  	    gnet_stats_copy_queue(d, cl_q->cpu_qstats, &cl_q->qstats, qlen) < 0)
  		return -1;
 diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
-index 92a686807971..e007fc75ef2f 100644
+index 44fa2532a87c..d73393493553 100644
 --- a/net/sched/sch_ets.c
 +++ b/net/sched/sch_ets.c
 @@ -41,7 +41,7 @@ struct ets_class {
