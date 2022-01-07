@@ -2975,7 +2975,7 @@ index 1946d9667790..d89890a17f1b 100644
  	if (unlikely(IS_DEADDIR(dir_inode)))
  		return ERR_PTR(-ENOENT);
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 659a8f39c61a..3ab45b47b286 100644
+index b696543adab8..4799232935ee 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -343,8 +343,24 @@ int __mnt_want_write(struct vfsmount *m)
@@ -4509,7 +4509,7 @@ index 83a6d0792180..4a5833108083 100644
  	struct red_stats *xstats[MAX_DPs];
  };
 diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index 8c2d611639fc..73c76ffdf803 100644
+index 6e7cd0033357..0f42d4e3606e 100644
 --- a/include/net/sch_generic.h
 +++ b/include/net/sch_generic.h
 @@ -40,6 +40,13 @@ enum qdisc_state_t {
@@ -4601,7 +4601,7 @@ index 8c2d611639fc..73c76ffdf803 100644
  	}
  }
  
-@@ -592,14 +599,6 @@ static inline spinlock_t *qdisc_root_sleeping_lock(const struct Qdisc *qdisc)
+@@ -590,14 +597,6 @@ static inline spinlock_t *qdisc_root_sleeping_lock(const struct Qdisc *qdisc)
  	return qdisc_lock(root);
  }
  
@@ -4616,7 +4616,7 @@ index 8c2d611639fc..73c76ffdf803 100644
  static inline struct net_device *qdisc_dev(const struct Qdisc *qdisc)
  {
  	return qdisc->dev_queue->dev;
-@@ -849,14 +848,16 @@ static inline int qdisc_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+@@ -847,14 +846,16 @@ static inline int qdisc_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  	return sch->enqueue(skb, sch, to_free);
  }
  
@@ -4637,7 +4637,7 @@ index 8c2d611639fc..73c76ffdf803 100644
  				 const struct sk_buff *skb)
  {
  	_bstats_update(bstats,
-@@ -864,26 +865,10 @@ static inline void bstats_update(struct gnet_stats_basic_packed *bstats,
+@@ -862,26 +863,10 @@ static inline void bstats_update(struct gnet_stats_basic_packed *bstats,
  		       skb_is_gso(skb) ? skb_shinfo(skb)->gso_segs : 1);
  }
  
@@ -4665,7 +4665,7 @@ index 8c2d611639fc..73c76ffdf803 100644
  }
  
  static inline void qdisc_bstats_update(struct Qdisc *sch,
-@@ -972,10 +957,9 @@ static inline void qdisc_qstats_qlen_backlog(struct Qdisc *sch,  __u32 *qlen,
+@@ -970,10 +955,9 @@ static inline void qdisc_qstats_qlen_backlog(struct Qdisc *sch,  __u32 *qlen,
  					     __u32 *backlog)
  {
  	struct gnet_stats_queue qstats = { 0 };
@@ -4678,7 +4678,7 @@ index 8c2d611639fc..73c76ffdf803 100644
  	*backlog = qstats.backlog;
  }
  
-@@ -1316,7 +1300,7 @@ void psched_ppscfg_precompute(struct psched_pktrate *r, u64 pktrate64);
+@@ -1314,7 +1298,7 @@ void psched_ppscfg_precompute(struct psched_pktrate *r, u64 pktrate64);
  struct mini_Qdisc {
  	struct tcf_proto *filter_list;
  	struct tcf_block *block;
@@ -4687,7 +4687,7 @@ index 8c2d611639fc..73c76ffdf803 100644
  	struct gnet_stats_queue	__percpu *cpu_qstats;
  	struct rcu_head rcu;
  };
-@@ -1324,7 +1308,7 @@ struct mini_Qdisc {
+@@ -1322,7 +1306,7 @@ struct mini_Qdisc {
  static inline void mini_qdisc_bstats_cpu_update(struct mini_Qdisc *miniq,
  						const struct sk_buff *skb)
  {
@@ -9363,7 +9363,7 @@ index fb13460c6dab..074472dfa94a 100644
  config BQL
  	bool
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 91f53eeb0e79..f39077436e9d 100644
+index e0878a500aa9..dd0271e5f0f9 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -225,14 +225,14 @@ static inline struct hlist_head *dev_index_hash(struct net *net, int ifindex)
