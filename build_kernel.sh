@@ -314,9 +314,6 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     echo "*** Copying and applying lrng patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches/*.patch .;
     patch -p1 < ./0001-lrng-patches.patch;
-    echo "*** Copying and applying net patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-v2/*.patch .;
-    patch -p1 < ./0001-net-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
