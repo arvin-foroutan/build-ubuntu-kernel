@@ -7681,7 +7681,7 @@ index 85f1021ad4595..beb4b1cc7c48c 100644
  
  /*
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 88de94da596b1..54594a5e7a414 100644
+index 78ea542ce3bc2..52fd4bbc36a48 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
 @@ -2606,7 +2606,13 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
