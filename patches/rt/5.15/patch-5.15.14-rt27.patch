@@ -8183,7 +8183,7 @@ index b73e8850e58d..149cc4b08d8e 100644
  }
  
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 18db461f77cd..547de22e8942 100644
+index ce05ba041288..e9f78d3dbfaa 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
 @@ -2630,7 +2630,13 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
@@ -11090,7 +11090,7 @@ index 03fdf31ccb6a..3b8d7197c06b 100644
  		return -1;
  
 diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
-index 58a9d42b52b8..0b7f9ba28deb 100644
+index aea435b0aeb3..d4ce58c90f9f 100644
 --- a/net/sched/sch_qfq.c
 +++ b/net/sched/sch_qfq.c
 @@ -131,7 +131,7 @@ struct qfq_class {
