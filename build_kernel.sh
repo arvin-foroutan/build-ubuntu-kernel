@@ -306,7 +306,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     patch -p1 < ./0012-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
     patch -p1 < ./0013-xfs-check-sb_meta_uuid-for-dabuf-buffer-recovery.patch;
     echo "*** Copying an applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v3/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
