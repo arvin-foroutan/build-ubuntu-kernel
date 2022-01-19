@@ -321,6 +321,9 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
+    echo "*** Copying and applying smbus patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smbus-patches/*.patch .;
+    patch -p1 < ./0001-smbus-patches.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-5.16-merge-v1.0.15.patch;
