@@ -1,3 +1,23 @@
+diff --git a/Documentation/admin-guide/cgroup-v1/memory.rst b/Documentation/admin-guide/cgroup-v1/memory.rst
+index faac50149a222..2cc502a75ef64 100644
+--- a/Documentation/admin-guide/cgroup-v1/memory.rst
++++ b/Documentation/admin-guide/cgroup-v1/memory.rst
+@@ -64,6 +64,7 @@ Brief summary of control files.
+ 				     threads
+  cgroup.procs			     show list of processes
+  cgroup.event_control		     an interface for event_fd()
++				     This knob is not available on CONFIG_PREEMPT_RT systems.
+  memory.usage_in_bytes		     show current usage for memory
+ 				     (See 5.5 for details)
+  memory.memsw.usage_in_bytes	     show current usage for memory+Swap
+@@ -75,6 +76,7 @@ Brief summary of control files.
+  memory.max_usage_in_bytes	     show max memory usage recorded
+  memory.memsw.max_usage_in_bytes     show max memory+Swap usage recorded
+  memory.soft_limit_in_bytes	     set/show soft limit of memory usage
++				     This knob is not available on CONFIG_PREEMPT_RT systems.
+  memory.stat			     show various statistics
+  memory.use_hierarchy		     set/show hierarchical account enabled
+                                      This knob is deprecated and shouldn't be
 diff --git a/arch/alpha/include/asm/spinlock_types.h b/arch/alpha/include/asm/spinlock_types.h
 index 1d5716bc060be..2526fd3be5fd7 100644
 --- a/arch/alpha/include/asm/spinlock_types.h
@@ -1480,7 +1500,7 @@ index 80c3b43b4828f..d8f6d880f9151 100644
  	ktime_t ac_time;
  #endif
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 605969ed0f965..12fad0c2e61ff 100644
+index 7470ee24db2f9..d15f58be924e0 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
 @@ -200,7 +200,7 @@
@@ -1492,7 +1512,7 @@ index 605969ed0f965..12fad0c2e61ff 100644
   * 	void add_disk_randomness(struct gendisk *disk);
   *
   * add_device_randomness() is for adding data to the random pool that
-@@ -1242,9 +1242,65 @@ static __u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
+@@ -1260,9 +1260,65 @@ static __u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
  	return *ptr;
  }
  
@@ -1559,7 +1579,7 @@ index 605969ed0f965..12fad0c2e61ff 100644
  	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
  	struct pt_regs		*regs = get_irq_regs();
  	unsigned long		now = jiffies;
-@@ -1266,32 +1322,17 @@ void add_interrupt_randomness(int irq, int irq_flags)
+@@ -1284,32 +1340,17 @@ void add_interrupt_randomness(int irq, int irq_flags)
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
  
@@ -1600,7 +1620,7 @@ index 605969ed0f965..12fad0c2e61ff 100644
  }
  EXPORT_SYMBOL_GPL(add_interrupt_randomness);
  
-@@ -1507,9 +1548,8 @@ static void _warn_unseeded_randomness(const char *func_name, void *caller,
+@@ -1525,9 +1566,8 @@ static void _warn_unseeded_randomness(const char *func_name, void *caller,
  	print_once = true;
  #endif
  	if (__ratelimit(&unseeded_warning))
@@ -2000,6 +2020,51 @@ index 392c1ac4f8193..7ae04ccb10438 100644
  }
  
  static irqreturn_t vmbus_percpu_isr(int irq, void *dev_id)
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index fc13511f4562c..37e7bf4c14cea 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -1025,7 +1025,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct rcar_i2c_priv *priv;
+ 	struct i2c_adapter *adap;
+ 	struct device *dev = &pdev->dev;
+-	unsigned long irqflags = 0;
+ 	irqreturn_t (*irqhandler)(int irq, void *ptr) = rcar_i2c_gen3_irq;
+ 	int ret;
+ 
+@@ -1076,7 +1075,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+ 
+ 	if (priv->devtype < I2C_RCAR_GEN3) {
+-		irqflags |= IRQF_NO_THREAD;
+ 		irqhandler = rcar_i2c_gen2_irq;
+ 	}
+ 
+@@ -1102,7 +1100,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		goto out_pm_disable;
+ 	priv->irq = ret;
+-	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
++	ret = devm_request_irq(dev, priv->irq, irqhandler, 0, dev_name(dev), priv);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot get irq %d\n", priv->irq);
+ 		goto out_pm_disable;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 73253e667de1d..30e93651d5b6b 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1423,7 +1423,10 @@ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr)
+ 	if (irq <= 0)
+ 		return -ENXIO;
+ 
+-	generic_handle_irq(irq);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		generic_handle_irq(irq);
++	else
++		handle_nested_irq(irq);
+ 
+ 	return 0;
+ }
 diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
 index 9c1a5877cf9f6..e748c0e333495 100644
 --- a/drivers/md/raid5.c
@@ -3284,6 +3349,23 @@ index 258cdde8d356b..9bca0d98db5a1 100644
 +static inline void kgdb_roundup_cpu(unsigned int cpu) {}
  #endif /* ! CONFIG_KGDB */
  #endif /* _KGDB_H_ */
+diff --git a/include/linux/local_lock_internal.h b/include/linux/local_lock_internal.h
+index 975e33b793a77..6d635e8306d64 100644
+--- a/include/linux/local_lock_internal.h
++++ b/include/linux/local_lock_internal.h
+@@ -44,9 +44,9 @@ static inline void local_lock_debug_init(local_lock_t *l)
+ }
+ #else /* CONFIG_DEBUG_LOCK_ALLOC */
+ # define LOCAL_LOCK_DEBUG_INIT(lockname)
+-static inline void local_lock_acquire(local_lock_t *l) { }
+-static inline void local_lock_release(local_lock_t *l) { }
+-static inline void local_lock_debug_init(local_lock_t *l) { }
++# define local_lock_acquire(__ll)  do { typecheck(local_lock_t *, __ll); } while (0)
++# define local_lock_release(__ll)  do { typecheck(local_lock_t *, __ll); } while (0)
++# define local_lock_debug_init(__ll)  do { typecheck(local_lock_t *, __ll); } while (0)
+ #endif /* !CONFIG_DEBUG_LOCK_ALLOC */
+ 
+ #define INIT_LOCAL_LOCK(lockname)	{ LOCAL_LOCK_DEBUG_INIT(lockname) }
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
 index 6aadcc0ecb5b0..4b041364ee2b1 100644
 --- a/include/linux/netdevice.h
@@ -3694,7 +3776,7 @@ index 2c0ad417ce3c0..8f416c5e929ea 100644
  
  #define read_lock_irqsave(lock, flags)			\
 diff --git a/include/linux/rwlock_api_smp.h b/include/linux/rwlock_api_smp.h
-index f1db6f17c4fba..f0c535ec4e654 100644
+index f1db6f17c4fba..dceb0a59b6927 100644
 --- a/include/linux/rwlock_api_smp.h
 +++ b/include/linux/rwlock_api_smp.h
 @@ -17,6 +17,7 @@
@@ -3705,15 +3787,7 @@ index f1db6f17c4fba..f0c535ec4e654 100644
  void __lockfunc _raw_read_lock_bh(rwlock_t *lock)	__acquires(lock);
  void __lockfunc _raw_write_lock_bh(rwlock_t *lock)	__acquires(lock);
  void __lockfunc _raw_read_lock_irq(rwlock_t *lock)	__acquires(lock);
-@@ -46,6 +47,7 @@ _raw_write_unlock_irqrestore(rwlock_t *lock, unsigned long flags)
- 
- #ifdef CONFIG_INLINE_WRITE_LOCK
- #define _raw_write_lock(lock) __raw_write_lock(lock)
-+#define _raw_write_lock_nested(lock, subclass) __raw_write_lock_nested(lock, subclass)
- #endif
- 
- #ifdef CONFIG_INLINE_READ_LOCK_BH
-@@ -209,6 +211,13 @@ static inline void __raw_write_lock(rwlock_t *lock)
+@@ -209,6 +210,13 @@ static inline void __raw_write_lock(rwlock_t *lock)
  	LOCK_CONTENDED(lock, do_raw_write_trylock, do_raw_write_lock);
  }
  
@@ -5122,13 +5196,17 @@ index 5c9299aaabae1..900220941caac 100644
   * rt_mutex_trylock - try to lock a rt_mutex
   *
 diff --git a/kernel/locking/spinlock.c b/kernel/locking/spinlock.c
-index b562f92893727..996811efa6d6e 100644
+index b562f92893727..7f49baaa49793 100644
 --- a/kernel/locking/spinlock.c
 +++ b/kernel/locking/spinlock.c
-@@ -300,6 +300,12 @@ void __lockfunc _raw_write_lock(rwlock_t *lock)
+@@ -300,6 +300,16 @@ void __lockfunc _raw_write_lock(rwlock_t *lock)
  	__raw_write_lock(lock);
  }
  EXPORT_SYMBOL(_raw_write_lock);
++
++#ifndef CONFIG_DEBUG_LOCK_ALLOC
++#define __raw_write_lock_nested(lock, subclass)	__raw_write_lock(((void)(subclass), (lock)))
++#endif
 +
 +void __lockfunc _raw_write_lock_nested(rwlock_t *lock, int subclass)
 +{
@@ -7809,10 +7887,10 @@ index 3547e7176ff79..2745a023173ad 100644
  		trace_seq_printf(s, "%x", entry->preempt_count >> 4);
  	else
 diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 613917bbc4e73..1234ac4e18bef 100644
+index c55004cbf48ee..51bbd54a0485d 100644
 --- a/kernel/workqueue.c
 +++ b/kernel/workqueue.c
-@@ -4826,9 +4826,7 @@ void show_one_workqueue(struct workqueue_struct *wq)
+@@ -4845,9 +4845,7 @@ void show_one_workqueue(struct workqueue_struct *wq)
  			 * drivers that queue work while holding locks
  			 * also taken in their write paths.
  			 */
@@ -7822,7 +7900,7 @@ index 613917bbc4e73..1234ac4e18bef 100644
  		}
  		raw_spin_unlock_irqrestore(&pwq->pool->lock, flags);
  		/*
-@@ -4859,7 +4857,6 @@ static void show_one_worker_pool(struct worker_pool *pool)
+@@ -4878,7 +4876,6 @@ static void show_one_worker_pool(struct worker_pool *pool)
  	 * queue work while holding locks also taken in their write
  	 * paths.
  	 */
@@ -7830,7 +7908,7 @@ index 613917bbc4e73..1234ac4e18bef 100644
  	pr_info("pool %d:", pool->id);
  	pr_cont_pool_info(pool);
  	pr_cont(" hung=%us workers=%d",
-@@ -4874,7 +4871,6 @@ static void show_one_worker_pool(struct worker_pool *pool)
+@@ -4893,7 +4890,6 @@ static void show_one_worker_pool(struct worker_pool *pool)
  		first = false;
  	}
  	pr_cont("\n");
@@ -8514,10 +8592,18 @@ index e01a93f46f833..524cf65dce53c 100644
  			}
  		}
 diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 2ed5f2a0879d3..92180f1aa9edc 100644
+index 2ed5f2a0879d3..eb6873f43ef56 100644
 --- a/mm/memcontrol.c
 +++ b/mm/memcontrol.c
-@@ -261,8 +261,10 @@ bool mem_cgroup_kmem_disabled(void)
+@@ -169,7 +169,6 @@ struct mem_cgroup_event {
+ 	struct work_struct remove;
+ };
+ 
+-static void mem_cgroup_threshold(struct mem_cgroup *memcg);
+ static void mem_cgroup_oom_notify(struct mem_cgroup *memcg);
+ 
+ /* Stuffs for move charges at task migration. */
+@@ -261,8 +260,10 @@ bool mem_cgroup_kmem_disabled(void)
  	return cgroup_memory_nokmem;
  }
  
@@ -8525,61 +8611,87 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  static void obj_cgroup_uncharge_pages(struct obj_cgroup *objcg,
 -				      unsigned int nr_pages);
 +				      unsigned int nr_pages,
-+				      struct memcg_stock_pcp *stock_pcp);
++				      bool stock_lock_acquried);
  
  static void obj_cgroup_release(struct percpu_ref *ref)
  {
-@@ -296,7 +298,7 @@ static void obj_cgroup_release(struct percpu_ref *ref)
+@@ -296,7 +297,7 @@ static void obj_cgroup_release(struct percpu_ref *ref)
  	nr_pages = nr_bytes >> PAGE_SHIFT;
  
  	if (nr_pages)
 -		obj_cgroup_uncharge_pages(objcg, nr_pages);
-+		obj_cgroup_uncharge_pages(objcg, nr_pages, NULL);
++		obj_cgroup_uncharge_pages(objcg, nr_pages, false);
  
  	spin_lock_irqsave(&css_set_lock, flags);
  	list_del(&objcg->list);
-@@ -671,8 +673,14 @@ void __mod_memcg_state(struct mem_cgroup *memcg, int idx, int val)
- 	if (mem_cgroup_disabled())
- 		return;
- 
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_disable();
-+
- 	__this_cpu_add(memcg->vmstats_percpu->state[idx], val);
- 	memcg_rstat_updated(memcg);
-+
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_enable();
+@@ -521,43 +522,6 @@ static unsigned long soft_limit_excess(struct mem_cgroup *memcg)
+ 	return excess;
  }
  
- /* idx can be of type enum memcg_stat_item or node_stat_item. */
-@@ -699,6 +707,9 @@ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+-static void mem_cgroup_update_tree(struct mem_cgroup *memcg, int nid)
+-{
+-	unsigned long excess;
+-	struct mem_cgroup_per_node *mz;
+-	struct mem_cgroup_tree_per_node *mctz;
+-
+-	mctz = soft_limit_tree.rb_tree_per_node[nid];
+-	if (!mctz)
+-		return;
+-	/*
+-	 * Necessary to update all ancestors when hierarchy is used.
+-	 * because their event counter is not touched.
+-	 */
+-	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
+-		mz = memcg->nodeinfo[nid];
+-		excess = soft_limit_excess(memcg);
+-		/*
+-		 * We have to update the tree if mz is on RB-tree or
+-		 * mem is over its softlimit.
+-		 */
+-		if (excess || mz->on_tree) {
+-			unsigned long flags;
+-
+-			spin_lock_irqsave(&mctz->lock, flags);
+-			/* if on-tree, remove it */
+-			if (mz->on_tree)
+-				__mem_cgroup_remove_exceeded(mz, mctz);
+-			/*
+-			 * Insert again. mz->usage_in_excess will be updated.
+-			 * If excess is 0, no tree ops.
+-			 */
+-			__mem_cgroup_insert_exceeded(mz, mctz, excess);
+-			spin_unlock_irqrestore(&mctz->lock, flags);
+-		}
+-	}
+-}
+-
+ static void mem_cgroup_remove_from_trees(struct mem_cgroup *memcg)
+ {
+ 	struct mem_cgroup_tree_per_node *mctz;
+@@ -699,6 +663,8 @@ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
  	pn = container_of(lruvec, struct mem_cgroup_per_node, lruvec);
  	memcg = pn->memcg;
  
 +	if (IS_ENABLED(CONFIG_PREEMPT_RT))
 +		preempt_disable();
-+
  	/* Update memcg */
  	__this_cpu_add(memcg->vmstats_percpu->state[idx], val);
  
-@@ -706,6 +717,9 @@ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+@@ -706,6 +672,8 @@ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
  	__this_cpu_add(pn->lruvec_stats_percpu->state[idx], val);
  
  	memcg_rstat_updated(memcg);
-+
 +	if (IS_ENABLED(CONFIG_PREEMPT_RT))
 +		preempt_enable();
  }
  
  /**
-@@ -788,8 +802,13 @@ void __count_memcg_events(struct mem_cgroup *memcg, enum vm_event_item idx,
+@@ -788,8 +756,12 @@ void __count_memcg_events(struct mem_cgroup *memcg, enum vm_event_item idx,
  	if (mem_cgroup_disabled())
  		return;
  
 +	if (IS_ENABLED(PREEMPT_RT))
 +		preempt_disable();
-+
  	__this_cpu_add(memcg->vmstats_percpu->events[idx], count);
  	memcg_rstat_updated(memcg);
 +	if (IS_ENABLED(PREEMPT_RT))
@@ -8587,51 +8699,58 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  }
  
  static unsigned long memcg_events(struct mem_cgroup *memcg, int event)
-@@ -810,6 +829,9 @@ static unsigned long memcg_events_local(struct mem_cgroup *memcg, int event)
- static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
- 					 int nr_pages)
- {
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_disable();
-+
- 	/* pagein of a big page is an event. So, ignore page size */
- 	if (nr_pages > 0)
- 		__count_memcg_events(memcg, PGPGIN, 1);
-@@ -819,12 +841,19 @@ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
- 	}
- 
+@@ -821,50 +793,6 @@ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
  	__this_cpu_add(memcg->vmstats_percpu->nr_page_events, nr_pages);
-+
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_enable();
  }
  
- static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
- 				       enum mem_cgroup_events_target target)
- {
- 	unsigned long val, next;
-+	bool ret = false;
-+
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_disable();
- 
- 	val = __this_cpu_read(memcg->vmstats_percpu->nr_page_events);
- 	next = __this_cpu_read(memcg->vmstats_percpu->targets[target]);
-@@ -841,9 +870,11 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
- 			break;
- 		}
- 		__this_cpu_write(memcg->vmstats_percpu->targets[target], next);
+-static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
+-				       enum mem_cgroup_events_target target)
+-{
+-	unsigned long val, next;
+-
+-	val = __this_cpu_read(memcg->vmstats_percpu->nr_page_events);
+-	next = __this_cpu_read(memcg->vmstats_percpu->targets[target]);
+-	/* from time_after() in jiffies.h */
+-	if ((long)(next - val) < 0) {
+-		switch (target) {
+-		case MEM_CGROUP_TARGET_THRESH:
+-			next = val + THRESHOLDS_EVENTS_TARGET;
+-			break;
+-		case MEM_CGROUP_TARGET_SOFTLIMIT:
+-			next = val + SOFTLIMIT_EVENTS_TARGET;
+-			break;
+-		default:
+-			break;
+-		}
+-		__this_cpu_write(memcg->vmstats_percpu->targets[target], next);
 -		return true;
-+		ret = true;
- 	}
+-	}
 -	return false;
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_enable();
-+	return ret;
- }
- 
- /*
-@@ -2091,26 +2122,40 @@ struct obj_stock {
+-}
+-
+-/*
+- * Check events in order.
+- *
+- */
+-static void memcg_check_events(struct mem_cgroup *memcg, int nid)
+-{
+-	/* threshold event is triggered in finer grain than soft limit */
+-	if (unlikely(mem_cgroup_event_ratelimit(memcg,
+-						MEM_CGROUP_TARGET_THRESH))) {
+-		bool do_softlimit;
+-
+-		do_softlimit = mem_cgroup_event_ratelimit(memcg,
+-						MEM_CGROUP_TARGET_SOFTLIMIT);
+-		mem_cgroup_threshold(memcg);
+-		if (unlikely(do_softlimit))
+-			mem_cgroup_update_tree(memcg, nid);
+-	}
+-}
+-
+ struct mem_cgroup *mem_cgroup_from_task(struct task_struct *p)
+ {
+ 	/*
+@@ -2091,26 +2019,40 @@ struct obj_stock {
  };
  
  struct memcg_stock_pcp {
@@ -8662,20 +8781,20 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  #ifdef CONFIG_MEMCG_KMEM
 -static void drain_obj_stock(struct obj_stock *stock);
 +static struct obj_cgroup *drain_obj_stock(struct obj_stock *stock,
-+					  struct memcg_stock_pcp *stock_pcp);
++					  bool stock_lock_acquried);
  static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
  				     struct mem_cgroup *root_memcg);
  
  #else
 -static inline void drain_obj_stock(struct obj_stock *stock)
 +static inline struct obj_cgroup *drain_obj_stock(struct obj_stock *stock,
-+						 struct memcg_stock_pcp *stock_pcp)
++						 bool stock_lock_acquried)
  {
 +	return NULL;
  }
  static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
  				     struct mem_cgroup *root_memcg)
-@@ -2139,7 +2184,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2139,7 +2081,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  	if (nr_pages > MEMCG_CHARGE_BATCH)
  		return ret;
  
@@ -8684,7 +8803,7 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  
  	stock = this_cpu_ptr(&memcg_stock);
  	if (memcg == stock->cached && stock->nr_pages >= nr_pages) {
-@@ -2147,7 +2192,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2147,7 +2089,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  		ret = true;
  	}
  
@@ -8693,7 +8812,7 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  
  	return ret;
  }
-@@ -2175,38 +2220,43 @@ static void drain_stock(struct memcg_stock_pcp *stock)
+@@ -2175,38 +2117,43 @@ static void drain_stock(struct memcg_stock_pcp *stock)
  
  static void drain_local_stock(struct work_struct *dummy)
  {
@@ -8740,20 +8859,20 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
   * This will be consumed by consume_stock() function, later.
   */
 -static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
-+static void __refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages,
-+			   struct memcg_stock_pcp *stock)
++static void __refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  {
 -	struct memcg_stock_pcp *stock;
 -	unsigned long flags;
-+	lockdep_assert_held(&stock->stock_lock);
++	struct memcg_stock_pcp *stock = this_cpu_ptr(&memcg_stock);
  
 -	local_irq_save(flags);
 -
 -	stock = this_cpu_ptr(&memcg_stock);
++	lockdep_assert_held(&stock->stock_lock);
  	if (stock->cached != memcg) { /* reset if necessary */
  		drain_stock(stock);
  		css_get(&memcg->css);
-@@ -2216,8 +2266,20 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2216,8 +2163,20 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
  
  	if (stock->nr_pages > MEMCG_CHARGE_BATCH)
  		drain_stock(stock);
@@ -8761,21 +8880,21 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  
 -	local_irq_restore(flags);
 +static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages,
-+			 struct memcg_stock_pcp *stock_pcp)
++			 bool stock_lock_acquried)
 +{
 +	unsigned long flags;
 +
-+	if (stock_pcp) {
-+		__refill_stock(memcg, nr_pages, stock_pcp);
++	if (stock_lock_acquried) {
++		__refill_stock(memcg, nr_pages);
 +		return;
 +	}
 +	local_lock_irqsave(&memcg_stock.stock_lock, flags);
-+	__refill_stock(memcg, nr_pages, this_cpu_ptr(&memcg_stock));
++	__refill_stock(memcg, nr_pages);
 +	local_unlock_irqrestore(&memcg_stock.stock_lock, flags);
  }
  
  /*
-@@ -2226,7 +2288,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+@@ -2226,7 +2185,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
   */
  static void drain_all_stock(struct mem_cgroup *root_memcg)
  {
@@ -8784,7 +8903,7 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  
  	/* If someone's already draining, avoid adding running more workers. */
  	if (!mutex_trylock(&percpu_charge_mutex))
-@@ -2237,7 +2299,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
+@@ -2237,7 +2196,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
  	 * as well as workers from this path always operate on the local
  	 * per-cpu data. CPU up doesn't touch memcg_stock at all.
  	 */
@@ -8793,7 +8912,7 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  	for_each_online_cpu(cpu) {
  		struct memcg_stock_pcp *stock = &per_cpu(memcg_stock, cpu);
  		struct mem_cgroup *memcg;
-@@ -2253,14 +2315,10 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
+@@ -2253,14 +2212,10 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
  		rcu_read_unlock();
  
  		if (flush &&
@@ -8811,22 +8930,22 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  	mutex_unlock(&percpu_charge_mutex);
  }
  
-@@ -2661,7 +2719,7 @@ static int try_charge_memcg(struct mem_cgroup *memcg, gfp_t gfp_mask,
+@@ -2661,7 +2616,7 @@ static int try_charge_memcg(struct mem_cgroup *memcg, gfp_t gfp_mask,
  
  done_restock:
  	if (batch > nr_pages)
 -		refill_stock(memcg, batch - nr_pages);
-+		refill_stock(memcg, batch - nr_pages, NULL);
++		refill_stock(memcg, batch - nr_pages, false);
  
  	/*
  	 * If the hierarchy is above the normal consumption range, schedule
-@@ -2774,28 +2832,35 @@ static struct mem_cgroup *get_mem_cgroup_from_objcg(struct obj_cgroup *objcg)
+@@ -2774,28 +2729,36 @@ static struct mem_cgroup *get_mem_cgroup_from_objcg(struct obj_cgroup *objcg)
   * can only be accessed after disabling interrupt. User context code can
   * access interrupt object stock, but not vice versa.
   */
 -static inline struct obj_stock *get_obj_stock(unsigned long *pflags)
 +static inline struct obj_stock *get_obj_stock(unsigned long *pflags,
-+					      struct memcg_stock_pcp **stock_pcp)
++					      bool *stock_lock_acquried)
  {
  	struct memcg_stock_pcp *stock;
  
@@ -8834,7 +8953,7 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  	if (likely(in_task())) {
  		*pflags = 0UL;
 -		preempt_disable();
-+		*stock_pcp = NULL;
++		*stock_lock_acquried = false;
 +		local_lock(&memcg_stock.task_obj_lock);
  		stock = this_cpu_ptr(&memcg_stock);
  		return &stock->task_obj;
@@ -8842,68 +8961,70 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
 -
 -	local_irq_save(*pflags);
 +#endif
++	*stock_lock_acquried = true;
 +	local_lock_irqsave(&memcg_stock.stock_lock, *pflags);
  	stock = this_cpu_ptr(&memcg_stock);
-+	*stock_pcp = stock;
  	return &stock->irq_obj;
  }
  
 -static inline void put_obj_stock(unsigned long flags)
 +static inline void put_obj_stock(unsigned long flags,
-+				 struct memcg_stock_pcp *stock_pcp)
++				 bool stock_lock_acquried)
  {
 -	if (likely(in_task()))
 -		preempt_enable();
-+#ifndef CONFIG_PREEMPTION
-+	if (likely(!stock_pcp))
-+		local_unlock(&memcg_stock.task_obj_lock);
- 	else
+-	else
 -		local_irq_restore(flags);
++#ifndef CONFIG_PREEMPTION
++	if (likely(!stock_lock_acquried)) {
++		local_unlock(&memcg_stock.task_obj_lock);
++		return;
++	}
 +#endif
-+		local_unlock_irqrestore(&memcg_stock.stock_lock, flags);
++	local_unlock_irqrestore(&memcg_stock.stock_lock, flags);
  }
  
  /*
-@@ -2973,7 +3038,8 @@ static void memcg_free_cache_id(int id)
+@@ -2973,7 +2936,8 @@ static void memcg_free_cache_id(int id)
   * @nr_pages: number of pages to uncharge
   */
  static void obj_cgroup_uncharge_pages(struct obj_cgroup *objcg,
 -				      unsigned int nr_pages)
 +				      unsigned int nr_pages,
-+				      struct memcg_stock_pcp *stock_pcp)
++				      bool stock_lock_acquried)
  {
  	struct mem_cgroup *memcg;
  
-@@ -2981,7 +3047,7 @@ static void obj_cgroup_uncharge_pages(struct obj_cgroup *objcg,
+@@ -2981,7 +2945,7 @@ static void obj_cgroup_uncharge_pages(struct obj_cgroup *objcg,
  
  	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys))
  		page_counter_uncharge(&memcg->kmem, nr_pages);
 -	refill_stock(memcg, nr_pages);
-+	refill_stock(memcg, nr_pages, stock_pcp);
++	refill_stock(memcg, nr_pages, stock_lock_acquried);
  
  	css_put(&memcg->css);
  }
-@@ -3055,7 +3121,7 @@ void __memcg_kmem_uncharge_page(struct page *page, int order)
+@@ -3055,7 +3019,7 @@ void __memcg_kmem_uncharge_page(struct page *page, int order)
  		return;
  
  	objcg = __folio_objcg(folio);
 -	obj_cgroup_uncharge_pages(objcg, nr_pages);
-+	obj_cgroup_uncharge_pages(objcg, nr_pages, NULL);
++	obj_cgroup_uncharge_pages(objcg, nr_pages, false);
  	folio->memcg_data = 0;
  	obj_cgroup_put(objcg);
  }
-@@ -3063,17 +3129,21 @@ void __memcg_kmem_uncharge_page(struct page *page, int order)
+@@ -3063,17 +3027,21 @@ void __memcg_kmem_uncharge_page(struct page *page, int order)
  void mod_objcg_state(struct obj_cgroup *objcg, struct pglist_data *pgdat,
  		     enum node_stat_item idx, int nr)
  {
-+	struct memcg_stock_pcp *stock_pcp;
++	bool stock_lock_acquried;
  	unsigned long flags;
 -	struct obj_stock *stock = get_obj_stock(&flags);
 +	struct obj_cgroup *old = NULL;
 +	struct obj_stock *stock;
  	int *bytes;
  
-+	stock = get_obj_stock(&flags, &stock_pcp);
++	stock = get_obj_stock(&flags, &stock_lock_acquried);
  	/*
  	 * Save vmstat data in stock and skip vmstat array update unless
  	 * accumulating over a page of vmstat data or when pgdat or idx
@@ -8911,44 +9032,44 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  	 */
  	if (stock->cached_objcg != objcg) {
 -		drain_obj_stock(stock);
-+		old = drain_obj_stock(stock, stock_pcp);
++		old = drain_obj_stock(stock, stock_lock_acquried);
 +
  		obj_cgroup_get(objcg);
  		stock->nr_bytes = atomic_read(&objcg->nr_charged_bytes)
  				? atomic_xchg(&objcg->nr_charged_bytes, 0) : 0;
-@@ -3117,38 +3187,43 @@ void mod_objcg_state(struct obj_cgroup *objcg, struct pglist_data *pgdat,
+@@ -3117,38 +3085,43 @@ void mod_objcg_state(struct obj_cgroup *objcg, struct pglist_data *pgdat,
  	if (nr)
  		mod_objcg_mlstate(objcg, pgdat, idx, nr);
  
 -	put_obj_stock(flags);
-+	put_obj_stock(flags, stock_pcp);
++	put_obj_stock(flags, stock_lock_acquried);
 +	if (old)
 +		obj_cgroup_put(old);
  }
  
  static bool consume_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
  {
-+	struct memcg_stock_pcp *stock_pcp;
++	bool stock_lock_acquried;
  	unsigned long flags;
 -	struct obj_stock *stock = get_obj_stock(&flags);
 +	struct obj_stock *stock;
  	bool ret = false;
  
-+	stock = get_obj_stock(&flags, &stock_pcp);
++	stock = get_obj_stock(&flags, &stock_lock_acquried);
  	if (objcg == stock->cached_objcg && stock->nr_bytes >= nr_bytes) {
  		stock->nr_bytes -= nr_bytes;
  		ret = true;
  	}
  
 -	put_obj_stock(flags);
-+	put_obj_stock(flags, stock_pcp);
++	put_obj_stock(flags, stock_lock_acquried);
  
  	return ret;
  }
  
 -static void drain_obj_stock(struct obj_stock *stock)
 +static struct obj_cgroup *drain_obj_stock(struct obj_stock *stock,
-+					  struct memcg_stock_pcp *stock_pcp)
++					  bool stock_lock_acquried)
  {
  	struct obj_cgroup *old = stock->cached_objcg;
  
@@ -8962,11 +9083,11 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  
  		if (nr_pages)
 -			obj_cgroup_uncharge_pages(old, nr_pages);
-+			obj_cgroup_uncharge_pages(old, nr_pages, stock_pcp);
++			obj_cgroup_uncharge_pages(old, nr_pages, stock_lock_acquried);
  
  		/*
  		 * The leftover is flushed to the centralized per-memcg value.
-@@ -3183,8 +3258,8 @@ static void drain_obj_stock(struct obj_stock *stock)
+@@ -3183,8 +3156,8 @@ static void drain_obj_stock(struct obj_stock *stock)
  		stock->cached_pgdat = NULL;
  	}
  
@@ -8976,7 +9097,7 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  }
  
  static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
-@@ -3192,11 +3267,13 @@ static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
+@@ -3192,11 +3165,13 @@ static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
  {
  	struct mem_cgroup *memcg;
  
@@ -8990,122 +9111,799 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
  	if (stock->irq_obj.cached_objcg) {
  		memcg = obj_cgroup_memcg(stock->irq_obj.cached_objcg);
  		if (memcg && mem_cgroup_is_descendant(memcg, root_memcg))
-@@ -3209,12 +3286,15 @@ static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
+@@ -3209,12 +3184,15 @@ static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
  static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes,
  			     bool allow_uncharge)
  {
-+	struct memcg_stock_pcp *stock_pcp;
++	bool stock_lock_acquried;
  	unsigned long flags;
 -	struct obj_stock *stock = get_obj_stock(&flags);
 +	struct obj_stock *stock;
  	unsigned int nr_pages = 0;
 +	struct obj_cgroup *old = NULL;
  
-+	stock = get_obj_stock(&flags, &stock_pcp);
++	stock = get_obj_stock(&flags, &stock_lock_acquried);
  	if (stock->cached_objcg != objcg) { /* reset if necessary */
 -		drain_obj_stock(stock);
-+		old = drain_obj_stock(stock, stock_pcp);
++		old = drain_obj_stock(stock, stock_lock_acquried);
  		obj_cgroup_get(objcg);
  		stock->cached_objcg = objcg;
  		stock->nr_bytes = atomic_read(&objcg->nr_charged_bytes)
-@@ -3228,10 +3308,12 @@ static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes,
+@@ -3228,10 +3206,12 @@ static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes,
  		stock->nr_bytes &= (PAGE_SIZE - 1);
  	}
  
 -	put_obj_stock(flags);
-+	put_obj_stock(flags, stock_pcp);
++	put_obj_stock(flags, stock_lock_acquried);
 +	if (old)
 +		obj_cgroup_put(old);
  
  	if (nr_pages)
 -		obj_cgroup_uncharge_pages(objcg, nr_pages);
-+		obj_cgroup_uncharge_pages(objcg, nr_pages, NULL);
++		obj_cgroup_uncharge_pages(objcg, nr_pages, false);
  }
  
  int obj_cgroup_charge(struct obj_cgroup *objcg, gfp_t gfp, size_t size)
-@@ -5645,12 +5727,14 @@ static int mem_cgroup_move_account(struct page *page,
- 	ret = 0;
- 	nid = folio_nid(folio);
+@@ -3751,8 +3731,12 @@ static ssize_t mem_cgroup_write(struct kernfs_open_file *of,
+ 		}
+ 		break;
+ 	case RES_SOFT_LIMIT:
++#ifndef CONFIG_PREEMPT_RT
+ 		memcg->soft_limit = nr_pages;
+ 		ret = 0;
++#else
++		ret = -EOPNOTSUPP;
++#endif
+ 		break;
+ 	}
+ 	return ret ?: nbytes;
+@@ -4057,82 +4041,6 @@ static int mem_cgroup_swappiness_write(struct cgroup_subsys_state *css,
+ 	return 0;
+ }
  
--	local_irq_disable();
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_disable();
- 	mem_cgroup_charge_statistics(to, nr_pages);
- 	memcg_check_events(to, nid);
- 	mem_cgroup_charge_statistics(from, -nr_pages);
- 	memcg_check_events(from, nid);
--	local_irq_enable();
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_enable();
- out_unlock:
- 	folio_unlock(folio);
- out:
-@@ -6670,10 +6754,12 @@ static int charge_memcg(struct folio *folio, struct mem_cgroup *memcg,
- 	css_get(&memcg->css);
- 	commit_charge(folio, memcg);
+-static void __mem_cgroup_threshold(struct mem_cgroup *memcg, bool swap)
+-{
+-	struct mem_cgroup_threshold_ary *t;
+-	unsigned long usage;
+-	int i;
+-
+-	rcu_read_lock();
+-	if (!swap)
+-		t = rcu_dereference(memcg->thresholds.primary);
+-	else
+-		t = rcu_dereference(memcg->memsw_thresholds.primary);
+-
+-	if (!t)
+-		goto unlock;
+-
+-	usage = mem_cgroup_usage(memcg, swap);
+-
+-	/*
+-	 * current_threshold points to threshold just below or equal to usage.
+-	 * If it's not true, a threshold was crossed after last
+-	 * call of __mem_cgroup_threshold().
+-	 */
+-	i = t->current_threshold;
+-
+-	/*
+-	 * Iterate backward over array of thresholds starting from
+-	 * current_threshold and check if a threshold is crossed.
+-	 * If none of thresholds below usage is crossed, we read
+-	 * only one element of the array here.
+-	 */
+-	for (; i >= 0 && unlikely(t->entries[i].threshold > usage); i--)
+-		eventfd_signal(t->entries[i].eventfd, 1);
+-
+-	/* i = current_threshold + 1 */
+-	i++;
+-
+-	/*
+-	 * Iterate forward over array of thresholds starting from
+-	 * current_threshold+1 and check if a threshold is crossed.
+-	 * If none of thresholds above usage is crossed, we read
+-	 * only one element of the array here.
+-	 */
+-	for (; i < t->size && unlikely(t->entries[i].threshold <= usage); i++)
+-		eventfd_signal(t->entries[i].eventfd, 1);
+-
+-	/* Update current_threshold */
+-	t->current_threshold = i - 1;
+-unlock:
+-	rcu_read_unlock();
+-}
+-
+-static void mem_cgroup_threshold(struct mem_cgroup *memcg)
+-{
+-	while (memcg) {
+-		__mem_cgroup_threshold(memcg, false);
+-		if (do_memsw_account())
+-			__mem_cgroup_threshold(memcg, true);
+-
+-		memcg = parent_mem_cgroup(memcg);
+-	}
+-}
+-
+-static int compare_thresholds(const void *a, const void *b)
+-{
+-	const struct mem_cgroup_threshold *_a = a;
+-	const struct mem_cgroup_threshold *_b = b;
+-
+-	if (_a->threshold > _b->threshold)
+-		return 1;
+-
+-	if (_a->threshold < _b->threshold)
+-		return -1;
+-
+-	return 0;
+-}
+-
+ static int mem_cgroup_oom_notify_cb(struct mem_cgroup *memcg)
+ {
+ 	struct mem_cgroup_eventfd_list *ev;
+@@ -4154,234 +4062,6 @@ static void mem_cgroup_oom_notify(struct mem_cgroup *memcg)
+ 		mem_cgroup_oom_notify_cb(iter);
+ }
  
--	local_irq_disable();
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_disable();
- 	mem_cgroup_charge_statistics(memcg, nr_pages);
- 	memcg_check_events(memcg, folio_nid(folio));
--	local_irq_enable();
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_enable();
- out:
+-static int __mem_cgroup_usage_register_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd, const char *args, enum res_type type)
+-{
+-	struct mem_cgroup_thresholds *thresholds;
+-	struct mem_cgroup_threshold_ary *new;
+-	unsigned long threshold;
+-	unsigned long usage;
+-	int i, size, ret;
+-
+-	ret = page_counter_memparse(args, "-1", &threshold);
+-	if (ret)
+-		return ret;
+-
+-	mutex_lock(&memcg->thresholds_lock);
+-
+-	if (type == _MEM) {
+-		thresholds = &memcg->thresholds;
+-		usage = mem_cgroup_usage(memcg, false);
+-	} else if (type == _MEMSWAP) {
+-		thresholds = &memcg->memsw_thresholds;
+-		usage = mem_cgroup_usage(memcg, true);
+-	} else
+-		BUG();
+-
+-	/* Check if a threshold crossed before adding a new one */
+-	if (thresholds->primary)
+-		__mem_cgroup_threshold(memcg, type == _MEMSWAP);
+-
+-	size = thresholds->primary ? thresholds->primary->size + 1 : 1;
+-
+-	/* Allocate memory for new array of thresholds */
+-	new = kmalloc(struct_size(new, entries, size), GFP_KERNEL);
+-	if (!new) {
+-		ret = -ENOMEM;
+-		goto unlock;
+-	}
+-	new->size = size;
+-
+-	/* Copy thresholds (if any) to new array */
+-	if (thresholds->primary)
+-		memcpy(new->entries, thresholds->primary->entries,
+-		       flex_array_size(new, entries, size - 1));
+-
+-	/* Add new threshold */
+-	new->entries[size - 1].eventfd = eventfd;
+-	new->entries[size - 1].threshold = threshold;
+-
+-	/* Sort thresholds. Registering of new threshold isn't time-critical */
+-	sort(new->entries, size, sizeof(*new->entries),
+-			compare_thresholds, NULL);
+-
+-	/* Find current threshold */
+-	new->current_threshold = -1;
+-	for (i = 0; i < size; i++) {
+-		if (new->entries[i].threshold <= usage) {
+-			/*
+-			 * new->current_threshold will not be used until
+-			 * rcu_assign_pointer(), so it's safe to increment
+-			 * it here.
+-			 */
+-			++new->current_threshold;
+-		} else
+-			break;
+-	}
+-
+-	/* Free old spare buffer and save old primary buffer as spare */
+-	kfree(thresholds->spare);
+-	thresholds->spare = thresholds->primary;
+-
+-	rcu_assign_pointer(thresholds->primary, new);
+-
+-	/* To be sure that nobody uses thresholds */
+-	synchronize_rcu();
+-
+-unlock:
+-	mutex_unlock(&memcg->thresholds_lock);
+-
+-	return ret;
+-}
+-
+-static int mem_cgroup_usage_register_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd, const char *args)
+-{
+-	return __mem_cgroup_usage_register_event(memcg, eventfd, args, _MEM);
+-}
+-
+-static int memsw_cgroup_usage_register_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd, const char *args)
+-{
+-	return __mem_cgroup_usage_register_event(memcg, eventfd, args, _MEMSWAP);
+-}
+-
+-static void __mem_cgroup_usage_unregister_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd, enum res_type type)
+-{
+-	struct mem_cgroup_thresholds *thresholds;
+-	struct mem_cgroup_threshold_ary *new;
+-	unsigned long usage;
+-	int i, j, size, entries;
+-
+-	mutex_lock(&memcg->thresholds_lock);
+-
+-	if (type == _MEM) {
+-		thresholds = &memcg->thresholds;
+-		usage = mem_cgroup_usage(memcg, false);
+-	} else if (type == _MEMSWAP) {
+-		thresholds = &memcg->memsw_thresholds;
+-		usage = mem_cgroup_usage(memcg, true);
+-	} else
+-		BUG();
+-
+-	if (!thresholds->primary)
+-		goto unlock;
+-
+-	/* Check if a threshold crossed before removing */
+-	__mem_cgroup_threshold(memcg, type == _MEMSWAP);
+-
+-	/* Calculate new number of threshold */
+-	size = entries = 0;
+-	for (i = 0; i < thresholds->primary->size; i++) {
+-		if (thresholds->primary->entries[i].eventfd != eventfd)
+-			size++;
+-		else
+-			entries++;
+-	}
+-
+-	new = thresholds->spare;
+-
+-	/* If no items related to eventfd have been cleared, nothing to do */
+-	if (!entries)
+-		goto unlock;
+-
+-	/* Set thresholds array to NULL if we don't have thresholds */
+-	if (!size) {
+-		kfree(new);
+-		new = NULL;
+-		goto swap_buffers;
+-	}
+-
+-	new->size = size;
+-
+-	/* Copy thresholds and find current threshold */
+-	new->current_threshold = -1;
+-	for (i = 0, j = 0; i < thresholds->primary->size; i++) {
+-		if (thresholds->primary->entries[i].eventfd == eventfd)
+-			continue;
+-
+-		new->entries[j] = thresholds->primary->entries[i];
+-		if (new->entries[j].threshold <= usage) {
+-			/*
+-			 * new->current_threshold will not be used
+-			 * until rcu_assign_pointer(), so it's safe to increment
+-			 * it here.
+-			 */
+-			++new->current_threshold;
+-		}
+-		j++;
+-	}
+-
+-swap_buffers:
+-	/* Swap primary and spare array */
+-	thresholds->spare = thresholds->primary;
+-
+-	rcu_assign_pointer(thresholds->primary, new);
+-
+-	/* To be sure that nobody uses thresholds */
+-	synchronize_rcu();
+-
+-	/* If all events are unregistered, free the spare array */
+-	if (!new) {
+-		kfree(thresholds->spare);
+-		thresholds->spare = NULL;
+-	}
+-unlock:
+-	mutex_unlock(&memcg->thresholds_lock);
+-}
+-
+-static void mem_cgroup_usage_unregister_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd)
+-{
+-	return __mem_cgroup_usage_unregister_event(memcg, eventfd, _MEM);
+-}
+-
+-static void memsw_cgroup_usage_unregister_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd)
+-{
+-	return __mem_cgroup_usage_unregister_event(memcg, eventfd, _MEMSWAP);
+-}
+-
+-static int mem_cgroup_oom_register_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd, const char *args)
+-{
+-	struct mem_cgroup_eventfd_list *event;
+-
+-	event = kmalloc(sizeof(*event),	GFP_KERNEL);
+-	if (!event)
+-		return -ENOMEM;
+-
+-	spin_lock(&memcg_oom_lock);
+-
+-	event->eventfd = eventfd;
+-	list_add(&event->list, &memcg->oom_notify);
+-
+-	/* already in OOM ? */
+-	if (memcg->under_oom)
+-		eventfd_signal(eventfd, 1);
+-	spin_unlock(&memcg_oom_lock);
+-
+-	return 0;
+-}
+-
+-static void mem_cgroup_oom_unregister_event(struct mem_cgroup *memcg,
+-	struct eventfd_ctx *eventfd)
+-{
+-	struct mem_cgroup_eventfd_list *ev, *tmp;
+-
+-	spin_lock(&memcg_oom_lock);
+-
+-	list_for_each_entry_safe(ev, tmp, &memcg->oom_notify, list) {
+-		if (ev->eventfd == eventfd) {
+-			list_del(&ev->list);
+-			kfree(ev);
+-		}
+-	}
+-
+-	spin_unlock(&memcg_oom_lock);
+-}
+-
+ static int mem_cgroup_oom_control_read(struct seq_file *sf, void *v)
+ {
+ 	struct mem_cgroup *memcg = mem_cgroup_from_seq(sf);
+@@ -4622,6 +4302,7 @@ static void memcg_wb_domain_size_changed(struct mem_cgroup *memcg)
+ 
+ #endif	/* CONFIG_CGROUP_WRITEBACK */
+ 
++#ifndef CONFIG_PREEMPT_RT
+ /*
+  * DO NOT USE IN NEW FILES.
+  *
+@@ -4635,6 +4316,391 @@ static void memcg_wb_domain_size_changed(struct mem_cgroup *memcg)
+  * possible.
+  */
+ 
++static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
++				       enum mem_cgroup_events_target target)
++{
++	unsigned long val, next;
++
++	val = __this_cpu_read(memcg->vmstats_percpu->nr_page_events);
++	next = __this_cpu_read(memcg->vmstats_percpu->targets[target]);
++	/* from time_after() in jiffies.h */
++	if ((long)(next - val) < 0) {
++		switch (target) {
++		case MEM_CGROUP_TARGET_THRESH:
++			next = val + THRESHOLDS_EVENTS_TARGET;
++			break;
++		case MEM_CGROUP_TARGET_SOFTLIMIT:
++			next = val + SOFTLIMIT_EVENTS_TARGET;
++			break;
++		default:
++			break;
++		}
++		__this_cpu_write(memcg->vmstats_percpu->targets[target], next);
++		return true;
++	}
++	return false;
++}
++
++static void mem_cgroup_update_tree(struct mem_cgroup *memcg, int nid)
++{
++	unsigned long excess;
++	struct mem_cgroup_per_node *mz;
++	struct mem_cgroup_tree_per_node *mctz;
++
++	mctz = soft_limit_tree.rb_tree_per_node[nid];
++	if (!mctz)
++		return;
++	/*
++	 * Necessary to update all ancestors when hierarchy is used.
++	 * because their event counter is not touched.
++	 */
++	for (; memcg; memcg = parent_mem_cgroup(memcg)) {
++		mz = memcg->nodeinfo[nid];
++		excess = soft_limit_excess(memcg);
++		/*
++		 * We have to update the tree if mz is on RB-tree or
++		 * mem is over its softlimit.
++		 */
++		if (excess || mz->on_tree) {
++			unsigned long flags;
++
++			spin_lock_irqsave(&mctz->lock, flags);
++			/* if on-tree, remove it */
++			if (mz->on_tree)
++				__mem_cgroup_remove_exceeded(mz, mctz);
++			/*
++			 * Insert again. mz->usage_in_excess will be updated.
++			 * If excess is 0, no tree ops.
++			 */
++			__mem_cgroup_insert_exceeded(mz, mctz, excess);
++			spin_unlock_irqrestore(&mctz->lock, flags);
++		}
++	}
++}
++
++static void __mem_cgroup_threshold(struct mem_cgroup *memcg, bool swap)
++{
++	struct mem_cgroup_threshold_ary *t;
++	unsigned long usage;
++	int i;
++
++	rcu_read_lock();
++	if (!swap)
++		t = rcu_dereference(memcg->thresholds.primary);
++	else
++		t = rcu_dereference(memcg->memsw_thresholds.primary);
++
++	if (!t)
++		goto unlock;
++
++	usage = mem_cgroup_usage(memcg, swap);
++
++	/*
++	 * current_threshold points to threshold just below or equal to usage.
++	 * If it's not true, a threshold was crossed after last
++	 * call of __mem_cgroup_threshold().
++	 */
++	i = t->current_threshold;
++
++	/*
++	 * Iterate backward over array of thresholds starting from
++	 * current_threshold and check if a threshold is crossed.
++	 * If none of thresholds below usage is crossed, we read
++	 * only one element of the array here.
++	 */
++	for (; i >= 0 && unlikely(t->entries[i].threshold > usage); i--)
++		eventfd_signal(t->entries[i].eventfd, 1);
++
++	/* i = current_threshold + 1 */
++	i++;
++
++	/*
++	 * Iterate forward over array of thresholds starting from
++	 * current_threshold+1 and check if a threshold is crossed.
++	 * If none of thresholds above usage is crossed, we read
++	 * only one element of the array here.
++	 */
++	for (; i < t->size && unlikely(t->entries[i].threshold <= usage); i++)
++		eventfd_signal(t->entries[i].eventfd, 1);
++
++	/* Update current_threshold */
++	t->current_threshold = i - 1;
++unlock:
++	rcu_read_unlock();
++}
++
++static void mem_cgroup_threshold(struct mem_cgroup *memcg)
++{
++	while (memcg) {
++		__mem_cgroup_threshold(memcg, false);
++		if (do_memsw_account())
++			__mem_cgroup_threshold(memcg, true);
++
++		memcg = parent_mem_cgroup(memcg);
++	}
++}
++
++/*
++ * Check events in order.
++ *
++ */
++static void memcg_check_events(struct mem_cgroup *memcg, int nid)
++{
++	/* threshold event is triggered in finer grain than soft limit */
++	if (unlikely(mem_cgroup_event_ratelimit(memcg,
++						MEM_CGROUP_TARGET_THRESH))) {
++		bool do_softlimit;
++
++		do_softlimit = mem_cgroup_event_ratelimit(memcg,
++						MEM_CGROUP_TARGET_SOFTLIMIT);
++		mem_cgroup_threshold(memcg);
++		if (unlikely(do_softlimit))
++			mem_cgroup_update_tree(memcg, nid);
++	}
++}
++
++static int compare_thresholds(const void *a, const void *b)
++{
++	const struct mem_cgroup_threshold *_a = a;
++	const struct mem_cgroup_threshold *_b = b;
++
++	if (_a->threshold > _b->threshold)
++		return 1;
++
++	if (_a->threshold < _b->threshold)
++		return -1;
++
++	return 0;
++}
++
++static int __mem_cgroup_usage_register_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd, const char *args, enum res_type type)
++{
++	struct mem_cgroup_thresholds *thresholds;
++	struct mem_cgroup_threshold_ary *new;
++	unsigned long threshold;
++	unsigned long usage;
++	int i, size, ret;
++
++	ret = page_counter_memparse(args, "-1", &threshold);
++	if (ret)
++		return ret;
++
++	mutex_lock(&memcg->thresholds_lock);
++
++	if (type == _MEM) {
++		thresholds = &memcg->thresholds;
++		usage = mem_cgroup_usage(memcg, false);
++	} else if (type == _MEMSWAP) {
++		thresholds = &memcg->memsw_thresholds;
++		usage = mem_cgroup_usage(memcg, true);
++	} else
++		BUG();
++
++	/* Check if a threshold crossed before adding a new one */
++	if (thresholds->primary)
++		__mem_cgroup_threshold(memcg, type == _MEMSWAP);
++
++	size = thresholds->primary ? thresholds->primary->size + 1 : 1;
++
++	/* Allocate memory for new array of thresholds */
++	new = kmalloc(struct_size(new, entries, size), GFP_KERNEL);
++	if (!new) {
++		ret = -ENOMEM;
++		goto unlock;
++	}
++	new->size = size;
++
++	/* Copy thresholds (if any) to new array */
++	if (thresholds->primary)
++		memcpy(new->entries, thresholds->primary->entries,
++		       flex_array_size(new, entries, size - 1));
++
++	/* Add new threshold */
++	new->entries[size - 1].eventfd = eventfd;
++	new->entries[size - 1].threshold = threshold;
++
++	/* Sort thresholds. Registering of new threshold isn't time-critical */
++	sort(new->entries, size, sizeof(*new->entries),
++			compare_thresholds, NULL);
++
++	/* Find current threshold */
++	new->current_threshold = -1;
++	for (i = 0; i < size; i++) {
++		if (new->entries[i].threshold <= usage) {
++			/*
++			 * new->current_threshold will not be used until
++			 * rcu_assign_pointer(), so it's safe to increment
++			 * it here.
++			 */
++			++new->current_threshold;
++		} else
++			break;
++	}
++
++	/* Free old spare buffer and save old primary buffer as spare */
++	kfree(thresholds->spare);
++	thresholds->spare = thresholds->primary;
++
++	rcu_assign_pointer(thresholds->primary, new);
++
++	/* To be sure that nobody uses thresholds */
++	synchronize_rcu();
++
++unlock:
++	mutex_unlock(&memcg->thresholds_lock);
++
++	return ret;
++}
++
++static int mem_cgroup_usage_register_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd, const char *args)
++{
++	return __mem_cgroup_usage_register_event(memcg, eventfd, args, _MEM);
++}
++
++static int memsw_cgroup_usage_register_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd, const char *args)
++{
++	return __mem_cgroup_usage_register_event(memcg, eventfd, args, _MEMSWAP);
++}
++
++static void __mem_cgroup_usage_unregister_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd, enum res_type type)
++{
++	struct mem_cgroup_thresholds *thresholds;
++	struct mem_cgroup_threshold_ary *new;
++	unsigned long usage;
++	int i, j, size, entries;
++
++	mutex_lock(&memcg->thresholds_lock);
++
++	if (type == _MEM) {
++		thresholds = &memcg->thresholds;
++		usage = mem_cgroup_usage(memcg, false);
++	} else if (type == _MEMSWAP) {
++		thresholds = &memcg->memsw_thresholds;
++		usage = mem_cgroup_usage(memcg, true);
++	} else
++		BUG();
++
++	if (!thresholds->primary)
++		goto unlock;
++
++	/* Check if a threshold crossed before removing */
++	__mem_cgroup_threshold(memcg, type == _MEMSWAP);
++
++	/* Calculate new number of threshold */
++	size = entries = 0;
++	for (i = 0; i < thresholds->primary->size; i++) {
++		if (thresholds->primary->entries[i].eventfd != eventfd)
++			size++;
++		else
++			entries++;
++	}
++
++	new = thresholds->spare;
++
++	/* If no items related to eventfd have been cleared, nothing to do */
++	if (!entries)
++		goto unlock;
++
++	/* Set thresholds array to NULL if we don't have thresholds */
++	if (!size) {
++		kfree(new);
++		new = NULL;
++		goto swap_buffers;
++	}
++
++	new->size = size;
++
++	/* Copy thresholds and find current threshold */
++	new->current_threshold = -1;
++	for (i = 0, j = 0; i < thresholds->primary->size; i++) {
++		if (thresholds->primary->entries[i].eventfd == eventfd)
++			continue;
++
++		new->entries[j] = thresholds->primary->entries[i];
++		if (new->entries[j].threshold <= usage) {
++			/*
++			 * new->current_threshold will not be used
++			 * until rcu_assign_pointer(), so it's safe to increment
++			 * it here.
++			 */
++			++new->current_threshold;
++		}
++		j++;
++	}
++
++swap_buffers:
++	/* Swap primary and spare array */
++	thresholds->spare = thresholds->primary;
++
++	rcu_assign_pointer(thresholds->primary, new);
++
++	/* To be sure that nobody uses thresholds */
++	synchronize_rcu();
++
++	/* If all events are unregistered, free the spare array */
++	if (!new) {
++		kfree(thresholds->spare);
++		thresholds->spare = NULL;
++	}
++unlock:
++	mutex_unlock(&memcg->thresholds_lock);
++}
++
++static void mem_cgroup_usage_unregister_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd)
++{
++	return __mem_cgroup_usage_unregister_event(memcg, eventfd, _MEM);
++}
++
++static void memsw_cgroup_usage_unregister_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd)
++{
++	return __mem_cgroup_usage_unregister_event(memcg, eventfd, _MEMSWAP);
++}
++
++static int mem_cgroup_oom_register_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd, const char *args)
++{
++	struct mem_cgroup_eventfd_list *event;
++
++	event = kmalloc(sizeof(*event),	GFP_KERNEL);
++	if (!event)
++		return -ENOMEM;
++
++	spin_lock(&memcg_oom_lock);
++
++	event->eventfd = eventfd;
++	list_add(&event->list, &memcg->oom_notify);
++
++	/* already in OOM ? */
++	if (memcg->under_oom)
++		eventfd_signal(eventfd, 1);
++	spin_unlock(&memcg_oom_lock);
++
++	return 0;
++}
++
++static void mem_cgroup_oom_unregister_event(struct mem_cgroup *memcg,
++	struct eventfd_ctx *eventfd)
++{
++	struct mem_cgroup_eventfd_list *ev, *tmp;
++
++	spin_lock(&memcg_oom_lock);
++
++	list_for_each_entry_safe(ev, tmp, &memcg->oom_notify, list) {
++		if (ev->eventfd == eventfd) {
++			list_del(&ev->list);
++			kfree(ev);
++		}
++	}
++
++	spin_unlock(&memcg_oom_lock);
++}
++
+ /*
+  * Unregister event and free resources.
+  *
+@@ -4845,6 +4911,18 @@ static ssize_t memcg_write_event_control(struct kernfs_open_file *of,
  	return ret;
  }
-@@ -6785,11 +6871,20 @@ static void uncharge_batch(const struct uncharge_gather *ug)
- 		memcg_oom_recover(ug->memcg);
- 	}
  
--	local_irq_save(flags);
--	__count_memcg_events(ug->memcg, PGPGOUT, ug->pgpgout);
--	__this_cpu_add(ug->memcg->vmstats_percpu->nr_page_events, ug->nr_memory);
--	memcg_check_events(ug->memcg, ug->nid);
--	local_irq_restore(flags);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT)) {
-+		local_irq_save(flags);
-+		__count_memcg_events(ug->memcg, PGPGOUT, ug->pgpgout);
-+		__this_cpu_add(ug->memcg->vmstats_percpu->nr_page_events, ug->nr_memory);
-+		memcg_check_events(ug->memcg, ug->nid);
-+		local_irq_restore(flags);
-+	} else {
-+		preempt_disable();
-+		__count_memcg_events(ug->memcg, PGPGOUT, ug->pgpgout);
-+		__this_cpu_add(ug->memcg->vmstats_percpu->nr_page_events, ug->nr_memory);
-+		preempt_enable();
++#else
 +
-+		memcg_check_events(ug->memcg, ug->nid);
-+	}
- 
- 	/* drop reference from uncharge_folio */
- 	css_put(&ug->memcg->css);
-@@ -6930,10 +7025,12 @@ void mem_cgroup_migrate(struct folio *old, struct folio *new)
- 	css_get(&memcg->css);
- 	commit_charge(new, memcg);
- 
--	local_irq_save(flags);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_save(flags);
- 	mem_cgroup_charge_statistics(memcg, nr_pages);
- 	memcg_check_events(memcg, folio_nid(new));
--	local_irq_restore(flags);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		local_irq_restore(flags);
- }
- 
- DEFINE_STATIC_KEY_FALSE(memcg_sockets_enabled_key);
-@@ -7017,7 +7114,7 @@ void mem_cgroup_uncharge_skmem(struct mem_cgroup *memcg, unsigned int nr_pages)
++static ssize_t memcg_write_event_control(struct kernfs_open_file *of,
++					 char *buf, size_t nbytes, loff_t off)
++{
++	return -EOPNOTSUPP;
++}
++
++static void memcg_check_events(struct mem_cgroup *memcg, int nid) { }
++
++#endif
++
+ static struct cftype mem_cgroup_legacy_files[] = {
+ 	{
+ 		.name = "usage_in_bytes",
+@@ -7017,7 +7095,7 @@ void mem_cgroup_uncharge_skmem(struct mem_cgroup *memcg, unsigned int nr_pages)
  
  	mod_memcg_state(memcg, MEMCG_SOCK, -nr_pages);
  
 -	refill_stock(memcg, nr_pages);
-+	refill_stock(memcg, nr_pages, NULL);
++	refill_stock(memcg, nr_pages, false);
  }
  
  static int __init cgroup_memory(char *s)
-@@ -7157,8 +7254,10 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
+@@ -7157,9 +7235,18 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
  	 * i_pages lock which is taken with interrupts-off. It is
  	 * important here to have the interrupts disabled because it is the
  	 * only synchronisation we have for updating the per-CPU variables.
@@ -9113,10 +9911,19 @@ index 2ed5f2a0879d3..92180f1aa9edc 100644
 +	 * variables are synchronised by keeping preemption disabled.
  	 */
 -	VM_BUG_ON(!irqs_disabled());
-+	VM_BUG_ON(!IS_ENABLED(CONFIG_PREEMPT_RT) && !irqs_disabled());
- 	mem_cgroup_charge_statistics(memcg, -nr_entries);
+-	mem_cgroup_charge_statistics(memcg, -nr_entries);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT)) {
++		VM_BUG_ON(!irqs_disabled());
++		mem_cgroup_charge_statistics(memcg, -nr_entries);
++	} else {
++		preempt_disable();
++		mem_cgroup_charge_statistics(memcg, -nr_entries);
++		preempt_enable();
++	}
++
  	memcg_check_events(memcg, page_to_nid(page));
  
+ 	css_put(&memcg->css);
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
 index d2a00ad4e1dd1..ce8dcad7639f3 100644
 --- a/mm/vmalloc.c

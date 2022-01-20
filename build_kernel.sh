@@ -178,8 +178,8 @@ fi
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} == "5.16" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16-rt14.patch .;
-        patch -p1 < ./patch-5.16-rt14.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16.1-rt17.patch .;
+        patch -p1 < ./patch-5.16.1-rt17.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.14-rt27.patch .;
         patch -p1 < ./patch-5.15.14-rt27.patch;
@@ -318,9 +318,6 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     echo "*** Copying and applying net patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-v3/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
-    echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
-    patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying smbus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smbus-patches/*.patch .;
     patch -p1 < ./0001-smbus-patches.patch;
@@ -372,6 +369,9 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
         echo "*** Copying and applying lru patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
+        echo "*** Copying and applying pf patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
+        patch -p1 < ./0001-pf-patches.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest stable
     echo "*** Copying and applying amd64 patches.. ✓";
