@@ -2,7 +2,14 @@
 
 # Compile the Linux kernel for Ubuntu.
 
-# Supported kernels: 5.4 LTS / 5.10 LTS / 5.13 EOL / 5.14 EOL / 5.15 / 5.16
+# Supported kernels:
+# 5.17-rc (mainline)
+# 5.16 (stable)
+# 5.15 (LTS)
+# 5.10 (LTS)
+# 5.4 (LTS)
+# 5.14 (EOL)
+# 5.13 (EOL)
 
 set -euo pipefail
 
@@ -198,7 +205,110 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
+if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/arch-patches-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    echo "*** Copying and applying bbr2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/bbr2-patches-v2/*.patch .;
+    patch -p1 < ./0001-bbr2-patches.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/clearlinux-patches-sep/*.patch .;
+    patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
+    patch -p1 < ./0002-increase-the-ext4-default-commit-age.patch;
+    patch -p1 < ./0003-silence-rapl.patch;
+    patch -p1 < ./0004-pci-pme-wakeups.patch;
+    patch -p1 < ./0005-ksm-wakeups.patch;
+    patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
+    patch -p1 < ./0007-port-print-fsync-count-for-bootchart.patch;
+    patch -p1 < ./0008-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
+    patch -p1 < ./0009-smpboot-reuse-timer-calibration.patch;
+    patch -p1 < ./0010-port-initialize-ata-before-graphics.patch;
+    patch -p1 < ./0012-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
+    patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
+    patch -p1 < ./0014-add-boot-option-to-allow-unsigned-modules.patch;
+    patch -p1 < ./0015-enable-stateless-firmware-loading.patch;
+    patch -p1 < ./0016-migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
+    patch -p1 < ./0017-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
+    patch -p1 < ./0018-use-lfence-instead-of-rep-and-nop.patch;
+    patch -p1 < ./0019-do-accept-in-LIFO-order-for-cache-efficiency.patch;
+    patch -p1 < ./0020-port-locking-rwsem-spin-faster.patch;
+    patch -p1 < ./0021-ata-libahci-ignore-staggered-spin-up.patch;
+    patch -p1 < ./0022-print-CPU-that-faults.patch;
+    patch -p1 < ./0024-nvme-workaround.patch;
+    patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
+    patch -p1 < ./0026-Port-microcode-patches.patch;
+    echo "*** Copying an applying cpu graysky patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/cpu-patches-sep/*.patch .;
+    patch -p1 < ./0001-cpu-5.16-merge-graysky-s-patchset.patch;
+    patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
+    patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
+    patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
+    echo "*** Copying and applying fixes misc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/fixes-miscellaneous-v2-sep/*.patch .;
+    patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
+    patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
+    patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
+    patch -p1 < ./0004-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
+    patch -p1 < ./0007-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
+    patch -p1 < ./0008-fm-5.16-port-mm-kswapd-patches.patch;
+    patch -p1 < ./0009-Disable-stack-conservation-for-GCC.patch;
+    patch -p1 < ./0014-openrgb-Deduplicate-piix4-setup-for-HUDSON2-KERNCZ-S.patch;
+    echo "*** Copying and applying lqx patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/lqx-patches/*.patch .;
+    patch -p1 < ./0001-lqx-patches.patch;
+    echo "*** Copying and applying smbus patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/smbus-patches/*.patch .;
+    patch -p1 < ./0001-smbus-patches.patch;
+    echo "*** Copying and applying spadfs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/spadfs-patches/*.patch .;
+    patch -p1 < ./0001-spadfs-5.16-merge-v1.0.15.patch;
+    echo "*** Copying and applying v4l2loopback patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/v4l2loopback-patches/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-5.16-merge-v0.12.5.patch;
+    echo "*** Copying and applying lucjan's xanmod patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/xanmod-patches/*.patch .;
+    patch -p1 < ./0001-xanmod-patches.patch;
+    echo "*** Copying and applying lucjan's zen patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/zen-patches/*.patch .;
+    patch -p1 < ./0001-zen-patches.patch;
+    echo "*** Copying and applying misc xanmod tweaks.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-5.16.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0002-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0008-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
+    patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    echo "*** Copying and applying disable memory compaction patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
+    patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
+    echo "*** Copying and applying increase writeback threshold patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
+    patch -p1 < ./increase-default-writeback-thresholds.patch;
+    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
+    patch -p1 < ./enable-background-reclaim-hugepages.patch;
+    echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
+    patch -p1 < ./pkill-on-warn.patch;
+    echo "*** Copying and applying misc scheduler patch for AMD processors.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/amd-use_weight*.patch .;
+    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0001.patch;
+    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0002.patch;
+    echo "*** Copying and applying lucjan custom patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
+    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
+    sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
+    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        echo "*** Copying and applying lru patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/5.16/lru-patches-pf/*.patch .;
+        patch -p1 < ./0001-lru-patches.patch;
+        echo "*** Copying and applying pf patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/5.16/pf-patches/*.patch .;
+        patch -p1 < ./0001-pf-patches.patch;
+    fi
+elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     echo "*** Copying and applying amd64 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
