@@ -307,7 +307,7 @@ if [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     patch -p1 < ./0013-xfs-check-sb_meta_uuid-for-dabuf-buffer-recovery.patch;
     patch -p1 < ./0014-openrgb-Deduplicate-piix4-setup-for-HUDSON2-KERNCZ-S.patch;
     echo "*** Copying an applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v6/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
