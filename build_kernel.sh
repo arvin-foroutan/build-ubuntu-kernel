@@ -365,7 +365,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying cpufreq patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v2/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying and applying f2fs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/f2fs-patches-v2/*.patch .;
