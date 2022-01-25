@@ -264,8 +264,8 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
     cp -v ${LUCJAN_PATCH_PATH}/5.16/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-5.16-merge-v1.0.15.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.16/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-5.16-merge-v0.12.5.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.16/xanmod-patches/*.patch .;
     patch -p1 < ./0001-xanmod-patches.patch;
@@ -404,8 +404,8 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-5.16-merge-v1.0.15.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-5.16-merge-v0.12.5.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches/*.patch .;
     patch -p1 < ./0001-xanmod-patches.patch;
