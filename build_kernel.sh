@@ -2,22 +2,13 @@
 
 # Compile the Linux kernel for Ubuntu.
 
-# Supported kernels:
-# 5.17-rc (mainline)
-# 5.16 (stable)
-# 5.15 (LTS)
-# 5.10 (LTS)
-# 5.4 (LTS)
-# 5.14 (EOL)
-# 5.13 (EOL)
-
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.16"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.16.2"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051602"}
-KERNEL_TYPE=${KERNEL_TYPE:-"idle"} # idle, full, rt
-KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"} # cfs, cacule
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.16.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051603"}
+KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
+KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
 KERNEL_MAIN_DIR=${KERNEL_MAIN_DIR:-$HOME/kernel_main}
@@ -311,7 +302,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
         cp -v ${LUCJAN_PATCH_PATH}/5.16/pf-patches/*.patch .;
         patch -p1 < ./0001-pf-patches.patch;
     fi
-elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
+elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     echo "*** Copying and applying amd64 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
@@ -456,7 +447,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches/*.patch .;
         patch -p1 < ./0001-pf-patches.patch;
     fi
-elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # Latest stable
+elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     echo "*** Copying and applying amd64 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches-v2/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
@@ -1488,11 +1479,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.16.2-051602+customidle-generic
-# 5.16.2-051602+customfull-generic
-# 5.16.2-051602+customrt-generic
+# 5.16.3-051603+customidle-generic
+# 5.16.3-051603+customfull-generic
+# 5.16.3-051603+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.16.2-051602+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.16.3-051603+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1633,7 +1624,7 @@ rm -rf ${KERNEL_BUILD_DIR};
 # Also note: Running 'sudo update-grub2' will list your installed kernels,
 # and you can manually delete the ones that have uninstall as time goes on.
 #
-# To uninstall a kernel: $ sudo apt purge *5.16.2-051602+customidle-generic*
+# To uninstall a kernel: $ sudo apt purge *5.16.3-051603+customidle-generic*
 # However, you still need to manually remove the old ones that build up below.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
