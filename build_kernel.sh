@@ -371,7 +371,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/f2fs-patches-v2/*.patch .;
     patch -p1 < ./0001-f2fs-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v3-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -385,6 +385,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then   # Latest mainline
     patch -p1 < ./0012-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
     patch -p1 < ./0013-xfs-check-sb_meta_uuid-for-dabuf-buffer-recovery.patch;
     patch -p1 < ./0014-openrgb-Deduplicate-piix4-setup-for-HUDSON2-KERNCZ-S.patch;
+    patch -p1 < ./0015-iomap-Address-soft-lockup-in-iomap_finish_ioend.patch;
     echo "*** Copying an applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v7/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
