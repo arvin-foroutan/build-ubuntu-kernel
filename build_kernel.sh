@@ -261,7 +261,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
     cp -v ${LUCJAN_PATCH_PATH}/5.16/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.16/xanmod-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/xanmod-patches-v2/*.patch .;
     patch -p1 < ./0001-xanmod-patches.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.16/zen-patches/*.patch .;
@@ -402,7 +402,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v2/*.patch .;
     patch -p1 < ./0001-xanmod-patches.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
