@@ -252,7 +252,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
     cp -v ${LUCJAN_PATCH_PATH}/5.16/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
     echo "*** Copying and applying smbus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.16/smbus-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/smbus-patches-v2/*.patch .;
     patch -p1 < ./0001-smbus-patches.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.16/spadfs-patches/*.patch .;
@@ -393,7 +393,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-v3/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
     echo "*** Copying and applying smbus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smbus-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smbus-patches-v2/*.patch .;
     patch -p1 < ./0001-smbus-patches.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
