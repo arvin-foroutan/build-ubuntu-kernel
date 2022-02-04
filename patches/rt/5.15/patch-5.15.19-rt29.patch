@@ -642,7 +642,7 @@ index 1c8460e23583..b1653c160bab 100644
  	canary ^= LINUX_VERSION_CODE;
  	canary &= CANARY_MASK;
 diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
-index b4ec6c7dd72e..07df83231ec2 100644
+index 2a4ea0e213a9..75309a76b335 100644
 --- a/arch/powerpc/include/asm/thread_info.h
 +++ b/arch/powerpc/include/asm/thread_info.h
 @@ -47,6 +47,8 @@
@@ -1362,10 +1362,10 @@ index a1202536fc57..a26a7c3849f5 100644
  #define orc_warn_current(args...)					\
  ({									\
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 2b80edffe02c..1de7b58228a4 100644
+index 33cb06518124..b0b2122c51a3 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8523,6 +8523,14 @@ int kvm_arch_init(void *opaque)
+@@ -8526,6 +8526,14 @@ int kvm_arch_init(void *opaque)
  		goto out;
  	}
  
@@ -1673,7 +1673,7 @@ index d3f2e5364c27..9c4a99757afd 100644
  	return 0;
  }
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 847f33ffc4ae..ae79c3300129 100644
+index 9fa86288b78a..7de3f5b6e8d0 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
 @@ -66,7 +66,7 @@ struct mm_struct efi_mm = {
@@ -2665,10 +2665,10 @@ index ec88b706e882..7774c63ce53d 100644
  		uart_parse_options(options, &baud, &parity, &bits, &flow);
  	else if (probe)
 diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index 6ec34260d6b1..d92d020d28cf 100644
+index da54f827c5ef..6c486e08304c 100644
 --- a/drivers/tty/serial/amba-pl011.c
 +++ b/drivers/tty/serial/amba-pl011.c
-@@ -2313,18 +2313,24 @@ pl011_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2317,18 +2317,24 @@ pl011_console_write(struct console *co, const char *s, unsigned int count)
  {
  	struct uart_amba_port *uap = amba_ports[co->index];
  	unsigned int old_cr = 0, new_cr;
@@ -2697,7 +2697,7 @@ index 6ec34260d6b1..d92d020d28cf 100644
  
  	/*
  	 *	First save the CR then disable the interrupts
-@@ -2350,8 +2356,7 @@ pl011_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2354,8 +2360,7 @@ pl011_console_write(struct console *co, const char *s, unsigned int count)
  		pl011_write(old_cr, uap, REG_CR);
  
  	if (locked)
@@ -2953,7 +2953,7 @@ index bc267832310c..3176913fae6c 100644
  	if (!o->nodeid) {
  		/*
 diff --git a/fs/namei.c b/fs/namei.c
-index 1946d9667790..d89890a17f1b 100644
+index 3bb65f48fe1d..811d79976228 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
 @@ -1633,7 +1633,7 @@ static struct dentry *__lookup_slow(const struct qstr *name,
@@ -3006,7 +3006,7 @@ index b696543adab8..4799232935ee 100644
  	 * After the slowpath clears MNT_WRITE_HOLD, mnt_is_readonly will
  	 * be set to match its requirements. So we must not load that until
 diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 5b68c44848ca..85a1006e0a85 100644
+index ed79c1bd84a2..d351950533e7 100644
 --- a/fs/nfs/dir.c
 +++ b/fs/nfs/dir.c
 @@ -636,7 +636,7 @@ void nfs_prime_dcache(struct dentry *parent, struct nfs_entry *entry,
@@ -3359,7 +3359,7 @@ index 7f8ee09c711f..e9672de22cf2 100644
  		atomic_long_t hugetlb_usage;
  #endif
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index ce81cc96a98d..4230c0fe2dcb 100644
+index fba54624191a..8bea387290f3 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
 @@ -1916,7 +1916,6 @@ enum netdev_ml_priv_type {
@@ -7750,10 +7750,10 @@ index e94314633b39..fd7c4f972aaf 100644
  		dl_se->runtime = pi_of(dl_se)->dl_runtime;
  	}
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index d41f966f5866..5d1d733f37be 100644
+index 6420580f2730..238104c6431f 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -4237,10 +4237,7 @@ static inline void check_schedstat_required(void)
+@@ -4247,10 +4247,7 @@ static inline void check_schedstat_required(void)
  			trace_sched_stat_iowait_enabled()  ||
  			trace_sched_stat_blocked_enabled() ||
  			trace_sched_stat_runtime_enabled())  {
@@ -7765,7 +7765,7 @@ index d41f966f5866..5d1d733f37be 100644
  	}
  #endif
  }
-@@ -4448,7 +4445,7 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+@@ -4458,7 +4455,7 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
  	ideal_runtime = sched_slice(cfs_rq, curr);
  	delta_exec = curr->sum_exec_runtime - curr->prev_sum_exec_runtime;
  	if (delta_exec > ideal_runtime) {
@@ -7774,7 +7774,7 @@ index d41f966f5866..5d1d733f37be 100644
  		/*
  		 * The current task ran long enough, ensure it doesn't get
  		 * re-elected due to buddy favours.
-@@ -4472,7 +4469,7 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+@@ -4482,7 +4479,7 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
  		return;
  
  	if (delta > ideal_runtime)
@@ -7783,7 +7783,7 @@ index d41f966f5866..5d1d733f37be 100644
  }
  
  static void
-@@ -4615,7 +4612,7 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
+@@ -4625,7 +4622,7 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
  	 * validating it and just reschedule.
  	 */
  	if (queued) {
@@ -7792,7 +7792,7 @@ index d41f966f5866..5d1d733f37be 100644
  		return;
  	}
  	/*
-@@ -4755,7 +4752,7 @@ static void __account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
+@@ -4765,7 +4762,7 @@ static void __account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
  	 * hierarchy can be throttled
  	 */
  	if (!assign_cfs_rq_runtime(cfs_rq) && likely(cfs_rq->curr))
@@ -7801,7 +7801,7 @@ index d41f966f5866..5d1d733f37be 100644
  }
  
  static __always_inline
-@@ -5518,7 +5515,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
+@@ -5528,7 +5525,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
  
  		if (delta < 0) {
  			if (task_current(rq, p))
@@ -7810,7 +7810,7 @@ index d41f966f5866..5d1d733f37be 100644
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -7210,7 +7207,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
+@@ -7220,7 +7217,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	return;
  
  preempt:
@@ -7819,7 +7819,7 @@ index d41f966f5866..5d1d733f37be 100644
  	/*
  	 * Only set the backward buddy when the current task is still
  	 * on the rq. This can happen when a wakeup gets interleaved
-@@ -11111,7 +11108,7 @@ static void task_fork_fair(struct task_struct *p)
+@@ -11121,7 +11118,7 @@ static void task_fork_fair(struct task_struct *p)
  		 * 'current' within the tree based on its new key value.
  		 */
  		swap(curr->vruntime, se->vruntime);
@@ -7828,7 +7828,7 @@ index d41f966f5866..5d1d733f37be 100644
  	}
  
  	se->vruntime -= cfs_rq->min_vruntime;
-@@ -11138,7 +11135,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
+@@ -11148,7 +11145,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)
@@ -7862,7 +7862,7 @@ index 7f8dace0964c..d5cee51819bf 100644
  /*
   * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
 diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index 69b19d3af690..fa84c98c9028 100644
+index 422f3b0445cf..2332f04b8181 100644
 --- a/kernel/sched/psi.c
 +++ b/kernel/sched/psi.c
 @@ -717,11 +717,10 @@ static void psi_group_change(struct psi_group *group, int cpu,
@@ -8184,7 +8184,7 @@ index b73e8850e58d..149cc4b08d8e 100644
  }
  
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index ce05ba041288..e9f78d3dbfaa 100644
+index 51a87a67e2ab..b2d1c10ed4c6 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
 @@ -2630,7 +2630,13 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
@@ -10772,7 +10772,7 @@ index b7ac30cca035..d3979a6000e7 100644
  	q->root.sched   = q;
  	q->root.qdisc = qdisc_create_dflt(sch->dev_queue, &pfifo_qdisc_ops,
 diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
-index 5067a6e5d4fd..cf1d45db4e84 100644
+index 5cbc32fee867..8fd419337d3f 100644
 --- a/net/sched/sch_htb.c
 +++ b/net/sched/sch_htb.c
 @@ -113,8 +113,8 @@ struct htb_class {
@@ -10853,7 +10853,7 @@ index 5067a6e5d4fd..cf1d45db4e84 100644
  	}
  
  	offload_opt = (struct tc_htb_qopt_offload) {
-@@ -1849,6 +1852,9 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+@@ -1869,6 +1872,9 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
  		if (!cl)
  			goto failure;
  
@@ -10863,7 +10863,7 @@ index 5067a6e5d4fd..cf1d45db4e84 100644
  		err = tcf_block_get(&cl->block, &cl->filter_list, sch, extack);
  		if (err) {
  			kfree(cl);
-@@ -1858,7 +1864,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+@@ -1878,7 +1884,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
  			err = gen_new_estimator(&cl->bstats, NULL,
  						&cl->rate_est,
  						NULL,
@@ -10872,7 +10872,7 @@ index 5067a6e5d4fd..cf1d45db4e84 100644
  						tca[TCA_RATE] ? : &est.nla);
  			if (err)
  				goto err_block_put;
-@@ -1922,8 +1928,9 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+@@ -1942,8 +1948,9 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
  				htb_graft_helper(dev_queue, old_q);
  				goto err_kill_estimator;
  			}
@@ -10884,7 +10884,7 @@ index 5067a6e5d4fd..cf1d45db4e84 100644
  			qdisc_put(old_q);
  		}
  		new_q = qdisc_create_dflt(dev_queue, &pfifo_qdisc_ops,
-@@ -1983,7 +1990,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+@@ -2003,7 +2010,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
  			err = gen_replace_estimator(&cl->bstats, NULL,
  						    &cl->rate_est,
  						    NULL,
