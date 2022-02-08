@@ -201,8 +201,9 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.16/arch-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/arch-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0004-Bluetooth-fix-deadlock-for-RFCOMM-sk-state-change.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.16/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-bbr2-patches.patch;
@@ -307,7 +308,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
