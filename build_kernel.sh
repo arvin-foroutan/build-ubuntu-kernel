@@ -322,7 +322,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying btrfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v6/*.patch .;
     patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-sep/*.patch .;
