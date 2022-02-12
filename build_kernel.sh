@@ -383,7 +383,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     patch -p1 < ./0015-iomap-Address-soft-lockup-in-iomap_finish_ioend.patch;
     patch -p1 < ./0016-kernel-cpu.c-fix-init_cpu_online.patch;
     echo "*** Copying an applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v9/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v10/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
