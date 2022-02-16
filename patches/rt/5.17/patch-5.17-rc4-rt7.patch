@@ -185,7 +185,7 @@ index a062e07516dd2..3a609dbacd8a7 100644
  	return 0;
  }
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index cbcd42decb2ad..5155e2f9b8bfa 100644
+index 09b885cc4db53..aec70a41a42bc 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -89,6 +89,7 @@ config ARM64
@@ -2993,10 +2993,10 @@ index 40b994a29e90d..c6feb92209a6f 100644
  	 * After the slowpath clears MNT_WRITE_HOLD, mnt_is_readonly will
  	 * be set to match its requirements. So we must not load that until
 diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 848f3b8fb8219..f4955895e9665 100644
+index 7bc7cf6b26f09..a25a100955b41 100644
 --- a/fs/nfs/dir.c
 +++ b/fs/nfs/dir.c
-@@ -639,7 +639,7 @@ void nfs_prime_dcache(struct dentry *parent, struct nfs_entry *entry,
+@@ -641,7 +641,7 @@ void nfs_prime_dcache(struct dentry *parent, struct nfs_entry *entry,
  		unsigned long dir_verifier)
  {
  	struct qstr filename = QSTR_INIT(entry->name, entry->len);
@@ -3005,7 +3005,7 @@ index 848f3b8fb8219..f4955895e9665 100644
  	struct dentry *dentry;
  	struct dentry *alias;
  	struct inode *inode;
-@@ -1883,7 +1883,7 @@ int nfs_atomic_open(struct inode *dir, struct dentry *dentry,
+@@ -1895,7 +1895,7 @@ int nfs_atomic_open(struct inode *dir, struct dentry *dentry,
  		    struct file *file, unsigned open_flags,
  		    umode_t mode)
  {
@@ -6339,7 +6339,7 @@ index 6bcc5d6a6572b..0f219ce610fce 100644
  EXPORT_SYMBOL_GPL(hw_protection_shutdown);
  
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 848eaa0efe0ea..2ef91fb295e28 100644
+index fcf0c180617c2..181fbe31249bf 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -997,6 +997,46 @@ void resched_curr(struct rq *rq)
@@ -6389,7 +6389,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  void resched_cpu(int cpu)
  {
  	struct rq *rq = cpu_rq(cpu);
-@@ -2171,6 +2211,7 @@ void migrate_disable(void)
+@@ -2172,6 +2212,7 @@ void migrate_disable(void)
  	preempt_disable();
  	this_rq()->nr_pinned++;
  	p->migration_disabled = 1;
@@ -6397,7 +6397,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  	preempt_enable();
  }
  EXPORT_SYMBOL_GPL(migrate_disable);
-@@ -2202,6 +2243,7 @@ void migrate_enable(void)
+@@ -2203,6 +2244,7 @@ void migrate_enable(void)
  	barrier();
  	p->migration_disabled = 0;
  	this_rq()->nr_pinned--;
@@ -6405,7 +6405,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  	preempt_enable();
  }
  EXPORT_SYMBOL_GPL(migrate_enable);
-@@ -3239,7 +3281,7 @@ unsigned long wait_task_inactive(struct task_struct *p, unsigned int match_state
+@@ -3240,7 +3282,7 @@ unsigned long wait_task_inactive(struct task_struct *p, unsigned int match_state
  		 * is actually now running somewhere else!
  		 */
  		while (task_running(rq, p)) {
@@ -6414,7 +6414,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  				return 0;
  			cpu_relax();
  		}
-@@ -3254,7 +3296,7 @@ unsigned long wait_task_inactive(struct task_struct *p, unsigned int match_state
+@@ -3255,7 +3297,7 @@ unsigned long wait_task_inactive(struct task_struct *p, unsigned int match_state
  		running = task_running(rq, p);
  		queued = task_on_rq_queued(p);
  		ncsw = 0;
@@ -6423,7 +6423,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  			ncsw = p->nvcsw | LONG_MIN; /* sets MSB */
  		task_rq_unlock(rq, p, &rf);
  
-@@ -4432,6 +4474,9 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
+@@ -4433,6 +4475,9 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
  	p->on_cpu = 0;
  #endif
  	init_task_preempt_count(p);
@@ -6433,7 +6433,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  #ifdef CONFIG_SMP
  	plist_node_init(&p->pushable_tasks, MAX_PRIO);
  	RB_CLEAR_NODE(&p->pushable_dl_tasks);
-@@ -4894,8 +4939,11 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+@@ -4895,8 +4940,11 @@ static struct rq *finish_task_switch(struct task_struct *prev)
  		if (prev->sched_class->task_dead)
  			prev->sched_class->task_dead(prev);
  
@@ -6447,7 +6447,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  
  		put_task_struct_rcu_user(prev);
  	}
-@@ -6258,6 +6306,7 @@ static void __sched notrace __schedule(unsigned int sched_mode)
+@@ -6259,6 +6307,7 @@ static void __sched notrace __schedule(unsigned int sched_mode)
  
  	next = pick_next_task(rq, prev, &rf);
  	clear_tsk_need_resched(prev);
@@ -6455,7 +6455,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  	clear_preempt_need_resched();
  #ifdef CONFIG_SCHED_DEBUG
  	rq->last_seen_need_resched_ns = 0;
-@@ -6469,6 +6518,30 @@ static void __sched notrace preempt_schedule_common(void)
+@@ -6470,6 +6519,30 @@ static void __sched notrace preempt_schedule_common(void)
  	} while (need_resched());
  }
  
@@ -6486,7 +6486,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  #ifdef CONFIG_PREEMPTION
  /*
   * This is the entry point to schedule() from in-kernel preemption
-@@ -6482,7 +6555,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
+@@ -6483,7 +6556,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
  	 */
  	if (likely(!preemptible()))
  		return;
@@ -6496,7 +6496,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  	preempt_schedule_common();
  }
  NOKPROBE_SYMBOL(preempt_schedule);
-@@ -6515,6 +6589,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
+@@ -6516,6 +6590,9 @@ asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
  	if (likely(!preemptible()))
  		return;
  
@@ -6506,7 +6506,7 @@ index 848eaa0efe0ea..2ef91fb295e28 100644
  	do {
  		/*
  		 * Because the function tracer can trace preempt_count_sub()
-@@ -8681,7 +8758,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
+@@ -8682,7 +8759,9 @@ void __init init_idle(struct task_struct *idle, int cpu)
  
  	/* Set the preempt count _outside_ the spinlocks! */
  	init_idle_preempt_count(idle, cpu);
@@ -6640,7 +6640,7 @@ index e1c655f928c74..f230b1ac7f910 100644
  	list_splice_init(&q->task_list, &tmp);
  	while (!list_empty(&tmp)) {
 diff --git a/kernel/signal.c b/kernel/signal.c
-index 38602738866e3..68048110c0be4 100644
+index 9b04631acde8f..71e662ebe65c3 100644
 --- a/kernel/signal.c
 +++ b/kernel/signal.c
 @@ -1327,6 +1327,34 @@ force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t,
@@ -6678,7 +6678,7 @@ index 38602738866e3..68048110c0be4 100644
  	spin_lock_irqsave(&t->sighand->siglock, flags);
  	action = &t->sighand->action[sig-1];
  	ignored = action->sa.sa_handler == SIG_IGN;
-@@ -2275,16 +2303,8 @@ static void ptrace_stop(int exit_code, int why, int clear_code, kernel_siginfo_t
+@@ -2276,16 +2304,8 @@ static void ptrace_stop(int exit_code, int why, int clear_code, kernel_siginfo_t
  		if (gstop_done && ptrace_reparented(current))
  			do_notify_parent_cldstop(current, false, why);
  
@@ -6870,10 +6870,10 @@ index 85f1021ad4595..beb4b1cc7c48c 100644
  
  /*
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index c860f582b0788..aaab9844b3139 100644
+index 7c2578efde26d..ae0d019fc7fd8 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -2606,11 +2606,19 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
+@@ -2610,11 +2610,19 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
  	if (softirq_count() >> (SOFTIRQ_SHIFT + 1))
  		trace_flags |= TRACE_FLAG_BH_OFF;
  
@@ -6895,7 +6895,7 @@ index c860f582b0788..aaab9844b3139 100644
  		(min_t(unsigned int, migration_disable_value(), 0xf)) << 4;
  }
  
-@@ -4191,15 +4199,17 @@ unsigned long trace_total_entries(struct trace_array *tr)
+@@ -4195,15 +4203,17 @@ unsigned long trace_total_entries(struct trace_array *tr)
  
  static void print_lat_help_header(struct seq_file *m)
  {
@@ -6922,7 +6922,7 @@ index c860f582b0788..aaab9844b3139 100644
  }
  
  static void print_event_info(struct array_buffer *buf, struct seq_file *m)
-@@ -4233,14 +4243,16 @@ static void print_func_help_header_irq(struct array_buffer *buf, struct seq_file
+@@ -4237,14 +4247,16 @@ static void print_func_help_header_irq(struct array_buffer *buf, struct seq_file
  
  	print_event_info(buf, m);
  
@@ -7127,7 +7127,7 @@ index 199ab201d5019..dabeb35bc8dc7 100644
  		return true;
  	}
 diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 09d342c7cbd0d..20ea8f28ad99b 100644
+index 36e9f38c919d0..a86e984c6b66a 100644
 --- a/mm/memcontrol.c
 +++ b/mm/memcontrol.c
 @@ -169,7 +169,6 @@ struct mem_cgroup_event {
@@ -7157,7 +7157,7 @@ index 09d342c7cbd0d..20ea8f28ad99b 100644
 -		obj_cgroup_uncharge_pages(objcg, nr_pages);
 +		obj_cgroup_uncharge_pages(objcg, nr_pages, false);
  
- 	spin_lock_irqsave(&css_set_lock, flags);
+ 	spin_lock_irqsave(&objcg_lock, flags);
  	list_del(&objcg->list);
 @@ -521,43 +522,6 @@ static unsigned long soft_limit_excess(struct mem_cgroup *memcg)
  	return excess;
