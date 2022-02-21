@@ -312,7 +312,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-20220117.patch;
+    patch -p1 < ./0001-aufs-20220221.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-bbr2-patches.patch;
