@@ -300,7 +300,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
         cp -v ${LUCJAN_PATCH_PATH}/5.16/lru-patches-pf/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
         echo "*** Copying and applying pf patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/5.16/pf-patches-v2/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/5.16/pf-patches-v3/*.patch .;
         patch -p1 < ./0001-pf-patches.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
@@ -446,7 +446,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
         echo "*** Copying and applying pf patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v2/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v3/*.patch .;
         patch -p1 < ./0001-pf-patches.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
