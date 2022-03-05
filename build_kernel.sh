@@ -182,8 +182,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16.1-rt17.patch .;
         patch -p1 < ./patch-5.16.1-rt17.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.21-rt30.patch .;
-        patch -p1 < ./patch-5.15.21-rt30.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.26-rt34.patch .;
+        patch -p1 < ./patch-5.15.26-rt34.patch;
     elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14.2-rt21.patch .;
         patch -p1 < ./patch-5.14.2-rt21.patch;
@@ -566,15 +566,9 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0001-zen-Allow-MSR-writes-by-default.patch;
     patch -p1 < ./0002-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     patch -p1 < ./0003-Input-evdev-use-call_rcu-when-detaching-client.patch;
-    echo "*** Copying and applying net patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-v2/*.patch .;
-    patch -p1 < ./0001-net-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v2/*.patch .;
     patch -p1 < ./0001-ntfs3-patches.patch;
-    echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v4/*.patch .;
-    patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying sbitmap patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sbitmap-patches-v3/*.patch .;
     patch -p1 < ./0001-sbitmap-patches.patch;
