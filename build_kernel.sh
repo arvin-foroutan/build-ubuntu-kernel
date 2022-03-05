@@ -365,7 +365,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpufreq-patches-v5/*.patch .;
     patch -p1 < ./0001-cpufreq-patches.patch;
     echo "*** Copying and applying f2fs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/f2fs-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/f2fs-patches-v3/*.patch .;
     patch -p1 < ./0001-f2fs-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v5-sep/*.patch .;
