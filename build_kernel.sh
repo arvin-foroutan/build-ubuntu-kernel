@@ -240,7 +240,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.16/fixes-miscellaneous-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.16/fixes-miscellaneous-v7-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -251,9 +251,9 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest rc, in development
     patch -p1 < ./0016-kernel-cpu.c-fix-init_cpu_online.patch;
     patch -p1 < ./0022-drm-amd-amdgpu-amdgpu_cs-fix-refcount-leak-of-a-dma_.patch;
     patch -p1 < ./0023-drm-amd-display-Fix-memory-leak.patch;
-    patch -p1 < ./0025-mm-Increment-kswapd_waiters-for-throttled-direct-rec.patch;
-    patch -p1 < ./0026-mm-Lower-the-non-hugetlbpage-pageblock-size-to-reduc.patch;
-    patch -p1 < ./0027-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bulk.patch;
+    patch -p1 < ./0024-mm-Increment-kswapd_waiters-for-throttled-direct-rec.patch;
+    patch -p1 < ./0025-mm-Lower-the-non-hugetlbpage-pageblock-size-to-reduc.patch;
+    patch -p1 < ./0026-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bulk.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.16/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
@@ -371,7 +371,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/f2fs-patches-v4/*.patch .;
     patch -p1 < ./0001-f2fs-patches.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v7-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -394,10 +394,9 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     patch -p1 < ./0021-ACPICA-Avoid-subobject-buffer-overflow-when-validati.patch;
     patch -p1 < ./0022-drm-amd-amdgpu-amdgpu_cs-fix-refcount-leak-of-a-dma_.patch;
     patch -p1 < ./0023-drm-amd-display-Fix-memory-leak.patch;
-    patch -p1 < ./0024-PCI-Mark-all-AMD-Navi10-and-Navi14-GPU-ATS-as-broken.patch;
-    patch -p1 < ./0025-mm-Increment-kswapd_waiters-for-throttled-direct-rec.patch;
-    patch -p1 < ./0026-mm-Lower-the-non-hugetlbpage-pageblock-size-to-reduc.patch;
-    patch -p1 < ./0027-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bulk.patch;
+    patch -p1 < ./0024-mm-Increment-kswapd_waiters-for-throttled-direct-rec.patch;
+    patch -p1 < ./0025-mm-Lower-the-non-hugetlbpage-pageblock-size-to-reduc.patch;
+    patch -p1 < ./0026-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bulk.patch;
     echo "*** Copying an applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v12/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
