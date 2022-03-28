@@ -6,12 +6,13 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 5.16 (mainline)
-- 5.15 (stable)
+- 5.17 (mainline)
+- 5.16 (stable)
+- 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
 - 5.4 LTS (Long-term support, until 2025)
-- 5.14 (End of Life, 5.14.21, 11/21/21)
-- 5.13 (End of Life, 5.13.19, 09/18/21)
+- 5.14 EOL (End of Life, 5.14.21, 11/21/21)
+- 5.13 EOL (End of Life, 5.13.19, 09/18/21)
 
 ## So, how do I use this?
 
@@ -53,7 +54,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 5.16 mainline kernel will be built with the following:
+By default, the latest 5.17 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless
@@ -61,63 +62,83 @@ By default, the latest 5.16 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-5.15:
+5.16:
 
 ```console
-$ KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.14 KERNEL_SUB_VER=051514 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16.17 KERNEL_SUB_VER=051617 ./build_kernel.sh
 ```
 
-5.10 (LTS):
+5.15 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.91 KERNEL_SUB_VER=051091 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.31 KERNEL_SUB_VER=051531 ./build_kernel.sh
 ```
 
-5.4 (LTS):
+5.10 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.171 KERNEL_SUB_VER=0504171 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.108 KERNEL_SUB_VER=0510108 ./build_kernel.sh
+```
+
+5.4 LTS:
+
+```console
+$ KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.187 KERNEL_SUB_VER=0504187 ./build_kernel.sh
 
 ```
 
-5.14 (EOL):
+5.14 EOL:
 
 ```console
 $ KERNEL_BASE_VER=5.14 KERNEL_PATCH_VER=5.14.21 KERNEL_SUB_VER=051421 ./build_kernel.sh
 ```
 
-5.13 (EOL):
+5.13 EOL:
 
 ```console
 $ KERNEL_BASE_VER=5.13 KERNEL_PATCH_VER=5.13.19 KERNEL_SUB_VER=051319 ./build_kernel.sh
+```
+
+#### Development kernels
+
+5.18-rc1:
+
+```console
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=5.18 KERNEL_PATCH_VER=5.18-rc1 KERNEL_SUB_VER=051800rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
 
-5.16:
+5.17-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16 KERNEL_SUB_VER=051600 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.17 KERNEL_PATCH_VER=5.17 KERNEL_SUB_VER=051700 ./build_kernel.sh
 ```
 
-5.15.14:
+5.16-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.14 KERNEL_SUB_VER=051514 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16.1 KERNEL_SUB_VER=051601 ./build_kernel.sh
 ```
 
-5.10.90:
+5.15-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.90 KERNEL_SUB_VER=051090 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.29 KERNEL_SUB_VER=051529 ./build_kernel.sh
 ```
 
-5.4.170:
+5.10-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.170 KERNEL_SUB_VER=0504170 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.100 KERNEL_SUB_VER=0510100 ./build_kernel.sh
+```
+
+5.4-rt:
+
+```console
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.182 KERNEL_SUB_VER=0504182 ./build_kernel.sh
 ```
 
 #### Full tickless kernels
@@ -146,7 +167,7 @@ Examples of the `nohz_full` setting:
 
 2. For the purpose of this script, only the *generic* kernel is built (as a *low-latency* kernel), and the *low-latency* kernel is ignored. This may change in the future.
 
-3. When asked by the script if you want to edit the "low latency" config, you'll want to say "n" as the "generic" kernel built by the script *is* the low-latency kernel.
+3. When asked by the script if you want to edit the low-latency config, you'll want to say 'n' as the generic kernel built by the script *is* the low-latency kernel.
 
 4. In the configs folder, you'll find the following different flavors. The idle, full, and rt configs already have the optimizations included.
 
@@ -162,7 +183,7 @@ Examples of the `nohz_full` setting:
 
 6. There's also a more generic "Core 2" option, but you should select your specific processor from the dropdown if you see it, or, "Intel Native" or "AMD Native" or "Zen 3" to create the fastest "happy" path for the compiled kernel.
 
-7. To set your CPU processor, while in the config, select `Processor type and features` and then look for `Processor family`. (You can use forward slash ( / ) to search for anything in the config. 
+7. To set your CPU processor, while in the config, select `Processor type and features` and then look for `Processor family`. (You can use forward slash ( / ) to search for anything in the config)
 
 8. To stay up-to-date with the repo, you can always `git stash` your changes, then run `git pull`, and then run `git stash apply` to apply back your changes.
 
