@@ -201,17 +201,20 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-bbr2-5.17-introduce-BBRv2.patch;
     echo "*** Copying and applying btrfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v3/*.patch .;
     patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
+    echo "*** Copying and applying clearlinux amd patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-amd-fixes/*.patch .;
+    patch -p1 < ./0001-fix-amd-fails.patch;
     echo "*** Copying an applying cpu graysky patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-patches-sep/*.patch .;
     patch -p1 < ./0001-cpu-${KERNEL_BASE_VER}-merge-graysky-s-patchset.patch;
@@ -219,7 +222,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v5-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -240,7 +243,10 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
     patch -p1 < ./0019-shmem-mapping_set_exiting-to-help-mapped-resilience.patch;
     patch -p1 < ./0020-tmpfs-do-not-allocate-pages-on-read.patch;
     patch -p1 < ./0021-x86-chacha20-Avoid-spurious-jumps-to-other-functions.patch;
-    patch -p1 < ./0022-x86-poly1305-Fixup-SLS.patch;
+    patch -p1 < ./0022-cpufreq-intel_pstate-Handle-no_turbo-in-frequency-in.patch;
+    echo "*** Copying and applying hwmon patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v2/*.patch .;
+    patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
@@ -251,17 +257,16 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-${KERNEL_BASE_VER}-merge-v1.0.15.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-5.17-merge-v0.12.5.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
+    patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v3/*.patch .;
     patch -p1 < ./0001-xanmod-miscellaneous.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
     patch -p1 < ./0001-zen-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-${KERNEL_BASE_VER}.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0002-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
     patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
     patch -p1 < ./0008-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
     patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
@@ -278,10 +283,6 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
-    echo "*** Copying and applying misc scheduler patch for AMD processors.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/amd-use_weight*.patch .;
-    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0001.patch;
-    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0002.patch;
     echo "*** Copying and applying lucjan custom patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
@@ -292,7 +293,7 @@ if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf-v3/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
         echo "*** Copying and applying pf patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-v2/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-v7/*.patch .;
         patch -p1 < ./0001-pf-fixes.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
