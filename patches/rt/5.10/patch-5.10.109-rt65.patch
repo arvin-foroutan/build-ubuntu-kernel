@@ -5260,10 +5260,10 @@ index a1bea0f4baa88..5f8ca8c1f59cd 100644
  	if (!req)
  		return;
 diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
-index b574cce98dc36..422753d52244b 100644
+index 9fcc49be499f1..a31ffe16e626f 100644
 --- a/drivers/atm/eni.c
 +++ b/drivers/atm/eni.c
-@@ -2054,7 +2054,7 @@ static int eni_send(struct atm_vcc *vcc,struct sk_buff *skb)
+@@ -2056,7 +2056,7 @@ static int eni_send(struct atm_vcc *vcc,struct sk_buff *skb)
  	}
  	submitted++;
  	ATM_SKB(skb)->vcc = vcc;
@@ -5384,7 +5384,7 @@ index 5f541c9465598..d6e73ebfaf785 100644
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
 diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index 1784530b8387b..c08cbb306636b 100644
+index b99e1941c52c9..dc4c0a0a51290 100644
 --- a/drivers/char/tpm/tpm-dev-common.c
 +++ b/drivers/char/tpm/tpm-dev-common.c
 @@ -20,7 +20,6 @@
@@ -5472,7 +5472,7 @@ index 9811c40956e54..17c9d825188bb 100644
  	if (!test_and_set_bit_lock(0, &ctx->flushing_completions)) {
  		context_tasklet((unsigned long)&ctx->context);
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 9fa86288b78a9..7de3f5b6e8d0a 100644
+index e3df82d5d37a8..5502e176d51be 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
 @@ -66,7 +66,7 @@ struct mm_struct efi_mm = {
@@ -27969,10 +27969,10 @@ index 06e503466c32c..16bd1278a9890 100644
  }
  EXPORT_SYMBOL_GPL(svc_xprt_do_enqueue);
 diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index f5b846a2edcd7..d198bff0dd103 100644
+index 1befc6db723b0..1a8146b988b4a 100644
 --- a/net/xfrm/xfrm_state.c
 +++ b/net/xfrm/xfrm_state.c
-@@ -2684,7 +2684,8 @@ int __net_init xfrm_state_init(struct net *net)
+@@ -2691,7 +2691,8 @@ int __net_init xfrm_state_init(struct net *net)
  	net->xfrm.state_num = 0;
  	INIT_WORK(&net->xfrm.state_hash_work, xfrm_hash_resize);
  	spin_lock_init(&net->xfrm.xfrm_state_lock);
