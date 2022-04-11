@@ -176,8 +176,8 @@ fi
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} == "5.17" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.17-rt15.patch .;
-        patch -p1 < ./patch-5.17-rt15.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.17.1-rt17.patch .;
+        patch -p1 < ./patch-5.17.1-rt17.patch;
     elif [ ${KERNEL_BASE_VER} == "5.16" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16.1-rt17.patch .;
         patch -p1 < ./patch-5.16.1-rt17.patch;
@@ -300,9 +300,6 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-bbr2-5.17-introduce-BBRv2.patch;
-    echo "*** Copying and applying btrfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v3/*.patch .;
-    patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
@@ -381,6 +378,9 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
+        echo "*** Copying and applying btrfs patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v3/*.patch .;
+        patch -p1 < ./0001-btrfs-patches.patch;
         echo "*** Copying and applying lru patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf-v3/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
