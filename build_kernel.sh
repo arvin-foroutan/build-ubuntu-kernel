@@ -201,7 +201,7 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.17" ]; then   # Latest mainline
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v10/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
