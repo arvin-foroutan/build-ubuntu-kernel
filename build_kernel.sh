@@ -547,6 +547,13 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     echo "*** Copying and applying amd64 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches-v2/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v11-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
+    patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
+    patch -p1 < ./0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
+    patch -p1 < ./0006-lg-laptop-Recognize-more-models.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20211222.patch;
@@ -702,28 +709,12 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
-    echo "*** Copying and applying misc scheduler patch for AMD processors.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/amd-use_weight*.patch .;
-    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0001.patch;
-    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0002.patch;
     echo "*** Copying and applying lucjan custom patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    if [ ${KERNEL_TYPE} == "rt" ]; then
-        echo "*** Copying and applying arch patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-rt-patches-v3-sep/*.patch .;
-        patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-        patch -p1 < ./0003-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
-        patch -p1 < ./0004-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
-        patch -p1 < ./0005-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch;
-        patch -p1 < ./0006-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
-        patch -p1 < ./0007-lg-laptop-Recognize-more-models.patch;
-    else
-        echo "*** Copying and applying arch patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v11/*.patch .;
-        patch -p1 < ./0001-arch-patches.patch;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying damon patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/damon-patches-v10/*.patch .;
         patch -p1 < ./0001-damon-patches.patch;
