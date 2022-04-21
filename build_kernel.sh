@@ -233,7 +233,6 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest rc, in development
     patch -p1 < ./0024-nvme-workaround.patch;
     patch -p1 < ./0025-don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     patch -p1 < ./0026-Port-microcode-patches.patch;
-    patch -p1 < ./0027-clearlinux-5.17-backport-patches-from-clearlinux-rep.patch;
     echo "*** Copying and applying clearlinux amd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.17/clearlinux-amd-fixes/*.patch .;
     patch -p1 < ./0001-fix-amd-fails.patch;
