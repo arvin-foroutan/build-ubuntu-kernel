@@ -805,7 +805,7 @@ index 4ce2e29da14d..3d10668f7472 100644
    DEFINE(TI_TASK,		offsetof(struct thread_info, task));
    DEFINE(TI_CPU,		offsetof(struct thread_info, cpu));
 diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 4937d514318e..4a9594fdb004 100644
+index 3d65fa56a0e5..2fb95198248b 100644
 --- a/arch/arm/kernel/entry-armv.S
 +++ b/arch/arm/kernel/entry-armv.S
 @@ -204,13 +204,20 @@ __irq_svc:
@@ -856,7 +856,7 @@ index 4937d514318e..4a9594fdb004 100644
  
  __und_fault:
 diff --git a/arch/arm/kernel/entry-common.S b/arch/arm/kernel/entry-common.S
-index 271cb8a1eba1..fd039b1b3731 100644
+index bd619da73c84..e1141e98118c 100644
 --- a/arch/arm/kernel/entry-common.S
 +++ b/arch/arm/kernel/entry-common.S
 @@ -53,7 +53,9 @@ __ret_fast_syscall:
@@ -914,10 +914,10 @@ index 46e1be9e57a8..581caf6493a9 100644
  
  	default:
 diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index 97a512551b21..1e70e7227f0f 100644
+index 207ef9a797bd..7817a8e14ded 100644
 --- a/arch/arm/kernel/traps.c
 +++ b/arch/arm/kernel/traps.c
-@@ -250,6 +250,8 @@ void show_stack(struct task_struct *tsk, unsigned long *sp)
+@@ -251,6 +251,8 @@ void show_stack(struct task_struct *tsk, unsigned long *sp)
  
  #ifdef CONFIG_PREEMPT
  #define S_PREEMPT " PREEMPT"
@@ -1125,7 +1125,7 @@ index a76f8ace9ce6..eb4a361d47d7 100644
 +}
 +#endif
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 9c8ea5939865..8cc303ce628f 100644
+index a1a828ca188c..6644b2529f9b 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -35,32 +35,32 @@ config ARM64
@@ -1217,10 +1217,10 @@ index e273faca924f..999da59f03a9 100644
  			chunk = SHA256_BLOCK_SIZE -
  				sctx->count % SHA256_BLOCK_SIZE;
 diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
-index 4a4258f17c86..7a4ee0435f51 100644
+index 01112f9767bc..247d0e695bac 100644
 --- a/arch/arm64/include/asm/assembler.h
 +++ b/arch/arm64/include/asm/assembler.h
-@@ -700,8 +700,8 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
+@@ -707,8 +707,8 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
   * where <label> is optional, and marks the point where execution will resume
   * after a yield has been performed. If omitted, execution resumes right after
   * the endif_yield_neon invocation. Note that the entire sequence, including
@@ -1231,7 +1231,7 @@ index 4a4258f17c86..7a4ee0435f51 100644
   *
   * As a convenience, in the case where no patchup code is required, the above
   * sequence may be abbreviated to
-@@ -729,7 +729,7 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
+@@ -736,7 +736,7 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
  	.endm
  
  	.macro		if_will_cond_yield_neon
@@ -1241,7 +1241,7 @@ index 4a4258f17c86..7a4ee0435f51 100644
  	ldr		x0, [x0, #TSK_TI_PREEMPT]
  	sub		x0, x0, #PREEMPT_DISABLE_OFFSET
 diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
-index befe37d4bc0e..53d846f1bfe7 100644
+index 78d110667c0c..8c1fabe0b56d 100644
 --- a/arch/arm64/include/asm/kvm_mmu.h
 +++ b/arch/arm64/include/asm/kvm_mmu.h
 @@ -91,6 +91,7 @@ alternative_cb_end
@@ -1370,10 +1370,10 @@ index 214685760e1c..f7975b079551 100644
  #ifdef CONFIG_ARM64_SW_TTBR0_PAN
    DEFINE(TSK_TI_TTBR0,		offsetof(struct task_struct, thread_info.ttbr0));
 diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index db137746c6fa..0d08fcba17cc 100644
+index 8a4c108a0c0b..1b57f28ce161 100644
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -669,7 +669,7 @@ el1_irq:
+@@ -680,7 +680,7 @@ el1_irq:
  
  	irq_handler
  
@@ -1382,7 +1382,7 @@ index db137746c6fa..0d08fcba17cc 100644
  	ldr	x24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
  alternative_if ARM64_HAS_IRQ_PRIO_MASKING
  	/*
-@@ -679,9 +679,18 @@ alternative_if ARM64_HAS_IRQ_PRIO_MASKING
+@@ -690,9 +690,18 @@ alternative_if ARM64_HAS_IRQ_PRIO_MASKING
  	mrs	x0, daif
  	orr	x24, x24, x0
  alternative_else_nop_endif
@@ -4060,7 +4060,7 @@ index 19bfbaf13598..bbe351e8a305 100644
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
 diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index 1784530b8387..c08cbb306636 100644
+index b99e1941c52c..dc4c0a0a5129 100644
 --- a/drivers/char/tpm/tpm-dev-common.c
 +++ b/drivers/char/tpm/tpm-dev-common.c
 @@ -20,7 +20,6 @@
@@ -4532,7 +4532,7 @@ index 242a9ec295cf..09c57db1241b 100644
  		}
  	}
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 415d7b3a59f8..513a8af7e2ed 100644
+index 8fd74a7501d4..f3259cc62e85 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
 @@ -68,7 +68,7 @@ struct mm_struct efi_mm = {
@@ -6212,7 +6212,7 @@ index 5fd4fc49aef9..ee0b3d43fa20 100644
  		destroy_workqueue(ffs->io_completion_wq);
  		kfree(ffs->dev_name);
 diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 5f1e15172403..ca23bfd16be9 100644
+index 9cd80ad075bd..18204c9a5e9b 100644
 --- a/drivers/usb/gadget/legacy/inode.c
 +++ b/drivers/usb/gadget/legacy/inode.c
 @@ -346,7 +346,7 @@ ep_io (struct ep_data *epdata, void *buf, unsigned len)
@@ -7967,7 +7967,7 @@ index a19519f4241d..ef2366a65ba2 100644
  static inline void local_bh_disable(void)
  {
 diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 66590ae89c97..cb3c0947e62a 100644
+index a73ca7c9c7d0..4e4cf1417e4d 100644
 --- a/include/linux/bpf.h
 +++ b/include/linux/bpf.h
 @@ -541,7 +541,7 @@ int bpf_prog_array_copy(struct bpf_prog_array *old_array,
@@ -20364,7 +20364,7 @@ index 173e3ce60790..028a50eab42b 100644
  {
  }
 diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index a71a4a272515..25ea4d268fa6 100644
+index 2c127d438fe0..de81913a7b57 100644
 --- a/kernel/rcu/tree_plugin.h
 +++ b/kernel/rcu/tree_plugin.h
 @@ -287,10 +287,14 @@ void rcu_note_context_switch(bool preempt)
@@ -20383,7 +20383,7 @@ index a71a4a272515..25ea4d268fa6 100644
  	if (t->rcu_read_lock_nesting > 0 &&
  	    !t->rcu_read_unlock_special.b.blocked) {
  
-@@ -789,7 +793,7 @@ static void __init rcu_bootup_announce(void)
+@@ -790,7 +794,7 @@ static void __init rcu_bootup_announce(void)
  }
  
  /*
@@ -20392,7 +20392,7 @@ index a71a4a272515..25ea4d268fa6 100644
   * how many quiescent states passed, just if there was at least one since
   * the start of the grace period, this just sets a flag.  The caller must
   * have disabled preemption.
-@@ -839,7 +843,7 @@ void rcu_all_qs(void)
+@@ -840,7 +844,7 @@ void rcu_all_qs(void)
  EXPORT_SYMBOL_GPL(rcu_all_qs);
  
  /*
@@ -21391,7 +21391,7 @@ index e83a3f8449f6..c56c315524ae 100644
  	wait->task = current;
  	if (list_empty(&wait->task_list))
 diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index ffaa97a8d405..93f51846b34f 100644
+index e5ebaffc4fef..6b4b8c517a58 100644
 --- a/kernel/sched/topology.c
 +++ b/kernel/sched/topology.c
 @@ -502,6 +502,7 @@ static int init_rootdomain(struct root_domain *rd)
@@ -22147,7 +22147,7 @@ index 998d50ee2d9b..9112fc79d24b 100644
  
  	wake_up_q(&wakeq);
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 8494d5a706bb..5bdaa650cfea 100644
+index 0457d36540e3..958053fe2c53 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
 @@ -212,6 +212,11 @@ static int proc_do_cad_pid(struct ctl_table *table, int write,
@@ -22162,7 +22162,7 @@ index 8494d5a706bb..5bdaa650cfea 100644
  #endif
  
  #ifdef CONFIG_PRINTK
-@@ -1514,7 +1519,7 @@ static struct ctl_table vm_table[] = {
+@@ -1522,7 +1527,7 @@ static struct ctl_table vm_table[] = {
  		.data		= &sysctl_compact_unevictable_allowed,
  		.maxlen		= sizeof(int),
  		.mode		= 0644,
@@ -22171,7 +22171,7 @@ index 8494d5a706bb..5bdaa650cfea 100644
  		.extra1		= SYSCTL_ZERO,
  		.extra2		= SYSCTL_ONE,
  	},
-@@ -2602,6 +2607,28 @@ int proc_dointvec(struct ctl_table *table, int write,
+@@ -2610,6 +2615,28 @@ int proc_dointvec(struct ctl_table *table, int write,
  	return do_proc_dointvec(table, write, buffer, lenp, ppos, NULL, NULL);
  }
  
@@ -22820,10 +22820,10 @@ index 4d9f81802911..aad2c89c37a8 100644
  }
  
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 615259d8fa9a..98095ee4a221 100644
+index 56619766e910..af24df1cc2dd 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -2356,6 +2356,7 @@ tracing_generic_entry_update(struct trace_entry *entry, unsigned short type,
+@@ -2358,6 +2358,7 @@ tracing_generic_entry_update(struct trace_entry *entry, unsigned short type,
  	struct task_struct *tsk = current;
  
  	entry->preempt_count		= pc & 0xff;
@@ -22831,7 +22831,7 @@ index 615259d8fa9a..98095ee4a221 100644
  	entry->pid			= (tsk) ? tsk->pid : 0;
  	entry->type			= type;
  	entry->flags =
-@@ -2367,8 +2368,11 @@ tracing_generic_entry_update(struct trace_entry *entry, unsigned short type,
+@@ -2369,8 +2370,11 @@ tracing_generic_entry_update(struct trace_entry *entry, unsigned short type,
  		((pc & NMI_MASK    ) ? TRACE_FLAG_NMI     : 0) |
  		((pc & HARDIRQ_MASK) ? TRACE_FLAG_HARDIRQ : 0) |
  		((pc & SOFTIRQ_OFFSET) ? TRACE_FLAG_SOFTIRQ : 0) |
@@ -22844,7 +22844,7 @@ index 615259d8fa9a..98095ee4a221 100644
  }
  EXPORT_SYMBOL_GPL(tracing_generic_entry_update);
  
-@@ -3599,9 +3603,11 @@ static void print_lat_help_header(struct seq_file *m)
+@@ -3601,9 +3605,11 @@ static void print_lat_help_header(struct seq_file *m)
  		    "#                  | / _----=> need-resched    \n"
  		    "#                  || / _---=> hardirq/softirq \n"
  		    "#                  ||| / _--=> preempt-depth   \n"
@@ -22859,7 +22859,7 @@ index 615259d8fa9a..98095ee4a221 100644
  }
  
  static void print_event_info(struct trace_buffer *buf, struct seq_file *m)
-@@ -3637,11 +3643,12 @@ static void print_func_help_header_irq(struct trace_buffer *buf, struct seq_file
+@@ -3639,11 +3645,12 @@ static void print_func_help_header_irq(struct trace_buffer *buf, struct seq_file
  
  	seq_printf(m, "#                            %.*s  _-----=> irqs-off\n", prec, space);
  	seq_printf(m, "#                            %.*s / _----=> need-resched\n", prec, space);
@@ -22877,7 +22877,7 @@ index 615259d8fa9a..98095ee4a221 100644
  }
  
  void
-@@ -3675,6 +3682,8 @@ print_trace_header(struct seq_file *m, struct trace_iterator *iter)
+@@ -3677,6 +3684,8 @@ print_trace_header(struct seq_file *m, struct trace_iterator *iter)
  		   "desktop",
  #elif defined(CONFIG_PREEMPT)
  		   "preempt",
@@ -22886,7 +22886,7 @@ index 615259d8fa9a..98095ee4a221 100644
  #else
  		   "unknown",
  #endif
-@@ -8964,7 +8973,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
+@@ -8966,7 +8975,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
  	tracing_off();
  
  	local_irq_save(flags);
@@ -22894,7 +22894,7 @@ index 615259d8fa9a..98095ee4a221 100644
  
  	/* Simulate the iterator */
  	trace_init_global_iter(&iter);
-@@ -9041,7 +9049,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
+@@ -9043,7 +9051,6 @@ void ftrace_dump(enum ftrace_dump_mode oops_dump_mode)
  		atomic_dec(&per_cpu_ptr(iter.trace_buffer->data, cpu)->disabled);
  	}
  	atomic_dec(&dump_running);
@@ -27815,7 +27815,7 @@ index ea9e73428ed9..56fac24a627a 100644
  }
  
 diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index ed11013d4b95..310864efbca7 100644
+index 70c102359bfe..c7aa001adbe4 100644
 --- a/net/packet/af_packet.c
 +++ b/net/packet/af_packet.c
 @@ -57,6 +57,7 @@
