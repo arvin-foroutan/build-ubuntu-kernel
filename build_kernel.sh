@@ -868,13 +868,6 @@ elif [ ${KERNEL_BASE_VER} == "5.14" ]; then # EOL (End of Life, 5.14.21, 11/21/2
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/${KERNEL_SCHEDULER}-zen-tweaks.patch .;
     patch -p1 < ./${KERNEL_SCHEDULER}-zen-tweaks.patch;
-    echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.14.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0005-XANMOD-kconfig-set-PREEMPT-and-RCU_BOOST-without-del.patch;
-    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-    patch -p1 < ./0008-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0011-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
