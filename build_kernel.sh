@@ -5,8 +5,8 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.17"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.17.3"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051703"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.17.4"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051704"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -1560,11 +1560,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.17.3-051703+customidle-generic
-# 5.17.3-051703+customfull-generic
-# 5.17.3-051703+customrt-generic
+# 5.17.4-051704+customidle-generic
+# 5.17.4-051704+customfull-generic
+# 5.17.4-051704+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.17.3-051703+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.17.4-051704+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1701,12 +1701,9 @@ fi
 echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
-# Keep an eye out for the following directories, as they build up over time.
-# Also note: Running 'sudo update-grub2' will list your installed kernels,
-# and you can manually delete the ones that have uninstall as time goes on.
-#
-# To uninstall a kernel: $ sudo apt purge *5.17.3-051703+customidle-generic*
-# However, you still need to manually remove the old ones that build up below.
+# To list your installed kernels: sudo update-grub2
+# To uninstall a kernel: sudo apt purge *5.17.4-051704+customidle-generic*
+# Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
 echo "ls -alh /lib/modules"
