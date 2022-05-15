@@ -386,7 +386,7 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying btrfs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v6/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v7/*.patch .;
         patch -p1 < ./0001-btrfs-patches.patch;
         echo "*** Copying and applying lru patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf-v3/*.patch .;
