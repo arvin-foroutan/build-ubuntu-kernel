@@ -204,7 +204,7 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest rc, in development
     cp -v ${LUCJAN_PATCH_PATH}/5.17/arch-patches-v16-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.17/bbr2-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.17/bbr2-patches-v3/*.patch .;
     patch -p1 < ./0001-bbr2-5.17-introduce-BBRv2.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/5.17/clearlinux-patches-sep/*.patch .;
@@ -299,7 +299,7 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v16/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v3/*.patch .;
     patch -p1 < ./0001-bbr2-5.17-introduce-BBRv2.patch;
     echo "*** Copying and applying blk patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v2/*.patch .;
