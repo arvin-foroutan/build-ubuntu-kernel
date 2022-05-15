@@ -268,7 +268,7 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest rc, in development
     patch -p1 < ./0005-XANMOD-Change-rcutree.kthread_prio-to-SCHED_RR-polic.patch;
     patch -p1 < ./0006-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/5.17/zen-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/5.17/zen-patches-v2/*.patch .;
     patch -p1 < ./0001-zen-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-5.17.y-xanmod/xanmod/*.patch .;
@@ -353,7 +353,7 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v3/*.patch .;
     patch -p1 < ./0001-xanmod-miscellaneous.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2/*.patch .;
     patch -p1 < ./0001-zen-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-${KERNEL_BASE_VER}.y-xanmod/xanmod/*.patch .;
