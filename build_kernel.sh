@@ -300,6 +300,9 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-bbr2-5.17-introduce-BBRv2.patch;
+    echo "*** Copying and applying blk patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v2/*.patch .;
+    patch -p1 < ./0001-blk-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
