@@ -353,7 +353,7 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v4/*.patch .;
     patch -p1 < ./0001-xanmod-miscellaneous.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2/*.patch .;
