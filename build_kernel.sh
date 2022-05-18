@@ -5,8 +5,8 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.17"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.17.8"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051708"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.17.9"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051709"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -404,9 +404,6 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-20220328.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-bbr2-patches.patch;
@@ -481,8 +478,8 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     patch -p1 < ./0019-ACPICA-Use-original-data_table_region-pointer-for-ac.patch;
     patch -p1 < ./0020-ACPICA-Use-original-pointer-for-virtual-origin-table.patch;
     patch -p1 < ./0021-ACPICA-Avoid-subobject-buffer-overflow-when-validati.patch;
-    patch -p1 < ./0022-drm-amd-amdgpu-amdgpu_cs-fix-refcount-leak-of-a-dma_.patch;
-    patch -p1 < ./0023-drm-amd-display-Fix-memory-leak.patch;
+    # patch -p1 < ./0022-drm-amd-amdgpu-amdgpu_cs-fix-refcount-leak-of-a-dma_.patch;
+    # patch -p1 < ./0023-drm-amd-display-Fix-memory-leak.patch;
     patch -p1 < ./0024-mm-Increment-kswapd_waiters-for-throttled-direct-rec.patch;
     patch -p1 < ./0025-mm-Lower-the-non-hugetlbpage-pageblock-size-to-reduc.patch;
     patch -p1 < ./0026-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bulk.patch;
@@ -536,10 +533,6 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
-    echo "*** Copying and applying misc scheduler patch for AMD processors.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/amd-use_weight*.patch .;
-    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0001.patch;
-    patch -p1 < ./amd-use_weight_of_sd_numa_domain_in_find_busiest_group-0002.patch;
     echo "*** Copying and applying lucjan custom patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
@@ -550,7 +543,7 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-pf/*.patch .;
         patch -p1 < ./0001-lru-patches.patch;
         echo "*** Copying and applying pf patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v3/*.patch .;
         patch -p1 < ./0001-pf-patches.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
@@ -564,12 +557,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
     patch -p1 < ./0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     patch -p1 < ./0006-lg-laptop-Recognize-more-models.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-20211222.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
-    patch -p1 < ./0001-bbr2-${KERNEL_BASE_VER}-introduce-BBRv2.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
@@ -1099,9 +1086,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/arch-patches-v14/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/bbr2-patches-v3/*.patch .;
-    patch -p1 < ./0001-bbr2-5.10-introduce-BBRv2.patch;
     echo "*** Copying and applying bfq patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/bfq-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-block-bfq-use-half-slice_idle-as-a-threshold-to-chec.patch;
@@ -1570,11 +1554,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.17.8-051708+customidle-generic
-# 5.17.8-051708+customfull-generic
-# 5.17.8-051708+customrt-generic
+# 5.17.9-051709+customidle-generic
+# 5.17.9-051709+customfull-generic
+# 5.17.9-051709+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.17.8-051708+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.17.9-051709+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1712,7 +1696,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *5.17.8-051708+customidle-generic*
+# To uninstall a kernel: sudo apt purge *5.17.9-051709+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
