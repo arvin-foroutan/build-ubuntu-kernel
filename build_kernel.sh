@@ -297,17 +297,18 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest rc, in development
     sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
 elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
+elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest stable
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v16/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v18/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v3/*.patch .;
     patch -p1 < ./0001-bbr2-5.17-introduce-BBRv2.patch;
     echo "*** Copying and applying blk patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v3/*.patch .;
     patch -p1 < ./0001-blk-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v2/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
     echo "*** Copying and applying clearlinux amd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-amd-fixes/*.patch .;
@@ -319,7 +320,7 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v11-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v12-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
     patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
@@ -337,23 +338,15 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
     patch -p1 < ./0016-objtool-Default-ignore-INT3-for-unreachable.patch;
     patch -p1 < ./0017-shmem-mapping_set_exiting-to-help-mapped-resilience.patch;
     patch -p1 < ./0018-tmpfs-do-not-allocate-pages-on-read.patch;
-    patch -p1 < ./0019-x86-chacha20-Avoid-spurious-jumps-to-other-functions.patch;
-    patch -p1 < ./0020-cpufreq-intel_pstate-Handle-no_turbo-in-frequency-in.patch;
-    patch -p1 < ./0021-xfs-fix-soft-lockup-via-spinning-in-filestream-ag-se.patch;
-    patch -p1 < ./0022-xfs-convert-buffer-flags-to-unsigned.patch;
-    patch -p1 < ./0023-net-atlantic-fix-frag-0-not-initialized.patch;
-    patch -p1 < ./0024-net-atlantic-reduce-scope-of-is_rsc_complete.patch;
-    patch -p1 < ./0025-net-atlantic-add-check-for-MAX_SKB_FRAGS.patch;
-    patch -p1 < ./0026-net-atlantic-verify-hw_head_-lies-within-TX-buffer-r.patch;
+    patch -p1 < ./0019-cpufreq-intel_pstate-Handle-no_turbo-in-frequency-in.patch;
+    patch -p1 < ./0020-xfs-fix-soft-lockup-via-spinning-in-filestream-ag-se.patch;
+    patch -p1 < ./0021-xfs-convert-buffer-flags-to-unsigned.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v7/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v8/*.patch .;
     patch -p1 < ./0001-hwmon-5.17-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
-    echo "*** Copying and applying smbus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smbus-patches/*.patch .;
-    patch -p1 < ./0001-smbus-miscellaneous.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-${KERNEL_BASE_VER}-merge-v1.0.15.patch;
