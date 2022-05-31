@@ -565,7 +565,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0008-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
     patch -p1 < ./0009-smpboot-reuse-timer-calibration.patch;
     patch -p1 < ./0010-port-initialize-ata-before-graphics.patch;
-    patch -p1 < ./0011-give-rdrand-some-credit.patch;
     patch -p1 < ./0012-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
     patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
     patch -p1 < ./0014-add-boot-option-to-allow-unsigned-modules.patch;
@@ -1159,7 +1158,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0007-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
     patch -p1 < ./0008-smpboot-reuse-timer-calibration.patch;
     patch -p1 < ./0009-Initialize-ata-before-graphics.patch;
-    patch -p1 < ./0010-give-rdrand-some-credit.patch;
     patch -p1 < ./0011-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
     patch -p1 < ./0012-kernel-time-reduce-ntp-wakeups.patch;
     patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
