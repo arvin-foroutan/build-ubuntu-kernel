@@ -6,11 +6,12 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 5.17 (mainline)
-- 5.16 (stable)
+- 5.18 (mainline)
+- 5.17 (stable)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
 - 5.4 LTS (Long-term support, until 2025)
+- 5.16 EOL (End of Life, 5.16.20, 04/13/22)
 - 5.14 EOL (End of Life, 5.14.21, 11/21/21)
 - 5.13 EOL (End of Life, 5.13.19, 09/18/21)
 
@@ -54,7 +55,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 5.17 mainline kernel will be built with the following:
+By default, the latest 5.18 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless
@@ -62,29 +63,35 @@ By default, the latest 5.17 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-5.16:
+5.17:
 
 ```console
-$ KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16.17 KERNEL_SUB_VER=051617 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.17 KERNEL_PATCH_VER=5.17.12 KERNEL_SUB_VER=051712 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.31 KERNEL_SUB_VER=051531 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.44 KERNEL_SUB_VER=051544 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.108 KERNEL_SUB_VER=0510108 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.119 KERNEL_SUB_VER=0510119 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.187 KERNEL_SUB_VER=0504187 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.196 KERNEL_SUB_VER=0504196 ./build_kernel.sh
 
+```
+
+5.16 EOL:
+
+```console
+$ KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16.20 KERNEL_SUB_VER=051620 ./build_kernel.sh
 ```
 
 5.14 EOL:
@@ -101,26 +108,26 @@ $ KERNEL_BASE_VER=5.13 KERNEL_PATCH_VER=5.13.19 KERNEL_SUB_VER=051319 ./build_ke
 
 #### Development kernels
 
-5.18-rc1:
+5.19-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=5.18 KERNEL_PATCH_VER=5.18-rc1 KERNEL_SUB_VER=051800rc1 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=5.19 KERNEL_PATCH_VER=5.19-rc1 KERNEL_SUB_VER=051900rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
 
+5.18-rt:
+
+```console
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.18 KERNEL_PATCH_VER=5.18 KERNEL_SUB_VER=051800 ./build_kernel.sh
+```
+
 5.17-rt:
 
 ```console
 $ KERNEL_TYPE=rt KERNEL_BASE_VER=5.17 KERNEL_PATCH_VER=5.17 KERNEL_SUB_VER=051700 ./build_kernel.sh
-```
-
-5.16-rt:
-
-```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16.1 KERNEL_SUB_VER=051601 ./build_kernel.sh
 ```
 
 5.15-rt:
