@@ -400,7 +400,7 @@ elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest mainline
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-v7/*.patch .;
         patch -p1 < ./0001-pf-fixes.patch;
     fi
-elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
+elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # EOL (End of Life, 5.16.20, 04/13/22)
     echo "*** Copying and applying amd64 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd64-patches/*.patch .;
     patch -p1 < ./0001-amd64-patches.patch;
@@ -481,8 +481,6 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     patch -p1 < ./0019-ACPICA-Use-original-data_table_region-pointer-for-ac.patch;
     patch -p1 < ./0020-ACPICA-Use-original-pointer-for-virtual-origin-table.patch;
     patch -p1 < ./0021-ACPICA-Avoid-subobject-buffer-overflow-when-validati.patch;
-    # patch -p1 < ./0022-drm-amd-amdgpu-amdgpu_cs-fix-refcount-leak-of-a-dma_.patch;
-    # patch -p1 < ./0023-drm-amd-display-Fix-memory-leak.patch;
     patch -p1 < ./0024-mm-Increment-kswapd_waiters-for-throttled-direct-rec.patch;
     patch -p1 < ./0025-mm-Lower-the-non-hugetlbpage-pageblock-size-to-reduc.patch;
     patch -p1 < ./0026-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bulk.patch;
@@ -516,14 +514,6 @@ elif [ ${KERNEL_BASE_VER} == "5.16" ]; then # Latest stable
     echo "*** Copying and applying zstd patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-patches-v4/*.patch .;
     patch -p1 < ./0001-zstd-patches.patch;
-    echo "*** Copying and applying misc xanmod tweaks.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-${KERNEL_BASE_VER}.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0001-XANMOD-fair-Remove-all-energy-efficiency-functions.patch;
-    patch -p1 < ./0002-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0008-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
-    patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
