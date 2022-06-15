@@ -5,7 +5,7 @@
 set -euo pipefail
 
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.18"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.18.3"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.18.4"}
 KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051803"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
@@ -215,9 +215,6 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-bbr2-5.18-introduce-BBRv2.patch;
-    echo "*** Copying and applying blk patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v4/*.patch .;
-    patch -p1 < ./0001-blk-mq-introduce-Ming-Lei-s-patch-from-mailing-list.patch;
     echo "*** Copying and applying btrfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v4/*.patch .;
     patch -p1 < ./0001-btrfs-patches.patch;
@@ -270,9 +267,6 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v3/*.patch .;
     patch -p1 < ./0001-hwmon-5.18-patches.patch;
-    echo "*** Copying and applying kbuild patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-patches/*.patch .;
-    patch -p1 < ./0001-kbuild-5.18-merge-changes-from-dev-tree.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
@@ -1583,11 +1577,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.18.3-051803+customidle-generic
-# 5.18.3-051803+customfull-generic
-# 5.18.3-051803+customrt-generic
+# 5.18.4-051803+customidle-generic
+# 5.18.4-051803+customfull-generic
+# 5.18.4-051803+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.18.3-051803+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 5.18.4-051804+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1725,7 +1719,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *5.18.3-051803+customidle-generic*
+# To uninstall a kernel: sudo apt purge *5.18.4-051803+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
