@@ -272,6 +272,9 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v4/*.patch .;
     patch -p1 < ./0001-hwmon-5.18-patches.patch;
+    echo "*** Copying and applying ioprio patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ioprio-patches/*.patch .;
+    patch -p1 < ./0001-ioprio-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
