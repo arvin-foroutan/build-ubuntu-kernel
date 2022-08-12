@@ -6,11 +6,12 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 5.18 (mainline)
-- 5.17 (stable)
+- 5.19 (mainline)
+- 5.18 (stable)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
 - 5.4 LTS (Long-term support, until 2025)
+- 5.17 EOL (End of Life, 5.17.15, 06/14/22)
 - 5.16 EOL (End of Life, 5.16.20, 04/13/22)
 - 5.14 EOL (End of Life, 5.14.21, 11/21/21)
 - 5.13 EOL (End of Life, 5.13.19, 09/18/21)
@@ -55,7 +56,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 5.18 mainline kernel will be built with the following:
+By default, the latest 5.19 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless
@@ -63,29 +64,35 @@ By default, the latest 5.18 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-5.17:
+5.18:
 
 ```console
-$ KERNEL_BASE_VER=5.17 KERNEL_PATCH_VER=5.17.12 KERNEL_SUB_VER=051712 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.18 KERNEL_PATCH_VER=5.18.17 KERNEL_SUB_VER=051817 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.44 KERNEL_SUB_VER=051544 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.60 KERNEL_SUB_VER=051560 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.119 KERNEL_SUB_VER=0510119 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.136 KERNEL_SUB_VER=0510136 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.196 KERNEL_SUB_VER=0504196 ./build_kernel.sh
+$ KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.210 KERNEL_SUB_VER=0504210 ./build_kernel.sh
 
+```
+
+5.17 EOL:
+
+```console
+$ KERNEL_BASE_VER=5.17 KERNEL_PATCH_VER=5.17.15 KERNEL_SUB_VER=051715 ./build_kernel.sh
 ```
 
 5.16 EOL:
