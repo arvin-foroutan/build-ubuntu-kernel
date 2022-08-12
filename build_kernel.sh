@@ -203,27 +203,22 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
-    echo "*** Copying and applying amd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-patches-v2/*.patch .;
-    patch -p1 < ./0001-amd-patches.patch;
     echo "*** Copying and applying amd p-state patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2/*.patch .;
     patch -p1 < ./0001-amd-5.18-amd-pstate-enhancement-and-issue-fixs.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-HID-apple-Properly-handle-function-keys-on-Keychron-.patch;
+    patch -p1 < ./0003-soundwire-Raise-DEFAULT_PROBE_TIMEOUT-to-10000-ms.patch;
+    patch -p1 < ./0004-drm-i915-psr-Use-full-update-In-case-of-area-calcula.patch;
+    patch -p1 < ./0005-drm-i915-Ensure-damage-clip-area-is-within-pipe-area.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-20220620.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
-    patch -p1 < ./0001-bbr2-5.18-introduce-BBRv2.patch;
     echo "*** Copying and applying blk patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v6/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/blk-patches-v7/*.patch .;
     patch -p1 < ./0001-blk-patches.patch;
-    echo "*** Copying and applying btrfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/btrfs-patches-v16/*.patch .;
-    patch -p1 < ./0001-btrfs-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v5/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
@@ -274,11 +269,8 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-opcode.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v6/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v7/*.patch .;
     patch -p1 < ./0001-hwmon-5.18-patches.patch;
-    echo "*** Copying and applying ioprio patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ioprio-patches-v2/*.patch .;
-    patch -p1 < ./0001-ioprio-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lqx-patches/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
@@ -313,11 +305,11 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
     patch -p1 < ./0001-zen-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.17.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0008-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0009-XANMOD-scripts-disable-the-localversion-tag-of-a-git.patch;
-    patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    cp -v ${XANMOD_PATCH_PATH}/linux-5.18.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0009-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0010-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0011-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0012-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
     echo "*** Copying and applying disable memory compaction patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.13-disable-compaction-on-unevictable-pages.patch .;
     patch -p1 < ./5.13-disable-compaction-on-unevictable-pages.patch;
@@ -344,9 +336,6 @@ if [ ${KERNEL_BASE_VER} == "5.18" ]; then   # Latest mainline
         patch -p1 < ./0005-XANMOD-Change-rcutree.kthread_prio-to-SCHED_RR-polic.patch;
         patch -p1 < ./0006-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
         patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-        echo "*** Copying and applying speculative lru patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/speculative-lru-pf-patches/*.patch .;
-        patch -p1 < ./0001-spf-5.18-introduce-SPECULATIVE-PAGE-FAULT.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "5.17" ]; then # Latest stable
     echo "*** Copying and applying arch patches.. ✓";
