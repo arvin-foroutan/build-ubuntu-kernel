@@ -207,8 +207,9 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0005-soundwire-intel-use-pm_runtime_resume-on-component-p.patch;
+    patch -p1 < ./0006-ALSA-hda-Once-again-fix-regression-of-page-allocatio.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-5.19-merge-v20220808.patch;
@@ -231,7 +232,7 @@ if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/esdm-patches/*.patch .;
     patch -p1 < ./0001-esdm-5.19-introduce-Entropy-Source-and-DRNG-Manager.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v14/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v16/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying folio patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/folio-patches-v2/*.patch .;
@@ -239,20 +240,14 @@ if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-5.19-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
-    echo "*** Copying and applying kbuild patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-patches-v8/*.patch .;
-    patch -p1 < ./0001-kbuild-patches.patch;
     echo "*** Copying and applying ksmbd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ksmbd-patches-v4/*.patch .;
     patch -p1 < ./0001-ksmbd-patches.patch;
     echo "*** Copying and applying mm patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mm-patches/*.patch .;
     patch -p1 < ./0001-mm-vmscan-fix-extreme-overreclaim-and-swap-floods.patch;
-    echo "*** Copying and applying modules patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/modules-patches-v2/*.patch .;
-    patch -p1 < ./0001-modules-patches.patch;
     echo "*** Copying and applying ntfs3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs3-patches-v4/*.patch .;
     patch -p1 < ./0001-ntfs3-5.19-merge-changes-from-dev-tree.patch;
     echo "*** Copying and applying rtw88 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/rtw88-patches/*.patch .;
@@ -275,9 +270,6 @@ if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
     patch -p1 < ./0001-zen-patches.patch;
-    echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-modules-patches/*.patch .;
-    patch -p1 < ./0001-kbuild-modules-5.19-allow-setting-zstd-compression-l.patch;
 elif [ ${KERNEL_BASE_VER} == "5.18" ]; then # Latest stable
     echo "*** Copying and applying amd p-state patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2/*.patch .;
