@@ -207,9 +207,10 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0005-soundwire-intel-use-pm_runtime_resume-on-component-p.patch;
-    patch -p1 < ./0006-ALSA-hda-Once-again-fix-regression-of-page-allocatio.patch;
+    patch -p1 < ./0006-Bluetooth-fix-deadlock-for-RFCOMM-sk-state-change.patch;
+    patch -p1 < ./0007-ASoC-Intel-sof_sdw-add-support-for-Dell-SKU-0AFF.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-5.19-merge-v20220808.patch;
@@ -232,7 +233,7 @@ if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/esdm-patches/*.patch .;
     patch -p1 < ./0001-esdm-5.19-introduce-Entropy-Source-and-DRNG-Manager.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v16/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v21/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying folio patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/folio-patches-v2/*.patch .;
@@ -265,7 +266,7 @@ if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v3/*.patch .;
     patch -p1 < ./0001-xanmod-patches.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
