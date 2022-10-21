@@ -4,9 +4,10 @@
 
 set -euo pipefail
 
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"5.19"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"5.19.11"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"051911"}
+KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.0"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.0.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060003"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -20,7 +21,7 @@ PATCH_PATH=${PATCH_PATH:-${KERNEL_MAIN_DIR}/patches}
 LUCJAN_PATCH_PATH=${LUCJAN_PATCH_PATH:-${PATCH_PATH}/lucjan-patches}
 XANMOD_PATCH_PATH=${XANMOD_PATCH_PATH:-${PATCH_PATH}/xanmod-patches}
 CUSTOM_PATCH_PATH=${CUSTOM_PATCH_PATH:-${PATCH_PATH}/custom-patches}
-KERNEL_SRC_URI=${KERNEL_SRC_URI:-"https://cdn.kernel.org/pub/linux/kernel/v5.x"}
+KERNEL_SRC_URI=${KERNEL_SRC_URI:-"https://cdn.kernel.org/pub/linux/kernel/v${KERNEL_MAJOR_VER}.x"}
 KERNEL_SRC_EXT=${KERNEL_SRC_EXT:-"tar.xz"}
 KERNEL_SRC_NAME=${KERNEL_SRC_NAME:-"linux-${KERNEL_PATCH_VER}"}
 KERNEL_SRC_URL=${KERNEL_SRC_URL:-${KERNEL_SRC_URI}/${KERNEL_SRC_NAME}.${KERNEL_SRC_EXT}}
@@ -208,7 +209,62 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
+if [ ${KERNEL_BASE_VER} == "6.0" ]; then    # Latest mainline
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.0-merge-v20221010.patch;
+    echo "*** Copying and applying bbr2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
+    patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
+    echo "*** Copying and applying fixes misc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v7-sep/*.patch .;
+    patch -p1 < ./0001-mm-Change-dirty-writeback-defaults.patch;
+    patch -p1 < ./0002-ZEN-mm-Lower-the-non-hugetlbpage-pageblock-size-to-r.patch;
+    patch -p1 < ./0004-objtool-Remove-ANNOTATE_NOENDBR-on-ENDBR-warning.patch;
+    patch -p1 < ./0005-sched-all-Change-all-BUG_ON-instances-in-the-schedul.patch;
+    patch -p1 < ./0006-perf-x86-amd-uncore-Fix-memory-leak-for-events-array.patch;
+    patch -p1 < ./0007-x86-retpoline-Be-sure-to-emit-INT3-after-JMP-reg.patch;
+    patch -p1 < ./0008-zram-don-t-retry-compress-incompressible-page.patch;
+    patch -p1 < ./0009-lib-vdso-use-grep-E-instead-of-egrep.patch;
+    patch -p1 < ./0010-leds-trigger-Add-block-device-LED-trigger.patch;
+    patch -p1 < ./0011-docs-Add-block-device-blkdev-LED-trigger-documentati.patch;
+    echo "*** Copying and applying spadfs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
+    patch -p1 < ./0001-spadfs-6.0-merge-v1.0.16.patch;
+    echo "*** Copying and applying lucjan's zen patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-OpenRGB-patches.patch;
+    patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
+    patch -p1 < ./0003-ZEN-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0004-ZEN-Disable-stack-conservation-for-GCC.patch;
+    patch -p1 < ./0005-ZEN-Input-evdev-use-call_rcu-when-detaching-client.patch;
+    patch -p1 < ./0007-ZEN-cpufreq-Remove-schedutil-dependency-on-Intel-AMD.patch;
+    patch -p1 < ./0008-ZEN-intel-pstate-Implement-enable-parameter.patch;
+    patch -p1 < ./0009-ZEN-mm-Disable-watermark-boosting-by-default.patch;
+    patch -p1 < ./0010-ZEN-mm-Stop-kswapd-early-when-nothing-s-waiting-for-.patch;
+    patch -p1 < ./0011-ZEN-mm-Increment-kswapd_waiters-for-throttled-direct.patch;
+    patch -p1 < ./0012-ZEN-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bu.patch;
+    patch -p1 < ./0013-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
+    echo "*** Copying and applying lucjan's xanmod patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v3-sep/*.patch .;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0014-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
+    else
+        patch -p1 < ./0002-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+        patch -p1 < ./0003-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+        patch -p1 < ./0004-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
+        patch -p1 < ./0005-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+        patch -p1 < ./0006-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+        patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+        patch -p1 < ./0008-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+        patch -p1 < ./0009-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+        patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+        patch -p1 < ./0012-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    fi
+elif [ ${KERNEL_BASE_VER} == "5.19" ]; then # Latest stable
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0005-soundwire-intel-use-pm_runtime_resume-on-component-p.patch;
@@ -274,7 +330,7 @@ if [ ${KERNEL_BASE_VER} == "5.19" ]; then   # Latest mainline
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches/*.patch .;
     patch -p1 < ./0001-zen-patches.patch;
-elif [ ${KERNEL_BASE_VER} == "5.18" ]; then # Latest stable
+elif [ ${KERNEL_BASE_VER} == "5.18" ]; then # EOL (End of Life, 5.18.19, 08/21/22)
     echo "*** Copying and applying amd p-state patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2/*.patch .;
     patch -p1 < ./0001-amd-5.18-amd-pstate-enhancement-and-issue-fixs.patch;
@@ -1570,11 +1626,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 5.19.11-051911+customidle-generic
-# 5.19.11-051911+customfull-generic
-# 5.19.11-051911+customrt-generic
+# 6.0.3-060003+customidle-generic
+# 6.0.3-060003+customfull-generic
+# 6.0.3-060003+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 5.19.11-051911+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.0.3-060003+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1712,7 +1768,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *5.19.11-051911+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.0.3-060003+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
