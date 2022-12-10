@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.0"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.0.3"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060003"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.0.12"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060012"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -288,7 +288,7 @@ if [ ${KERNEL_BASE_VER} == "6.0" ]; then    # Latest mainline
         patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
         patch -p1 < ./0012-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
     fi
-elif [ ${KERNEL_BASE_VER} == "5.19" ]; then # Latest stable
+elif [ ${KERNEL_BASE_VER} == "5.19" ]; then # EOL (End of Life, 5.19.17, 10/24/22)
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9-sep/*.patch .;
     patch -p1 < ./0005-soundwire-intel-use-pm_runtime_resume-on-component-p.patch;
@@ -1650,11 +1650,11 @@ if [ ${KERNEL_SCHEDULER} == "cacule" ] && [ "${KERNEL_TYPE}" != "rt" ]; then
 fi
 
 # Examples:
-# 6.0.3-060003+customidle-generic
-# 6.0.3-060003+customfull-generic
-# 6.0.3-060003+customrt-generic
+# 6.0.12-060012+customidle-generic
+# 6.0.12-060012+customfull-generic
+# 6.0.12-060012+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.0.3-060003+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.0.12-060012+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1792,7 +1792,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.0.3-060003+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.0.12-060012+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
