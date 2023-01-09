@@ -810,12 +810,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0015-x86-csum-rewrite-csum_partial.patch;
     patch -p1 < ./0016-x86-csum-Fix-compilation-error-for-UM.patch;
     patch -p1 < ./0017-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
-    echo "*** Copying and applying futex (Valve fsync) patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/futex-zen-patches/*.patch .;
-    patch -p1 < ./0001-futex-resync-from-gitlab.collabora.com.patch;
-    echo "*** Copying and applying futex2 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/futex2-zen-patches/*.patch .;
-    patch -p1 < ./0001-futex2-resync-from-gitlab.collabora.com.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/hwmon-patches-v9/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
@@ -1391,7 +1385,7 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
     fi
@@ -1606,7 +1600,7 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./5.4-from-5.13-swap-0001-swap-patches.patch;
     patch -p1 < ./5.4-from-5.13-swap-merge-fix-new.patch;
     echo "*** Copying and applying ck-hrtimer patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/ck-hrtimer/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/ck-hrtimer/*.patch .;
     patch -p1 < ./0001-Create-highres-timeout-variants-of-schedule_timeout-.patch;
     patch -p1 < ./0002-Special-case-calls-of-schedule_timeout-1-to-use-the-.patch;
     patch -p1 < ./0003-Convert-msleep-to-use-hrtimers-when-active.patch;
@@ -1615,10 +1609,10 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     patch -p1 < ./0007-Don-t-use-hrtimer-overlay-when-pm_freezing-since-som.patch;
     patch -p1 < ./0008-clockevents-hrtimer-Make-hrtimer-granularity-and-min.patch;
     echo "*** Copying and applying modules patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/modules/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/modules/*.patch .;
     patch -p1 < ./0001-modules-disinherit-taint-proprietary-module.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-5.10.y-xanmod/xanmod/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
     fi
