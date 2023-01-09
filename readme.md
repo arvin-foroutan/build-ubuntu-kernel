@@ -6,11 +6,12 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.0 (mainline)
-- 5.19 (stable)
+- 6.1 (mainline)
+- 6.0 (stable)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
 - 5.4 LTS (Long-term support, until 2025)
+- 5.19 EOL (End of Life, 5.19.17, 10/24/22)
 - 5.18 EOL (End of Life, 5.18.19, 08/21/22)
 - 5.17 EOL (End of Life, 5.17.15, 06/14/22)
 - 5.16 EOL (End of Life, 5.16.20, 04/13/22)
@@ -65,28 +66,34 @@ By default, the latest 6.0 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-5.19:
+6.0:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.19 KERNEL_PATCH_VER=5.19.16 KERNEL_SUB_VER=051916 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=6 KERNEL_BASE_VER=6.0 KERNEL_PATCH_VER=6.0.18 KERNEL_SUB_VER=060018 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.74 KERNEL_SUB_VER=051574 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.86 KERNEL_SUB_VER=051586 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.149 KERNEL_SUB_VER=0510149 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.162 KERNEL_SUB_VER=0510162 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.219 KERNEL_SUB_VER=0504219 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.228 KERNEL_SUB_VER=0504228 ./build_kernel.sh
+```
+
+5.19 EOL:
+
+```console
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.19 KERNEL_PATCH_VER=5.19.17 KERNEL_SUB_VER=051917 ./build_kernel.sh
 ```
 
 5.18 EOL:
@@ -121,10 +128,10 @@ $ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.13 KERNEL_PATCH_VER=5.13.19 KERNEL_SUB_VE
 
 #### Development kernels
 
-6.1-rc1:
+6.2-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1-rc1 KERNEL_SUB_VER=060100rc1 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.2 KERNEL_PATCH_VER=6.2-rc1 KERNEL_SUB_VER=060200rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
