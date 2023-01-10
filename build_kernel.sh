@@ -256,6 +256,9 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     patch -p1 < ./0018-Initialize-ata-before-graphics.patch;
     patch -p1 < ./0019-hugetlb-unshare-some-PMDs-when-splitting-VMAs.patch;
     patch -p1 < ./0021-mm-remove-PageMovable-export.patch;
+    echo "*** Copying and applying graysky cpu patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
+    patch -p1 < ./graysky-gcc-5.17+.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-6.1-merge-v1.0.17.patch;
