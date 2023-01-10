@@ -52,7 +52,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.0 mainline kernel will be built with the following:
+By default, the latest 6.1 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless
