@@ -11,12 +11,6 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
 - 5.4 LTS (Long-term support, until 2025)
-- 5.19 EOL (End of Life, 5.19.17, 10/24/22)
-- 5.18 EOL (End of Life, 5.18.19, 08/21/22)
-- 5.17 EOL (End of Life, 5.17.15, 06/14/22)
-- 5.16 EOL (End of Life, 5.16.20, 04/13/22)
-- 5.14 EOL (End of Life, 5.14.21, 11/21/21)
-- 5.13 EOL (End of Life, 5.13.19, 09/18/21)
 
 ## So, how do I use this?
 
@@ -88,42 +82,6 @@ $ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.162 KERNEL_SUB_V
 
 ```console
 $ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.228 KERNEL_SUB_VER=0504228 ./build_kernel.sh
-```
-
-5.19 EOL:
-
-```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.19 KERNEL_PATCH_VER=5.19.17 KERNEL_SUB_VER=051917 ./build_kernel.sh
-```
-
-5.18 EOL:
-
-```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.18 KERNEL_PATCH_VER=5.18.19 KERNEL_SUB_VER=051819 ./build_kernel.sh
-```
-
-5.17 EOL:
-
-```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.17 KERNEL_PATCH_VER=5.17.15 KERNEL_SUB_VER=051715 ./build_kernel.sh
-```
-
-5.16 EOL:
-
-```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.16 KERNEL_PATCH_VER=5.16.20 KERNEL_SUB_VER=051620 ./build_kernel.sh
-```
-
-5.14 EOL:
-
-```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.14 KERNEL_PATCH_VER=5.14.21 KERNEL_SUB_VER=051421 ./build_kernel.sh
-```
-
-5.13 EOL:
-
-```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.13 KERNEL_PATCH_VER=5.13.19 KERNEL_SUB_VER=051319 ./build_kernel.sh
 ```
 
 #### Development kernels
