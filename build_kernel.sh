@@ -180,8 +180,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1-rc7-rt5.patch .;
         patch -p1 < ./patch-6.1-rc7-rt5.patch;
     elif [ ${KERNEL_BASE_VER} == "6.0" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.0-rt11.patch .;
-        patch -p1 < ./patch-6.0-rt11.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.0.5-rt14.patch .;
+        patch -p1 < ./patch-6.0.5-rt14.patch;
     elif [ ${KERNEL_BASE_VER} == "5.19" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.19-rt10.patch .;
         patch -p1 < ./patch-5.19-rt10.patch;
@@ -195,8 +195,8 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.16.1-rt17.patch .;
         patch -p1 < ./patch-5.16.1-rt17.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.34-rt40.patch .;
-        patch -p1 < ./patch-5.15.34-rt40.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.86-rt56.patch .;
+        patch -p1 < ./patch-5.15.86-rt56.patch;
     elif [ ${KERNEL_BASE_VER} == "5.14" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.14.2-rt21.patch .;
         patch -p1 < ./patch-5.14.2-rt21.patch;
@@ -204,11 +204,11 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.13-rt1.patch .;
         patch -p1 < ./patch-5.13-rt1.patch;
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.109-rt65.patch .;
-        patch -p1 < ./patch-5.10.109-rt65.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.158-rt77.patch .;
+        patch -p1 < ./patch-5.10.158-rt77.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.188-rt73.patch .;
-        patch -p1 < ./patch-5.4.188-rt73.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.221-rt79.patch .;
+        patch -p1 < ./patch-5.4.221-rt79.patch;
     fi
 fi
 
