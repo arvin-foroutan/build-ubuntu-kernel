@@ -69,7 +69,7 @@ To build other versions, you can use the following convention:
 6.0:
 
 ```console
-$ KERNEL_MAJOR_VER=6 KERNEL_BASE_VER=6.0 KERNEL_PATCH_VER=6.0.18 KERNEL_SUB_VER=060018 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.0 KERNEL_PATCH_VER=6.0.18 KERNEL_SUB_VER=060018 ./build_kernel.sh
 ```
 
 5.15 LTS:
@@ -138,28 +138,34 @@ $ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KER
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
 
+6.1-rt:
+
+```console
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1 KERNEL_SUB_VER=060100rc7 ./build_kernel.sh
+```
+
 6.0-rt:
 
 ```console
-$ KERNEL_TYPE=rt ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.0 KERNEL_PATCH_VER=6.0.5 KERNEL_SUB_VER=060005 ./build_kernel.sh
 ```
 
 5.15-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.29 KERNEL_SUB_VER=051529 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.86 KERNEL_SUB_VER=051586 ./build_kernel.sh
 ```
 
 5.10-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.100 KERNEL_SUB_VER=0510100 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.158 KERNEL_SUB_VER=0510158 ./build_kernel.sh
 ```
 
 5.4-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.182 KERNEL_SUB_VER=0504182 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.221 KERNEL_SUB_VER=0504221 ./build_kernel.sh
 ```
 
 #### Full tickless kernels
