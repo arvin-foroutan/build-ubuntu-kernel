@@ -199,11 +199,11 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-patches-v5-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-epp-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v12/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.1-merge-v20221219.patch;
+    patch -p1 < ./0001-aufs-6.1-merge-v20230109.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
@@ -217,27 +217,8 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches-v4/*.patch .;
     patch -p1 < ./0001-futex-6.1-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v19-sep/*.patch .;
-    patch -p1 < ./0001-mm-Change-dirty-writeback-defaults.patch;
-    patch -p1 < ./0002-ZEN-mm-Lower-the-non-hugetlbpage-pageblock-size-to-r.patch;
-    patch -p1 < ./0003-leds-trigger-Add-block-device-LED-trigger.patch;
-    patch -p1 < ./0004-docs-Add-block-device-blkdev-LED-trigger-documentati.patch;
-    patch -p1 < ./0005-elevator-remove-redundant-code-in-elv_unregister_que.patch;
-    patch -p1 < ./0006-blk-wbt-remove-unnecessary-check-in-wbt_enable_defau.patch;
-    patch -p1 < ./0007-blk-wbt-make-enable_state-more-accurate.patch;
-    patch -p1 < ./0008-blk-wbt-don-t-show-valid-wbt_lat_usec-in-sysfs-while.patch;
-    patch -p1 < ./0009-elevator-add-new-field-flags-in-struct-elevator_queu.patch;
-    patch -p1 < ./0010-blk-wbt-don-t-enable-throttling-if-default-elevator-.patch;
-    patch -p1 < ./0011-mm-vmscan-make-rotations-a-secondary-factor-in-balan.patch;
-    patch -p1 < ./0012-objtool-Optimize-elf_dirty_reloc_sym.patch;
-    patch -p1 < ./0013-kbuild-revive-parallel-execution-for-.tmp_initcalls..patch;
-    patch -p1 < ./0014-padata-Do-not-mark-padata_mt_helper-as-__init.patch;
-    patch -p1 < ./0015-modpost-Include-.text.-in-TEXT_SECTIONS.patch;
-    patch -p1 < ./0016-epoll-ep_autoremove_wake_function-should-use-list_de.patch;
-    patch -p1 < ./0017-Fix-sound-on-ASUS-Zenbook-UM5302TA.patch;
-    patch -p1 < ./0018-Initialize-ata-before-graphics.patch;
-    patch -p1 < ./0019-hugetlb-unshare-some-PMDs-when-splitting-VMAs.patch;
-    patch -p1 < ./0021-mm-remove-PageMovable-export.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v24/*.patch .;
+    patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
     patch -p1 < ./graysky-gcc-5.17+.patch;
@@ -254,7 +235,7 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/wine-sync-patches/*.patch .;
     patch -p1 < ./0001-winesync-Introduce-the-winesync-driver-and-character.patch;
     echo "*** Copying and applying zsmalloc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zsmalloc-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zsmalloc-patches-v3-all/*.patch .;
     patch -p1 < ./0001-zsmalloc-patches.patch;
     echo "*** Copying and applying zswap patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zswap-patches-all/*.patch .;
@@ -291,16 +272,16 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     patch -p1 < ./0013-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying bcachefs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v8/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v13/*.patch .;
         patch -p1 < ./0001-bcachefs-6.1-introduce-bcachefs-patchset.patch;
         echo "*** Copying and applying bfq patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-for-6.2-patches-v8/*.patch .;
-        patch -p1 < ./0001-bfq-for-6.2-patches.patch;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v10/*.patch .;
+        patch -p1 < ./0001-bfq-cachyos-patches.patch;
         echo "*** Copying and applying ext4 patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ext4-patches-v4-all/*.patch .;
         patch -p1 < ./0001-ext4-patches.patch;
         echo "*** Copying and applying latency nice patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/latency-nice-patches/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/latency-nice-patches-v2/*.patch .;
         patch -p1 < ./0001-Add-latency-priority-for-CFS-class.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "6.0" ]; then  # Latest stable
