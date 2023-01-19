@@ -196,10 +196,10 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     echo "*** Copying and applying amd pstate epp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-patches-v5-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-patches-v6-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-epp-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v12/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v13/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
@@ -217,7 +217,7 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches-v4/*.patch .;
     patch -p1 < ./0001-futex-6.1-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v24/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v27/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
@@ -225,17 +225,11 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-6.1-merge-v1.0.17.patch;
-    echo "*** Copying and applying sched affinity patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sched-affinity-patches-all/*.patch .;
-    patch -p1 < ./0001-sched-affinity-patches.patch;
-    echo "*** Copying and applying sched ipc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/sched-ipc-patches/*.patch .;
-    patch -p1 < ./0001-sched-Introduce-IPC-classes-for-load-balance.patch;
     echo "*** Copying and applying winesync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/wine-sync-patches/*.patch .;
     patch -p1 < ./0001-winesync-Introduce-the-winesync-driver-and-character.patch;
     echo "*** Copying and applying zsmalloc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zsmalloc-patches-v3-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zsmalloc-patches-v4-all/*.patch .;
     patch -p1 < ./0001-zsmalloc-patches.patch;
     echo "*** Copying and applying zswap patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zswap-patches-all/*.patch .;
