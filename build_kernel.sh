@@ -196,7 +196,7 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     echo "*** Copying and applying amd pstate epp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-guided-patches-v4-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-guided-patches-v6-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-epp-guided-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v18/*.patch .;
@@ -217,7 +217,7 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches-v4/*.patch .;
     patch -p1 < ./0001-futex-6.1-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v37/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v41/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
@@ -266,10 +266,10 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     patch -p1 < ./0013-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying bcachefs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v22/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v25/*.patch .;
         patch -p1 < ./0001-bcachefs-6.1-introduce-bcachefs-patchset.patch;
         echo "*** Copying and applying bfq patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v10/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v11/*.patch .;
         patch -p1 < ./0001-bfq-cachyos-patches.patch;
         echo "*** Copying and applying ext4 patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ext4-patches-v4-all/*.patch .;
