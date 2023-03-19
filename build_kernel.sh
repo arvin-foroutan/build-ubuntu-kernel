@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.1"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.1.20"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060120"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.2"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.2.7"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060207"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -194,7 +194,88 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # LTS kernel, supported until 2028
+if [ ${KERNEL_BASE_VER} == "6.2" ]; then    # Latest mainline
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v9-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-mm-add-vma_has_recency.patch;
+    patch -p1 < ./0003-mm-support-POSIX_FADV_NOREUSE.patch;
+    patch -p1 < ./0004-bpf-x86-Fix-IP-after-emitting-call-depth-accounting.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.2-merge-v20230227.patch;
+    echo "*** Copying and applying bbr2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
+    patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v2/*.patch .;
+    patch -p1 < ./0001-clearlinux-6.2-introduce-clearlinux-patchset.patch;
+    echo "*** Copying and applying futex patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
+    patch -p1 < ./0001-futex-6.2-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
+    echo "*** Copying and applying fixes misc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v16/*.patch .;
+    patch -p1 < ./0001-fixes-miscellaneous.patch;
+    echo "*** Copying and applying graysky cpu patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
+    patch -p1 < ./graysky-gcc-5.17+.patch;
+    echo "*** Copying and applying net patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-net-patches/*.patch .;
+    patch -p1 < ./0001-Add-a-sysctl-to-skip-tcp-collapse-processing-when-th.patch;
+    echo "*** Copying and applying smpboot patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smpboot-patches-v16/*.patch .;
+    patch -p1 < ./0001-smpboot-patches.patch;
+    echo "*** Copying and applying zsmalloc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zsmalloc-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-zsmalloc-patches.patch;
+    echo "*** Copying and applying lucjan's xanmod patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0012-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
+    fi
+    patch -p1 < ./0001-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0002-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0003-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
+    patch -p1 < ./0004-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0005-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0006-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0007-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0008-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0009-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    patch -p1 < ./0011-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    echo "*** Copying and applying lucjan's zen patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2-sep/*.patch .;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
+    fi
+    patch -p1 < ./0001-ZEN-Add-OpenRGB-patches.patch;
+    patch -p1 < ./0003-ZEN-PCI-Add-Intel-remapped-NVMe-device-support.patch;
+    patch -p1 < ./0004-ZEN-Disable-stack-conservation-for-GCC.patch;
+    patch -p1 < ./0005-ZEN-Input-evdev-use-call_rcu-when-detaching-client.patch;
+    patch -p1 < ./0007-ZEN-cpufreq-Remove-schedutil-dependency-on-Intel-AMD.patch;
+    patch -p1 < ./0008-ZEN-intel-pstate-Implement-enable-parameter.patch;
+    patch -p1 < ./0009-ZEN-mm-Disable-watermark-boosting-by-default.patch;
+    patch -p1 < ./0010-ZEN-mm-Stop-kswapd-early-when-nothing-s-waiting-for-.patch;
+    patch -p1 < ./0011-ZEN-mm-Increment-kswapd_waiters-for-throttled-direct.patch;
+    patch -p1 < ./0012-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        # echo "*** Copying and applying bcachefs patches.. ✓";
+        # cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v14/*.patch .;
+        # patch -p1 < ./0001-bcachefs-6.2-introduce-bcachefs-patchset.patch;
+        echo "*** Copying and applying bfq patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v2/*.patch .;
+        patch -p1 < ./0001-bfq-cachyos-patches.patch;
+        echo "*** Copying and applying hwmon patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v3-all/*.patch .;
+        patch -p1 < ./0001-hwmon-patches.patch;
+        echo "*** Copying and applying latency nice patches.. ✓";
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/latency-nice-patches/*.patch .;
+        patch -p1 < ./0001-Add-latency-priority-for-CFS-class.patch;
+    fi
+elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     echo "*** Copying and applying amd pstate epp patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-guided-patches-v7-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-epp-guided-patches.patch;
@@ -817,11 +898,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.1.20-060120+customidle-generic
-# 6.1.20-060120+customfull-generic
-# 6.1.20-060120+customrt-generic
+# 6.2.7-060207+customidle-generic
+# 6.2.7-060207+customfull-generic
+# 6.2.7-060207+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.1.20-060120+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.2.7-060207+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -959,7 +1040,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.1.20-060120+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.2.7-060207+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
