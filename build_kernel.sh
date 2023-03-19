@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.1"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.1.11"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060111"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.1.20"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060120"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -194,18 +194,22 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
+if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # LTS kernel, supported until 2028
     echo "*** Copying and applying amd pstate epp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-guided-patches-v6-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-epp-guided-patches-v7-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-epp-guided-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v18/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v19-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-mm-add-vma_has_recency.patch;
+    patch -p1 < ./0003-mm-support-POSIX_FADV_NOREUSE.patch;
+    patch -p1 < ./0004-Revert-drm-i915-improve-the-catch-all-evict-to-handl.patch;
+    patch -p1 < ./0005-drm-i915-improve-the-catch-all-evict-to-handle-lock-.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-6.1-merge-v20230109.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
     echo "*** Copying and applying boot patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/boot-patches/*.patch .;
@@ -217,8 +221,41 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches-v4/*.patch .;
     patch -p1 < ./0001-futex-6.1-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v41/*.patch .;
-    patch -p1 < ./0001-fixes-miscellaneous.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v43-sep/*.patch .;
+    patch -p1 < ./0001-mm-Change-dirty-writeback-defaults.patch;
+    patch -p1 < ./0002-ZEN-mm-Lower-the-non-hugetlbpage-pageblock-size-to-r.patch;
+    patch -p1 < ./0003-leds-trigger-Add-block-device-LED-trigger.patch;
+    patch -p1 < ./0004-docs-Add-block-device-blkdev-LED-trigger-documentati.patch;
+    patch -p1 < ./0005-elevator-remove-redundant-code-in-elv_unregister_que.patch;
+    patch -p1 < ./0006-blk-wbt-remove-unnecessary-check-in-wbt_enable_defau.patch;
+    patch -p1 < ./0007-blk-wbt-make-enable_state-more-accurate.patch;
+    patch -p1 < ./0008-blk-wbt-don-t-show-valid-wbt_lat_usec-in-sysfs-while.patch;
+    patch -p1 < ./0009-elevator-add-new-field-flags-in-struct-elevator_queu.patch;
+    patch -p1 < ./0010-blk-wbt-don-t-enable-throttling-if-default-elevator-.patch;
+    patch -p1 < ./0011-mm-vmscan-make-rotations-a-secondary-factor-in-balan.patch;
+    patch -p1 < ./0012-objtool-Optimize-elf_dirty_reloc_sym.patch;
+    patch -p1 < ./0013-kbuild-revive-parallel-execution-for-.tmp_initcalls..patch;
+    patch -p1 < ./0014-padata-Do-not-mark-padata_mt_helper-as-__init.patch;
+    patch -p1 < ./0015-modpost-Include-.text.-in-TEXT_SECTIONS.patch;
+    patch -p1 < ./0016-epoll-ep_autoremove_wake_function-should-use-list_de.patch;
+    patch -p1 < ./0017-Fix-sound-on-ASUS-Zenbook-UM5302TA.patch;
+    patch -p1 < ./0018-Initialize-ata-before-graphics.patch;
+    patch -p1 < ./0019-mm-remove-PageMovable-export.patch;
+    patch -p1 < ./0021-bitmap-switch-from-inline-to-__always_inline.patch;
+    patch -p1 < ./0023-kthread_worker-check-all-delayed-works-when-destroy-.patch;
+    patch -p1 < ./0024-xfs-fix-incorrect-i_nlink-caused-by-inode-racing.patch;
+    patch -p1 < ./0025-xfs-fix-off-by-one-error-in-xfs_btree_space_to_heigh.patch;
+    patch -p1 < ./0026-xfs-get-root-inode-correctly-at-bulkstat.patch;
+    patch -p1 < ./0027-xfs-Fix-deadlock-on-xfs_inodegc_worker.patch;
+    patch -p1 < ./0028-xfs-fix-extent-busy-updating.patch;
+    patch -p1 < ./0029-x86-pm-Force-out-of-line-memcpy.patch;
+    patch -p1 < ./0030-mm-compaction-Rename-compact_control-rescan-to-finis.patch;
+    patch -p1 < ./0031-mm-compaction-Check-if-a-page-has-been-captured-befo.patch;
+    patch -p1 < ./0032-mm-compaction-Finish-scanning-the-current-pageblock-.patch;
+    patch -p1 < ./0033-mm-compaction-Finish-pageblocks-on-complete-migratio.patch;
+    patch -p1 < ./0034-Revert-Revert-mm-compaction-fix-set-skip-in-fast_fin.patch;
+    patch -p1 < ./0035-x86-cpu-Use-cpu_feature_enabled-when-checking-global.patch;
+    patch -p1 < ./0037-lib-string-Use-strchr-in-strpbrk.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
     patch -p1 < ./graysky-gcc-5.17+.patch;
@@ -238,22 +275,20 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0012-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
-    else
-        patch -p1 < ./0001-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-        patch -p1 < ./0002-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-        patch -p1 < ./0003-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
-        patch -p1 < ./0004-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-        patch -p1 < ./0005-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-        patch -p1 < ./0006-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-        patch -p1 < ./0007-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-        patch -p1 < ./0008-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-        patch -p1 < ./0009-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
-        patch -p1 < ./0011-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
     fi
+    patch -p1 < ./0001-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0002-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0003-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
+    patch -p1 < ./0004-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0005-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0006-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0007-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0008-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0009-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    patch -p1 < ./0011-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-OpenRGB-patches.patch;
-    patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
     patch -p1 < ./0003-ZEN-PCI-Add-Intel-remapped-NVMe-device-support.patch;
     patch -p1 < ./0004-ZEN-Disable-stack-conservation-for-GCC.patch;
     patch -p1 < ./0005-ZEN-Input-evdev-use-call_rcu-when-detaching-client.patch;
@@ -271,9 +306,6 @@ if [ ${KERNEL_BASE_VER} == "6.1" ]; then    # Latest mainline
         echo "*** Copying and applying bfq patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v11/*.patch .;
         patch -p1 < ./0001-bfq-cachyos-patches.patch;
-        echo "*** Copying and applying ext4 patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ext4-patches-v4-all/*.patch .;
-        patch -p1 < ./0001-ext4-patches.patch;
         echo "*** Copying and applying latency nice patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/latency-nice-patches-v2/*.patch .;
         patch -p1 < ./0001-Add-latency-priority-for-CFS-class.patch;
@@ -785,11 +817,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.1.11-060111+customidle-generic
-# 6.1.11-060111+customfull-generic
-# 6.1.11-060111+customrt-generic
+# 6.1.20-060120+customidle-generic
+# 6.1.20-060120+customfull-generic
+# 6.1.20-060120+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.1.11-060111+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.1.20-060120+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -927,7 +959,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.1.11-060111+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.1.20-060120+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
