@@ -329,7 +329,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/fixes-miscellaneous-v9-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
     patch -p1 < ./0002-infiniband-Fix-__read_overflow2-error-with-O3-inlini.patch;
-    patch -p1 < ./0003-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
     patch -p1 < ./0004-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0005-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
     patch -p1 < ./0007-i2c-busses-Add-SMBus-capability-to-work-with-OpenRGB.patch;
@@ -339,7 +338,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0011-mm-Don-t-stop-kswapd-on-a-per-node-basis-when-there-.patch;
     patch -p1 < ./0012-mm-Disable-watermark-boosting-by-default.patch;
     patch -p1 < ./0013-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0014-vfs-keep-inodes-with-page-cache-off-the-inode-shrink.patch;
     patch -p1 < ./0015-x86-csum-rewrite-csum_partial.patch;
     patch -p1 < ./0016-x86-csum-Fix-compilation-error-for-UM.patch;
     patch -p1 < ./0017-x86-csum-Fix-initial-seed-for-odd-buffers.patch;
@@ -516,15 +514,11 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0006-mm-Fully-disable-watermark-boosting-when-it-isn-t-us.patch;
     patch -p1 < ./0007-mm-Don-t-stop-kswapd-on-a-per-node-basis-when-there-.patch;
     patch -p1 < ./0008-kbuild-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0009-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
     patch -p1 < ./0010-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0012-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0014-fs-Break-generic_file_buffered_read-up-into-multiple.patch;
     patch -p1 < ./0015-fs-generic_file_buffered_read-now-uses-find_get_page.patch;
     patch -p1 < ./0016-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
-    echo "*** Copying and applying futex misc patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/futex-patches/*.patch .;
-    patch -p1 < ./0001-futex-patches.patch;
     echo "*** Copying and applying hwmon patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.14/hwmon-patches/*.patch .;
     patch -p1 < ./0001-hwmon-patches.patch;
@@ -624,10 +618,6 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     echo "*** Copying and applying block 5.10 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.10-elevator-mq-aware.patch .;
     patch -p1 <./5.4-block-5.10-elevator-mq-aware.patch;
-    echo "*** Copying and applying block 5.12 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks*.patch .;
-    patch -p1 < ./5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks.patch;
-    patch -p1 < ./5.4-block-5.12-0008-block-Remove-unnecessary-elevator-operation-checks-part2.patch;
     echo "*** Copying and applying BFQ 5.4 patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/bfq-patches-sep/*.patch .;
     patch -p1 < ./0001-blkcg-Make-bfq-disable-iocost-when-enabled.patch;
@@ -649,7 +639,6 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.14/fixes-miscellaneous-sep/*.patch .;
     patch -p1 < ./0005-mm-Fully-disable-watermark-boosting-when-it-isn-t-us.patch;
     patch -p1 < ./0007-kbuild-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0008-pci-Enable-overrides-for-missing-ACS-capabilities.patch;
     patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
     cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch .;
     patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
