@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.2"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.2.7"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060207"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.2.8"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060208"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -217,7 +217,7 @@ if [ ${KERNEL_BASE_VER} == "6.2" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.2-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v16/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v18/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
@@ -226,7 +226,7 @@ if [ ${KERNEL_BASE_VER} == "6.2" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-net-patches/*.patch .;
     patch -p1 < ./0001-Add-a-sysctl-to-skip-tcp-collapse-processing-when-th.patch;
     echo "*** Copying and applying smpboot patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smpboot-patches-v16/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smpboot-patches-v17/*.patch .;
     patch -p1 < ./0001-smpboot-patches.patch;
     echo "*** Copying and applying zsmalloc patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zsmalloc-patches-v2-all/*.patch .;
@@ -269,7 +269,7 @@ if [ ${KERNEL_BASE_VER} == "6.2" ]; then    # Latest mainline
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v2/*.patch .;
         patch -p1 < ./0001-bfq-cachyos-patches.patch;
         echo "*** Copying and applying hwmon patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v3-all/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hwmon-patches-v4-all/*.patch .;
         patch -p1 < ./0001-hwmon-patches.patch;
         echo "*** Copying and applying latency nice patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/latency-nice-patches/*.patch .;
@@ -898,11 +898,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.2.7-060207+customidle-generic
-# 6.2.7-060207+customfull-generic
-# 6.2.7-060207+customrt-generic
+# 6.2.8-060208+customidle-generic
+# 6.2.8-060208+customfull-generic
+# 6.2.8-060208+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.2.7-060207+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.2.8-060208+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1040,7 +1040,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.2.7-060207+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.2.8-060208+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
