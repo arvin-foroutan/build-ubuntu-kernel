@@ -6,7 +6,8 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.2 (mainline)
+- 6.3 (mainline)
+- 6.2 (stable)
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
@@ -52,7 +53,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.2 mainline kernel will be built with the following:
+By default, the latest 6.3 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless
@@ -60,7 +61,13 @@ By default, the latest 6.2 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-6.1:
+6.2:
+
+```console
+$ KERNEL_BASE_VER=6.2 KERNEL_PATCH_VER=6.2.14 KERNEL_SUB_VER=060214 ./build_kernel.sh
+```
+
+6.1 LTS:
 
 ```console
 $ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.20 KERNEL_SUB_VER=060120 ./build_kernel.sh
@@ -86,15 +93,21 @@ $ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.237 KERNEL_SUB_VER
 
 #### Development kernels
 
-6.3-rc1:
+6.4-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.3 KERNEL_PATCH_VER=6.3-rc1 KERNEL_SUB_VER=060300rc1 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.4 KERNEL_PATCH_VER=6.4-rc1 KERNEL_SUB_VER=060400rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
+
+6.3-rt:
+
+```console
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.3 KERNEL_PATCH_VER=6.3 KERNEL_SUB_VER=060300 ./build_kernel.sh
+```
 
 6.2-rt:
 
@@ -105,19 +118,19 @@ $ KERNEL_TYPE=rt KERNEL_BASE_VER=6.2 KERNEL_PATCH_VER=6.2 KERNEL_SUB_VER=060200 
 6.1-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.19 KERNEL_SUB_VER=060119 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.26 KERNEL_SUB_VER=060126 ./build_kernel.sh
 ```
 
 5.15-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.96 KERNEL_SUB_VER=051596 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.107 KERNEL_SUB_VER=0515107 ./build_kernel.sh
 ```
 
 5.10-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.168 KERNEL_SUB_VER=0510168 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.176 KERNEL_SUB_VER=0510176 ./build_kernel.sh
 ```
 
 5.4-rt:
