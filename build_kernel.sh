@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.2"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.2.11"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060211"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.2.14"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060214"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -258,7 +258,6 @@ if [ ${KERNEL_BASE_VER} == "6.2" ]; then    # Latest mainline
     patch -p1 < ./0038-r8169-remove-ASPM-restrictions-now-that-ASPM-is-disa.patch;
     patch -p1 < ./0039-epoll-use-refcount-to-reduce-ep_mutex-contention.patch;
     patch -p1 < ./0040-epoll-use-refcount-to-reduce-ep_mutex-contention-v5.patch;
-    patch -p1 < ./0042-mm-fix-memory-leak-on-mm_init-error-handling.patch;
     patch -p1 < ./0047-wireless-mt76-mt7921-Fix-use-after-free-in-fw-featur.patch;
     patch -p1 < ./0048-Revert-drm-amdgpu-display-change-pipe-policy-for-DCN.patch;
     patch -p1 < ./0049-Revert-drm-amdgpu-display-change-pipe-policy-for-DCN.patch;
@@ -423,7 +422,7 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0013-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying bcachefs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v25/*.patch .;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v32/*.patch .;
         patch -p1 < ./0001-bcachefs-6.1-introduce-bcachefs-patchset.patch;
         echo "*** Copying and applying bfq patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v11/*.patch .;
@@ -939,11 +938,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.2.11-060211+customidle-generic
-# 6.2.11-060211+customfull-generic
-# 6.2.11-060211+customrt-generic
+# 6.2.14-060214+customidle-generic
+# 6.2.14-060214+customfull-generic
+# 6.2.14-060214+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.2.11-060211+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.2.14-060214+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1081,7 +1080,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.2.11-060211+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.2.14-060214+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
