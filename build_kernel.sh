@@ -202,22 +202,26 @@ if [ ${KERNEL_BASE_VER} == "6.3" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-drm-amd-display-Have-Payload-Properly-Created-After-.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.3-merge-v20230313.patch;
+    patch -p1 < ./0001-aufs-6.3-merge-v20230515.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
     patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-6.3-introduce-clearlinux-patchset.patch;
+    echo "*** Copying and applying ext4 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ext4-patches-v6-all/*.patch .;
+    patch -p1 < ./0001-ext4-patches.patch;
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.3-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v6/*.patch .;
     patch -p1 < ./0001-fixes-miscellaneous.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
@@ -257,11 +261,6 @@ if [ ${KERNEL_BASE_VER} == "6.3" ]; then    # Latest mainline
     patch -p1 < ./0011-ZEN-mm-Increment-kswapd_waiters-for-throttled-direct.patch;
     patch -p1 < ./0012-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     patch -p1 < ./0013-ZEN-Set-default-max-map-count-to-INT_MAX-5.patch;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        echo "*** Copying and applying bfq patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches/*.patch .;
-        patch -p1 < ./0001-bfq-cachyos-patches.patch;
-    fi
 elif [ ${KERNEL_BASE_VER} == "6.2" ]; then  # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
