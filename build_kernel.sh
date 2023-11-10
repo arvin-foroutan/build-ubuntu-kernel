@@ -176,85 +176,60 @@ fi
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} == "6.3" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.3-rt11.patch .;
-        patch -p1 < ./patch-6.3-rt11.patch;
-    elif [ ${KERNEL_BASE_VER} == "6.2" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.2-rt3.patch .;
-        patch -p1 < ./patch-6.2-rt3.patch;
+    if [ ${KERNEL_BASE_VER} == "6.6" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6-rt13.patch .;
+        patch -p1 < ./patch-6.6-rt13.patch;
+    elif [ ${KERNEL_BASE_VER} == "6.5" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.5.2-rt8.patch .;
+        patch -p1 < ./patch-6.5.2-rt8.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.26-rt8.patch .;
-        patch -p1 < ./patch-6.1.26-rt8.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.59-rt16.patch .;
+        patch -p1 < ./patch-6.1.59-rt16.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.107-rt62.patch .;
-        patch -p1 < ./patch-5.15.107-rt62.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.137-rt71.patch .;
+        patch -p1 < ./patch-5.15.137-rt71.patch;
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.176-rt86.patch .;
-        patch -p1 < ./patch-5.10.176-rt86.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.197-rt96.patch .;
+        patch -p1 < ./patch-5.10.197-rt96.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.230-rt80.patch .;
-        patch -p1 < ./patch-5.4.230-rt80.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.257-rt87.patch .;
+        patch -p1 < ./patch-5.4.257-rt87.patch;
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.3" ]; then    # Latest mainline
+if [ ${KERNEL_BASE_VER} == "6.6" ]; then    # Latest mainline
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v7-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5-sep/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0002-bpf-x86-Fix-IP-after-emitting-call-depth-accounting.patch;
-    patch -p1 < ./0003-sched-fair-Multi-LLC-select_idle_sibling.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.3-merge-v20230515.patch;
+    patch -p1 < ./0001-aufs-6.6-merge-v20231106.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches/*.patch .;
-    patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
-    echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches-v2/*.patch .;
-    patch -p1 < ./0001-clearlinux-6.3-introduce-clearlinux-patchset.patch;
-    echo "*** Copying and applying cpupower patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpupower-patches-all/*.patch .;
-    patch -p1 < ./0001-cpupower-patches.patch;
-    echo "*** Copying and applying ext4 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ext4-patches-v6-all/*.patch .;
-    patch -p1 < ./0001-ext4-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
+    patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
+    echo "*** Copying and applying drm patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/drm-patches/*.patch .;
+    patch -p1 < ./0001-drm-6.6-Add-HDR-patches.patch;
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
-    patch -p1 < ./0001-futex-6.3-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
+    patch -p1 < ./0001-futex-6.6-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v9-sep/*.patch .;
-    patch -p1 < ./0001-mm-Change-dirty-writeback-defaults.patch;
-    patch -p1 < ./0002-ZEN-mm-Lower-the-non-hugetlbpage-pageblock-size-to-r.patch;
-    patch -p1 < ./0003-kbuild-revive-parallel-execution-for-.tmp_initcalls..patch;
-    patch -p1 < ./0004-padata-Do-not-mark-padata_mt_helper-as-__init.patch;
-    patch -p1 < ./0005-epoll-ep_autoremove_wake_function-should-use-list_de.patch;
-    patch -p1 < ./0006-Fix-sound-on-ASUS-Zenbook-UM5302TA.patch;
-    patch -p1 < ./0007-Initialize-ata-before-graphics.patch;
-    patch -p1 < ./0008-Bluetooth-btusb-work-around-command-0xfc05-tx-timeou.patch;
-    patch -p1 < ./0009-leds-trigger-Add-block-device-LED-trigger.patch;
-    patch -p1 < ./0010-docs-Add-block-device-blkdev-LED-trigger-documentati.patch;
-    patch -p1 < ./0011-r8169-use-spinlock-to-protect-mac-ocp-register-acces.patch;
-    patch -p1 < ./0012-r8169-use-spinlock-to-protect-access-to-registers-Co.patch;
-    patch -p1 < ./0013-r8169-enable-cfg9346-config-register-access-in-atomi.patch;
-    patch -p1 < ./0014-r8169-prepare-rtl_hw_aspm_clkreq_enable-for-usage-in.patch;
-    patch -p1 < ./0015-r8169-disable-ASPM-during-NAPI-poll.patch;
-    patch -p1 < ./0016-r8169-remove-ASPM-restrictions-now-that-ASPM-is-disa.patch;
-    patch -p1 < ./0017-epoll-use-refcount-to-reduce-ep_mutex-contention.patch;
-    patch -p1 < ./0018-epoll-use-refcount-to-reduce-ep_mutex-contention-v5.patch;
-    patch -p1 < ./0019-mm-reduce-lock-contention-of-pcp-buffer-refill.patch;
-    patch -p1 < ./0020-x86-ACPI-boot-Improve-__acpi_acquire_global_lock.patch;
-    patch -p1 < ./0022-decompressor-provide-missing-prototypes.patch;
-    patch -p1 < ./0023-r8169-Use-a-raw_spinlock_t-for-the-register-locks.patch;
-    patch -p1 < ./0024-x86-csum-Improve-performance-of-csum_partial.patch;
-    patch -p1 < ./0025-mm-compaction-skip-all-non-migratable-pages-during-s.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous/*.patch .;
+    patch -p1 < ./0001-fixes-miscellaneous.patch;
+    echo "*** Copying and applying net patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-all/*.patch .;
+    patch -p1 < ./0001-net-patches.patch;
+    echo "*** Copying and applying winesync patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/winesync-patches/*.patch .;
+    patch -p1 < ./0001-winesync-Introduce-the-winesync-driver-and-character.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
     patch -p1 < ./graysky-gcc-5.17+.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0002-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
     fi
