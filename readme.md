@@ -18,7 +18,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 Assuming a fresh install of Ubuntu, you'll need the following dependencies:
 
 ```console
-$ sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev libtraceevent-dev lz4 zstd crda wireless-tools default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
+$ sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev lz4 zstd wireless-tools default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
 
 ```
 
@@ -96,7 +96,7 @@ $ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.258 KERNEL_SUB_VER
 6.7-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.7 KERNEL_PATCH_VER=6.7-rc1 KERNEL_SUB_VER=060600rc1 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.7 KERNEL_PATCH_VER=6.7-rc1 KERNEL_SUB_VER=060700rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
