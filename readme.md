@@ -6,8 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.6 (mainline)
-- 6.5 (stable)
+- 6.6 (stable)
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
@@ -61,12 +60,6 @@ By default, the latest 6.6 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-6.5:
-
-```console
-$ KERNEL_BASE_VER=6.5 KERNEL_PATCH_VER=6.5.11 KERNEL_SUB_VER=060511 ./build_kernel.sh
-```
-
 6.1 LTS:
 
 ```console
@@ -107,12 +100,6 @@ Real-time kernels have specific use-cases and generally should only be used if y
 
 ```console
 $ KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6 KERNEL_SUB_VER=060600 ./build_kernel.sh
-```
-
-6.5-rt:
-
-```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.5 KERNEL_PATCH_VER=6.5.2 KERNEL_SUB_VER=060502 ./build_kernel.sh
 ```
 
 6.1-rt:
