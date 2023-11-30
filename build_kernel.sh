@@ -179,9 +179,6 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     if [ ${KERNEL_BASE_VER} == "6.6" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6-rt13.patch .;
         patch -p1 < ./patch-6.6-rt13.patch;
-    elif [ ${KERNEL_BASE_VER} == "6.5" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.5.2-rt8.patch .;
-        patch -p1 < ./patch-6.5.2-rt8.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.59-rt16.patch .;
         patch -p1 < ./patch-6.1.59-rt16.patch;
@@ -225,89 +222,6 @@ if [ ${KERNEL_BASE_VER} == "6.6" ]; then    # Latest mainline
     echo "*** Copying and applying winesync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/winesync-patches/*.patch .;
     patch -p1 < ./0001-winesync-Introduce-the-winesync-driver-and-character.patch;
-    echo "*** Copying and applying graysky cpu patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
-    patch -p1 < ./graysky-gcc-5.17+.patch;
-    echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        patch -p1 < ./0002-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
-    fi
-    patch -p1 < ./0003-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-    patch -p1 < ./0004-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0005-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
-    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-    patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0008-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
-    patch -p1 < ./0011-XANMOD-Makefile-Disable-GCC-vectorization-on-trees.patch;
-    patch -p1 < ./0012-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-    patch -p1 < ./0013-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
-    echo "*** Copying and applying lucjan's zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-sep/*.patch .;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
-    fi
-    patch -p1 < ./0001-ZEN-Add-OpenRGB-patches.patch;
-    patch -p1 < ./0003-ZEN-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    patch -p1 < ./0004-ZEN-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0005-ZEN-Input-evdev-use-call_rcu-when-detaching-client.patch;
-    patch -p1 < ./0007-ZEN-cpufreq-Remove-schedutil-dependency-on-Intel-AMD.patch;
-    patch -p1 < ./0008-ZEN-intel-pstate-Implement-enable-parameter.patch;
-    patch -p1 < ./0009-ZEN-mm-Disable-watermark-boosting-by-default.patch;
-    patch -p1 < ./0010-ZEN-mm-Stop-kswapd-early-when-nothing-s-waiting-for-.patch;
-    patch -p1 < ./0011-ZEN-mm-Increment-kswapd_waiters-for-throttled-direct.patch;
-    patch -p1 < ./0012-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
-    patch -p1 < ./0013-ZEN-Set-default-max-map-count-to-INT_MAX-5.patch;
-    patch -p1 < ./0014-ZEN-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bu.patch;
-elif [ ${KERNEL_BASE_VER} == "6.5" ]; then  # Latest stable
-    echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v9-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
-    echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v14-sep/*.patch .;
-    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0002-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
-    patch -p1 < ./0003-btrfs-wait-on-uncached-block-groups-on-every-allocat.patch;
-    patch -p1 < ./0004-net-wwan-t7xx-Add-AP-CLDMA.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.5-merge-v20230925.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
-    patch -p1 < ./0001-bbr3-6.5-initial-import.patch;
-    echo "*** Copying and applying cpupower patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpupower-patches-all/*.patch .;
-    patch -p1 < ./0001-cpupower-patches.patch;
-    echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
-    patch -p1 < ./0001-futex-6.5-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
-    echo "*** Copying and applying fixes misc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/fixes-miscellaneous-v20-sep/*.patch .;
-    patch -p1 < ./0001-mm-Change-dirty-writeback-defaults.patch;
-    patch -p1 < ./0002-ZEN-mm-Lower-the-non-hugetlbpage-pageblock-size-to-r.patch;
-    patch -p1 < ./0003-padata-Do-not-mark-padata_mt_helper-as-__init.patch;
-    patch -p1 < ./0004-Fix-sound-on-ASUS-Zenbook-UM5302TA.patch;
-    patch -p1 < ./0005-Initialize-ata-before-graphics.patch;
-    patch -p1 < ./0006-Bluetooth-btusb-work-around-command-0xfc05-tx-timeou.patch;
-    patch -p1 < ./0007-readahead-correct-the-start-and-size-in-ondemand_rea.patch;
-    patch -p1 < ./0008-x86-barrier-Do-not-serialize-MSR-accesses-on-AMD.patch;
-    patch -p1 < ./0009-mm-Mark-nr_node_ids-__ro_after_init.patch;
-    patch -p1 < ./0010-smp-Mark-nr_cpu_ids-__ro_after_init.patch;
-    patch -p1 < ./0011-mm-nodemask-Use-nr_node_ids.patch;
-    patch -p1 < ./0012-mm-vmscan-fix-inaccurate-reclaim-during-proactive-re.patch;
-    patch -p1 < ./0013-docs-Add-block-device-blkdev-LED-trigger-documentati.patch;
-    patch -p1 < ./0014-leds-trigger-Add-block-device-LED-trigger.patch;
-    patch -p1 < ./0015-leds-trigger-Adapt-blkdev_get_by_path-and-blkdev_put.patch;
-    patch -p1 < ./0016-x86-mm-Remove-INVPCID-single-feature-tracking.patch;
-    patch -p1 < ./0017-mm-slub-Optimize-slub-memory-usage.patch;
-    patch -p1 < ./0018-kernel-fork-group-allocation-free-of-per-cpu-counter.patch;
-    patch -p1 < ./0019-pcpcntr-add-group-allocation-free.patch;
-    patch -p1 < ./0020-x86-asm-bitops-Use-__builtin_clz-l-ll-to-evaluate-co.patch;
-    patch -p1 < ./0021-mt76-mt7921-Disable-powersave-features-by-default.patch;
-    patch -p1 < ./0022-module-decompress-use-vmalloc-for-gzip-decompression.patch;
-    patch -p1 < ./0024-modpost-Optimize-symbol-search-from-linear-to-binary.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
     patch -p1 < ./graysky-gcc-5.17+.patch;
