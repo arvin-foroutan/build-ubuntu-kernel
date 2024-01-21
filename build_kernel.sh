@@ -176,7 +176,10 @@ fi
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} == "6.6" ]; then
+    if [ ${KERNEL_BASE_VER} == "6.7" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.7-rt6.patch .;
+        patch -p1 < ./patch-6.7-rt6.patch;
+    elif [ ${KERNEL_BASE_VER} == "6.6" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6-rt13.patch .;
         patch -p1 < ./patch-6.6-rt13.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
