@@ -266,9 +266,6 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0003-mm-support-POSIX_FADV_NOREUSE.patch;
     patch -p1 < ./0004-Revert-drm-i915-improve-the-catch-all-evict-to-handl.patch;
     patch -p1 < ./0005-drm-i915-improve-the-catch-all-evict-to-handle-lock-.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.1-merge-v20230109.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
@@ -355,9 +352,6 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0011-ZEN-mm-Increment-kswapd_waiters-for-throttled-direct.patch;
     patch -p1 < ./0013-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
-        echo "*** Copying and applying bcachefs patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bcachefs-patches-v31/*.patch .;
-        patch -p1 < ./0001-bcachefs-6.1-introduce-bcachefs-patchset.patch;
         echo "*** Copying and applying bfq patches.. ✓";
         cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bfq-cachyos-patches-v11/*.patch .;
         patch -p1 < ./0001-bfq-cachyos-patches.patch;
