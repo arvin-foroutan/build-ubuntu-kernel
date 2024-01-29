@@ -6,8 +6,9 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.7 (mainline)
-- 6.6 (stable)
+- 6.8 (rc)
+- 6.7 (stable)
+- 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
@@ -61,42 +62,42 @@ By default, the latest 6.7 mainline kernel will be built with the following:
 
 To build other versions, you can use the following convention:
 
-6.6:
+6.6 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.13 KERNEL_SUB_VER=060613 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.14 KERNEL_SUB_VER=060614 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.74 KERNEL_SUB_VER=060174 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.75 KERNEL_SUB_VER=060175 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.147 KERNEL_SUB_VER=0515147 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.148 KERNEL_SUB_VER=0515148 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.208 KERNEL_SUB_VER=0510208 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.209 KERNEL_SUB_VER=0510209 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.267 KERNEL_SUB_VER=0504267 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.268 KERNEL_SUB_VER=0504268 ./build_kernel.sh
 ```
 
 #### Development kernels
 
-6.7-rc1:
+6.8-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.7 KERNEL_PATCH_VER=6.7-rc1 KERNEL_SUB_VER=060700rc1 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.8 KERNEL_PATCH_VER=6.8-rc1 KERNEL_SUB_VER=060800rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
