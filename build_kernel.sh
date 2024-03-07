@@ -349,8 +349,8 @@ elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/winesync-patches/*.patch .;
     patch -p1 < ./0001-winesync-Introduce-the-winesync-driver-and-character.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
-    patch -p1 < ./graysky-gcc-5.17+.patch;
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.1.79-6.8-rc3.patch .;
+    patch -p1 < ./graysky-gcc-6.1.79-6.8-rc3.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
