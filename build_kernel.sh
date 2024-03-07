@@ -521,7 +521,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0027-clearlinux-5.15-backport-patches-from-clearlinux-rep.patch;
     echo "*** Copying an applying graysky patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/cpu-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-cpu-5.15-merge-graysky-s-patchset.patch;
     patch -p1 < ./0002-init-Kconfig-enable-O3-for-all-arches.patch;
     patch -p1 < ./0003-init-Kconfig-add-O1-flag.patch;
     patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
