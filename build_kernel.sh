@@ -395,9 +395,6 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     echo "*** Copying and applying bbr2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr2-patches-v2/*.patch .;
     patch -p1 < ./0001-tcp_bbr2-introduce-BBRv2.patch;
-    echo "*** Copying and applying boot patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/boot-patches/*.patch .;
-    patch -p1 < ./0001-boot-6.1-add-support-the-uncompressed-kernel-to-spee.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-6.1-introduce-clearlinux-patchset.patch;
@@ -420,7 +417,6 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0012-objtool-Optimize-elf_dirty_reloc_sym.patch;
     patch -p1 < ./0013-kbuild-revive-parallel-execution-for-.tmp_initcalls..patch;
     patch -p1 < ./0014-padata-Do-not-mark-padata_mt_helper-as-__init.patch;
-    patch -p1 < ./0015-modpost-Include-.text.-in-TEXT_SECTIONS.patch;
     patch -p1 < ./0017-Fix-sound-on-ASUS-Zenbook-UM5302TA.patch;
     patch -p1 < ./0018-Initialize-ata-before-graphics.patch;
     patch -p1 < ./0019-mm-remove-PageMovable-export.patch;
@@ -439,8 +435,8 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0035-x86-cpu-Use-cpu_feature_enabled-when-checking-global.patch;
     patch -p1 < ./0037-lib-string-Use-strchr-in-strpbrk.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.17+.patch .;
-    patch -p1 < ./graysky-gcc-5.17+.patch;
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.1.79-6.8-rc3.patch .;
+    patch -p1 < ./graysky-gcc-6.1.79-6.8-rc3.patch;
     echo "*** Copying and applying spadfs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/spadfs-patches/*.patch .;
     patch -p1 < ./0001-spadfs-6.1-merge-v1.0.17.patch;
