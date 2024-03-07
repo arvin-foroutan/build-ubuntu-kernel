@@ -644,9 +644,9 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0025-nvme-workaround.patch;
     patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     patch -p1 < ./0028-clearlinux-Add-pageflip-patches.patch;
-    echo "*** Copying and applying cpu graysky patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/cpu-patches-v2/*.patch .;
-    patch -p1 < ./0001-cpu-patches.patch;
+    echo "*** Copying and applying graysky's GCC patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.15-5.16.patch .;
+    patch -p1 < ./graysky-gcc-5.15-5.16.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/fixes-miscellaneous-v11-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
