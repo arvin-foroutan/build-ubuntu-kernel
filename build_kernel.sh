@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.7"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.7.9"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060709"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.8"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.8.4"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060804"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -200,29 +200,27 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.8" ]; then    # Latest rc
-    echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v18-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
+if [ ${KERNEL_BASE_VER} == "6.8" ]; then    # Latest mainline
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
     patch -p1 < ./0003-arch-Kconfig-Default-to-maximum-amount-of-ASLR-bits.patch;
+    patch -p1 < ./0004-xen-netfront-Add-missing-skb_mark_for_recycle.patch;
     echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying drm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.8-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/pf-patches-v15/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v10/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/xanmod-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0002-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
     fi
@@ -238,7 +236,7 @@ if [ ${KERNEL_BASE_VER} == "6.8" ]; then    # Latest rc
     patch -p1 < ./0012-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0013-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/zen-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2-sep/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
     fi
@@ -254,6 +252,7 @@ if [ ${KERNEL_BASE_VER} == "6.8" ]; then    # Latest rc
     patch -p1 < ./0012-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     patch -p1 < ./0013-ZEN-Set-default-max-map-count-to-INT_MAX-5.patch;
     patch -p1 < ./0014-ZEN-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bu.patch;
+    patch -p1 < ./0015-ZEN-drm-amdgpu-pm-Allow-override-of-min_power_limit-.patch;
 elif [ ${KERNEL_BASE_VER} == "6.7" ]; then  # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v16-all/*.patch .;
@@ -296,7 +295,7 @@ elif [ ${KERNEL_BASE_VER} == "6.7" ]; then  # Latest stable
     patch -p1 < ./0012-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0013-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
     echo "*** Copying and applying lucjan's zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2-sep/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
     fi
@@ -312,6 +311,7 @@ elif [ ${KERNEL_BASE_VER} == "6.7" ]; then  # Latest stable
     patch -p1 < ./0012-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
     patch -p1 < ./0013-ZEN-Set-default-max-map-count-to-INT_MAX-5.patch;
     patch -p1 < ./0014-ZEN-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bu.patch;
+    patch -p1 < ./0015-ZEN-drm-amdgpu-pm-Allow-override-of-min_power_limit-.patch;
 elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v6-all/*.patch .;
@@ -928,11 +928,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.7.9-060709+customidle-generic
-# 6.7.9-060709+customfull-generic
-# 6.7.9-060709+customrt-generic
+# 6.8.4-060804+customidle-generic
+# 6.8.4-060804+customfull-generic
+# 6.8.4-060804+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.7.9-060709+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.8.4-060804+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1070,7 +1070,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.7.9-060709+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.8.4-060804+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
