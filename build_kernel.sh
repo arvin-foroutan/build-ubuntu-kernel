@@ -179,9 +179,6 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     if [ ${KERNEL_BASE_VER} == "6.8" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.8-rc1-rt2.patch .;
         patch -p1 < ./patch-6.8-rc1-rt2.patch;
-    elif [ ${KERNEL_BASE_VER} == "6.7" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.7-rt6.patch .;
-        patch -p1 < ./patch-6.7-rt6.patch;
     elif [ ${KERNEL_BASE_VER} == "6.6" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.14-rt21.patch .;
         patch -p1 < ./patch-6.6.14-rt21.patch;
@@ -218,65 +215,6 @@ if [ ${KERNEL_BASE_VER} == "6.8" ]; then    # Latest mainline
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v10/*.patch .;
-    patch -p1 < ./0001-pf-patches.patch;
-    echo "*** Copying and applying lucjan's xanmod patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        patch -p1 < ./0002-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
-    fi
-    patch -p1 < ./0003-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-    patch -p1 < ./0004-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0005-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
-    patch -p1 < ./0006-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-    patch -p1 < ./0007-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0008-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-    patch -p1 < ./0009-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0010-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
-    patch -p1 < ./0011-XANMOD-Makefile-Disable-GCC-vectorization-on-trees.patch;
-    patch -p1 < ./0012-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-    patch -p1 < ./0013-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
-    echo "*** Copying and applying lucjan's zen patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zen-patches-v2-sep/*.patch .;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        patch -p1 < ./0002-ZEN-Add-ACS-override-support.patch;
-    fi
-    patch -p1 < ./0001-ZEN-Add-OpenRGB-patches.patch;
-    patch -p1 < ./0003-ZEN-PCI-Add-Intel-remapped-NVMe-device-support.patch;
-    patch -p1 < ./0004-ZEN-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0005-ZEN-Input-evdev-use-call_rcu-when-detaching-client.patch;
-    patch -p1 < ./0007-ZEN-cpufreq-Remove-schedutil-dependency-on-Intel-AMD.patch;
-    patch -p1 < ./0008-ZEN-intel-pstate-Implement-enable-parameter.patch;
-    patch -p1 < ./0009-ZEN-mm-Disable-watermark-boosting-by-default.patch;
-    patch -p1 < ./0010-ZEN-mm-Stop-kswapd-early-when-nothing-s-waiting-for-.patch;
-    patch -p1 < ./0011-ZEN-mm-Increment-kswapd_waiters-for-throttled-direct.patch;
-    patch -p1 < ./0012-i2c-i2c-nct6775-fix-Wimplicit-fallthrough.patch;
-    patch -p1 < ./0013-ZEN-Set-default-max-map-count-to-INT_MAX-5.patch;
-    patch -p1 < ./0014-ZEN-mm-Don-t-hog-the-CPU-and-zone-lock-in-rmqueue_bu.patch;
-    patch -p1 < ./0015-ZEN-drm-amdgpu-pm-Allow-override-of-min_power_limit-.patch;
-elif [ ${KERNEL_BASE_VER} == "6.7" ]; then  # Latest stable
-    echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v16-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
-    echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
-    patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
-    echo "*** Copying and applying drm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/drm-patches/*.patch .;
-    patch -p1 < ./0001-drm-6.7-Add-HDR-patches.patch;
-    echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
-    patch -p1 < ./0001-futex-6.7-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
-    echo "*** Copying and applying winesync patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/winesync-patches/*.patch .;
-    patch -p1 < ./0001-winesync-Introduce-the-winesync-driver-and-character.patch;
-    echo "*** Copying and applying graysky cpu patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.1.79-6.8-rc3.patch .;
-    patch -p1 < ./graysky-gcc-6.1.79-6.8-rc3.patch;
-    echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v19/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
