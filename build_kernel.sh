@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.8"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.8.4"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060804"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.8.9"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060809"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -198,23 +198,27 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "6.8" ]; then    # Latest mainline
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v15-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
     patch -p1 < ./0002-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
     patch -p1 < ./0003-arch-Kconfig-Default-to-maximum-amount-of-ASLR-bits.patch;
-    patch -p1 < ./0004-xen-netfront-Add-missing-skb_mark_for_recycle.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
+    patch -p1 < ./0004-drm-amdgpu-fix-doorbell-regression.patch;
+    patch -p1 < ./0005-drm-amdgpu-Fix-comparison-in-amdgpu_res_cpu_visible.patch;
+    echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
-    echo "*** Copying and applying drm patches.. ✓";
+    echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.8-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v10/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v15/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying lucjan's xanmod patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/xanmod-patches-sep/*.patch .;
@@ -866,11 +870,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.8.4-060804+customidle-generic
-# 6.8.4-060804+customfull-generic
-# 6.8.4-060804+customrt-generic
+# 6.8.9-060809+customidle-generic
+# 6.8.9-060809+customfull-generic
+# 6.8.9-060809+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.8.4-060804+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.8.9-060809+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1008,7 +1012,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.8.4-060804+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.8.9-060809+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
