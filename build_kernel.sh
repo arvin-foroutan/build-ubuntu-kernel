@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.8"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.8.9"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060809"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.9"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.9.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060903"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -176,7 +176,10 @@ fi
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} == "6.6" ]; then
+    if [ ${KERNEL_BASE_VER} == "6.9" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.9-rt5.patch .;
+        patch -p1 < ./patch-6.9-rt5.patch;
+    elif [ ${KERNEL_BASE_VER} == "6.6" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.14-rt21.patch .;
         patch -p1 < ./patch-6.6.14-rt21.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
@@ -194,7 +197,63 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
+if [ ${KERNEL_BASE_VER} == "6.9" ]; then    # Latest mainline
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v9-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.9-merge-v20240603.patch;
+    echo "*** Copying and applying bbr3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
+    patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
+    echo "*** Copying and applying futex patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
+    patch -p1 < ./0001-futex-6.9-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
+    echo "*** Copying and applying graysky cpu patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
+    patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
+    echo "*** Copying and applying iosched patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/iosched-patches-all/*.patch .;
+    patch -p1 < ./0001-iosched-patches.patch;
+    echo "*** Copying and applying ntsync patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v3-all/*.patch .;
+    patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying pf patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v8/*.patch .;
+    patch -p1 < ./0001-pf-patches.patch;
+    # echo "*** Copying and applying valve patches.. ✓";
+    # cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/valve-patches/*.patch .;
+    # patch -p1 < ./0001-valve-patches.patch;
+    echo "*** Copying and applying steamdeck patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/steamdeck-patches/*.patch .;
+    patch -p1 < ./0001-steamdeck-patches.patch;
+    echo "*** Copying and applying xanmod patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/xanmod/linux-6.9.y-xanmod/*.patch .;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0006-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
+    fi
+    patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
+    patch -p1 < ./0002-XANMOD-x86-build-Add-more-x86-code-optimization-flag.patch;
+    patch -p1 < ./0003-XANMOD-fair-Remove-all-energy-efficiency-functions-v.patch;
+    patch -p1 < ./0004-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    # patch -p1 < ./0005-XANMOD-sched-core-Add-yield_type-sysctl-to-reduce-or.patch;
+    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0009-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
+    patch -p1 < ./0010-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0011-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0012-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0013-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0014-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0015-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0016-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    patch -p1 < ./0017-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v6-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
@@ -810,11 +869,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.8.9-060809+customidle-generic
-# 6.8.9-060809+customfull-generic
-# 6.8.9-060809+customrt-generic
+# 6.9.3-060903+customidle-generic
+# 6.9.3-060903+customfull-generic
+# 6.9.3-060903+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.8.9-060809+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.9.3-060903+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -952,7 +1011,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.8.9-060809+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.9.3-060903+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
