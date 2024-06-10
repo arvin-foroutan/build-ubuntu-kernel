@@ -1,7 +1,0 @@
---- ./arch/mips/kernel/syscalls/syscall_n32.tbl	2021-07-11 03:52:08.000000000 -0700
-+++ ./arch/mips/kernel/syscalls/syscall_n32.tbl	2021-07-12 18:18:36.505631914 -0700
-@@ -374,3 +374,4 @@
- 433	n32	fspick				sys_fspick
- 434	n32	pidfd_open			sys_pidfd_open
- 435	n32	clone3				__sys_clone3
-+436	n32	process_reap		sys_process_reap
