@@ -60,36 +60,51 @@ By default, the latest 6.9 stable kernel will be built with the following:
 - 1000 Hz timer, idle tickless
 - Built with gcc and 'Generic x86/64' optimizations.
 
+Current patch set includes:
+
+ - AMD P-State driver
+ - BBR3 TCP congestion control
+ - CachyOS patches
+ - Xanmod patches
+ - PF-kernel patches
+ - FUTEX Proton/Wine Fsync support
+ - NT sync primitives emulation driver
+ - Steamdeck/Valve patches
+ - Graysky GCC optimizations
+ - Various arch patches
+ - IO scheduler patches
+ - AUFS support
+
 To build other versions, you can use the following convention:
 
 6.6 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.14 KERNEL_SUB_VER=060614 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.32 KERNEL_SUB_VER=060632 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.75 KERNEL_SUB_VER=060175 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.92 KERNEL_SUB_VER=060192 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.148 KERNEL_SUB_VER=0515148 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.160 KERNEL_SUB_VER=0515160 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.209 KERNEL_SUB_VER=0510209 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.218 KERNEL_SUB_VER=0510218 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.268 KERNEL_SUB_VER=0504268 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.277 KERNEL_SUB_VER=0504277 ./build_kernel.sh
 ```
 
 #### Development kernels
