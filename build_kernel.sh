@@ -262,7 +262,7 @@ elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-6.6-merge-v20231106.patch;
-    echo "*** Copying and applying bbr2 patches.. ✓";
+    echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying drm patches.. ✓";
@@ -287,7 +287,6 @@ elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
     patch -p1 < ./0013-leds-trigger-Adapt-blkdev_get_by_path-and-blkdev_put.patch;
     patch -p1 < ./0014-mm-slub-Optimize-slub-memory-usage.patch;
     patch -p1 < ./0015-x86-asm-bitops-Use-__builtin_clz-l-ll-to-evaluate-co.patch;
-    patch -p1 < ./0016-modpost-Optimize-symbol-search-from-linear-to-binary.patch;
     echo "*** Copying and applying net patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/net-patches-all/*.patch .;
     patch -p1 < ./0001-net-patches.patch;
@@ -368,9 +367,7 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0019-mm-remove-PageMovable-export.patch;
     patch -p1 < ./0021-bitmap-switch-from-inline-to-__always_inline.patch;
     patch -p1 < ./0023-kthread_worker-check-all-delayed-works-when-destroy-.patch;
-    patch -p1 < ./0024-xfs-fix-incorrect-i_nlink-caused-by-inode-racing.patch;
     patch -p1 < ./0025-xfs-fix-off-by-one-error-in-xfs_btree_space_to_heigh.patch;
-    patch -p1 < ./0026-xfs-get-root-inode-correctly-at-bulkstat.patch;
     patch -p1 < ./0028-xfs-fix-extent-busy-updating.patch;
     patch -p1 < ./0029-x86-pm-Force-out-of-line-memcpy.patch;
     patch -p1 < ./0030-mm-compaction-Rename-compact_control-rescan-to-finis.patch;
@@ -431,7 +428,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/arch-patches-v11-sep/*.patch .;
     patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-    patch -p1 < ./0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch;
     patch -p1 < ./0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch;
     patch -p1 < ./0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch;
     patch -p1 < ./0006-lg-laptop-Recognize-more-models.patch;
@@ -505,9 +501,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     echo "*** Copying and applying sbitmap patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/sbitmap-patches-v3/*.patch .;
     patch -p1 < ./0001-sbitmap-patches.patch;
-    echo "*** Copying and applying spectre patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/spectre-patches/*.patch .;
-    patch -p1 < ./0001-spectre-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-v4l2loopback-patches.patch;
@@ -599,9 +592,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0025-nvme-workaround.patch;
     patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
     patch -p1 < ./0028-clearlinux-Add-pageflip-patches.patch;
-    echo "*** Copying and applying graysky's GCC patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-5.15-5.16.patch .;
-    patch -p1 < ./graysky-gcc-5.15-5.16.patch;
     echo "*** Copying and applying fixes misc patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/fixes-miscellaneous-v11-sep/*.patch .;
     patch -p1 < ./0001-net-sched-allow-configuring-cake-qdisc-as-default.patch;
