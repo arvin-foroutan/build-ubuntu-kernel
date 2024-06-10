@@ -210,6 +210,9 @@ if [ ${KERNEL_BASE_VER} == "6.9" ]; then    # Latest mainline
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
+    echo "*** Copying and applying cachyos patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-patches-v3/*.patch .;
+    patch -p1 < ./0001-cachyos-patches.patch;
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.9-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
