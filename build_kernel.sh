@@ -223,11 +223,8 @@ if [ ${KERNEL_BASE_VER} == "6.9" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v3-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v8/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v10/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
-    # echo "*** Copying and applying valve patches.. ✓";
-    # cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/valve-patches/*.patch .;
-    # patch -p1 < ./0001-valve-patches.patch;
     echo "*** Copying and applying steamdeck patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/steamdeck-patches/*.patch .;
     patch -p1 < ./0001-steamdeck-patches.patch;
@@ -240,7 +237,6 @@ if [ ${KERNEL_BASE_VER} == "6.9" ]; then    # Latest mainline
     patch -p1 < ./0002-XANMOD-x86-build-Add-more-x86-code-optimization-flag.patch;
     patch -p1 < ./0003-XANMOD-fair-Remove-all-energy-efficiency-functions-v.patch;
     patch -p1 < ./0004-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
-    # patch -p1 < ./0005-XANMOD-sched-core-Add-yield_type-sysctl-to-reduce-or.patch;
     patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
     patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
     patch -p1 < ./0009-XANMOD-block-set-rq_affinity-to-force-full-multithre.patch;
