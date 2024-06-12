@@ -222,6 +222,9 @@ if [ ${KERNEL_BASE_VER} == "6.9" ]; then    # Latest mainline
     echo "*** Copying and applying iosched patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/iosched-patches-all/*.patch .;
     patch -p1 < ./0001-iosched-patches.patch;
+    echo "*** Copying and applying lru patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lru-patches-all/*.patch .;
+    patch -p1 < ./0001-lru-patches.patch;
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v3-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
