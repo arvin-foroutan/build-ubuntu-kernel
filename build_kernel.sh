@@ -554,11 +554,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
     sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
     patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        echo "*** Copying and applying lrng patches.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/lrng-patches-v3/*.patch .;
-        patch -p1 < ./0001-lrng-patches.patch;
-    fi
 elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
