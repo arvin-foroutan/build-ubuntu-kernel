@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.9"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.9.4"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060904"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.9.5"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"060905"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_SCHEDULER=${KERNEL_SCHEDULER:-"cfs"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
@@ -856,11 +856,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.9.4-060904+customidle-generic
-# 6.9.4-060904+customfull-generic
-# 6.9.4-060904+customrt-generic
+# 6.9.5-060905+customidle-generic
+# 6.9.5-060905+customfull-generic
+# 6.9.5-060905+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.9.4-060904+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.9.5-060905+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -998,7 +998,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.9.4-060904+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.9.5-060905+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
