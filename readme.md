@@ -52,6 +52,12 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
   VBOX_SUPPORT			Add support for VirtualBox (default: no)
 ```
 
+### Benchmarks
+
+See [OpenBenchmarking](https://openbenchmarking.org/result/2406165-NE-OSBENCHTE40&sgm=1&ppt=D&shm=1&sgm=1&ppt=D)
+for benchmarks comparing the default Ubuntu 22.04 LTS kernel and the default custom kernel created by this script.
+Spoiler alert: we kicked some serious ass.
+
 ### Building other versions
 
 By default, the latest 6.9 stable kernel will be built with the following:
