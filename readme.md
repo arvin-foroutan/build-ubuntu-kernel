@@ -116,10 +116,10 @@ $ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.277 KERNEL_SUB_VER
 
 #### Development kernels
 
-6.10-rc1:
+6.10-rc4:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10-rc1 KERNEL_SUB_VER=061000rc1 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10-rc4 KERNEL_SUB_VER=061000rc4 ./build_kernel.sh
 ```
 
 #### RT kernels
