@@ -198,7 +198,7 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest rc
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v7-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v11-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v2/*.patch .;
@@ -231,7 +231,7 @@ if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/perf-patches-all/*.patch .;
     patch -p1 < ./0001-perf-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/pf-patches-v10/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/pf-patches-v11/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying steamdeck patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/steamdeck-patches/*.patch .;
