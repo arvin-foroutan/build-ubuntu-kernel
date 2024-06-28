@@ -198,14 +198,14 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest rc
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v11-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v16-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v2/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.10-merge-v20240610.patch;
+    patch -p1 < ./0001-aufs-6.10-merge-v20240624.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
@@ -228,10 +228,10 @@ if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
     echo "*** Copying and applying perf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/perf-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/perf-patches-v3-all/*.patch .;
     patch -p1 < ./0001-perf-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/pf-patches-v11/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/pf-patches-v12/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying steamdeck patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/steamdeck-patches/*.patch .;
@@ -243,7 +243,6 @@ if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest rc
     fi
     patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
     patch -p1 < ./0002-XANMOD-x86-build-Add-more-x86-code-optimization-flag.patch;
-    patch -p1 < ./0003-XANMOD-fair-Remove-all-energy-efficiency-functions-v.patch;
     patch -p1 < ./0004-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
     patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
     patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
