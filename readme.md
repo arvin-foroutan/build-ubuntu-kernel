@@ -87,39 +87,39 @@ To build other versions, you can use the following convention:
 6.6 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.34 KERNEL_SUB_VER=060634 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.37 KERNEL_SUB_VER=060637 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.94 KERNEL_SUB_VER=060194 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.97 KERNEL_SUB_VER=060197 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.161 KERNEL_SUB_VER=0515161 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.162 KERNEL_SUB_VER=0515162 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.219 KERNEL_SUB_VER=0510219 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.221 KERNEL_SUB_VER=0510221 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.277 KERNEL_SUB_VER=0504277 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.279 KERNEL_SUB_VER=0504279 ./build_kernel.sh
 ```
 
 #### Development kernels
 
-6.10-rc4:
+6.10-rc6:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10-rc4 KERNEL_SUB_VER=061000rc4 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10-rc6 KERNEL_SUB_VER=061000rc6 ./build_kernel.sh
 ```
 
 #### RT kernels
