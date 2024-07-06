@@ -1,5 +1,5 @@
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 9557808e8937..ebd0dee6b162 100644
+index 57c0448d017a..e5a283851c02 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
 @@ -34,6 +34,7 @@ config ARM
@@ -19,6 +19,15 @@ index 9557808e8937..ebd0dee6b162 100644
  	select HAVE_ARCH_KFENCE if MMU && !XIP_KERNEL
  	select HAVE_ARCH_KGDB if !CPU_ENDIAN_BE32 && MMU
  	select HAVE_ARCH_KASAN if MMU && !XIP_KERNEL
+@@ -96,7 +97,7 @@ config ARM
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
+ 	select HAVE_EXIT_THREAD
+-	select HAVE_FAST_GUP if ARM_LPAE
++	select HAVE_FAST_GUP if ARM_LPAE && !(PREEMPT_RT && HIGHPTE)
+ 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
+ 	select HAVE_FUNCTION_ERROR_INJECTION
+ 	select HAVE_FUNCTION_GRAPH_TRACER
 @@ -118,6 +119,7 @@ config ARM
  	select HAVE_PERF_EVENTS
  	select HAVE_PERF_REGS
@@ -251,7 +260,7 @@ index 7e8773a2d99d..9fde36fcb80c 100644
  EXPORT_SYMBOL(kernel_neon_end);
  
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 6062a52a084f..e216d14fc1a4 100644
+index f9777ce2ccb2..9717c564daac 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -97,6 +97,7 @@ config ARM64
@@ -302,7 +311,7 @@ index 283c34647856..4727f40052dd 100644
  #ifdef CONFIG_PPC64
  	get_paca()->canary = canary;
 diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index fe3f720c9cd6..1b88d2cd55c7 100644
+index 2de7f6dcd32b..739f5b179a7f 100644
 --- a/arch/powerpc/kernel/traps.c
 +++ b/arch/powerpc/kernel/traps.c
 @@ -261,12 +261,17 @@ static char *get_mmu_str(void)
@@ -349,7 +358,7 @@ index 4ebf2ef2845d..381c3be3bec1 100644
  	select MPIC
  	select OF_DYNAMIC
 diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-index 496e16c588aa..05cee07aafbb 100644
+index b1e6d275cda9..9a8d3970da3c 100644
 --- a/arch/powerpc/platforms/pseries/iommu.c
 +++ b/arch/powerpc/platforms/pseries/iommu.c
 @@ -25,6 +25,7 @@
@@ -444,7 +453,7 @@ index 496e16c588aa..05cee07aafbb 100644
  }
  
 diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 9e6d442773ee..64dfdcc616be 100644
+index c785a0200573..e05c170781c6 100644
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
 @@ -48,6 +48,7 @@ config RISCV
@@ -495,7 +504,7 @@ index d18ce0113ca1..e18710fe51f0 100644
  #define _TIF_WORK_MASK \
  	(_TIF_NOTIFY_RESUME | _TIF_SIGPENDING | _TIF_NEED_RESCHED | \
 diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
-index e12cd22755c7..c3208b21e678 100644
+index e39a905aca24..dd118773e717 100644
 --- a/arch/riscv/kernel/cpufeature.c
 +++ b/arch/riscv/kernel/cpufeature.c
 @@ -8,6 +8,7 @@
@@ -506,7 +515,7 @@ index e12cd22755c7..c3208b21e678 100644
  #include <linux/ctype.h>
  #include <linux/log2.h>
  #include <linux/memory.h>
-@@ -29,6 +30,7 @@
+@@ -30,6 +31,7 @@
  
  #define MISALIGNED_ACCESS_JIFFIES_LG2 1
  #define MISALIGNED_BUFFER_SIZE 0x4000
@@ -514,7 +523,7 @@ index e12cd22755c7..c3208b21e678 100644
  #define MISALIGNED_COPY_SIZE ((MISALIGNED_BUFFER_SIZE / 2) - 0x80)
  
  unsigned long elf_hwcap __read_mostly;
-@@ -556,14 +558,15 @@ unsigned long riscv_get_elf_hwcap(void)
+@@ -571,14 +573,15 @@ unsigned long riscv_get_elf_hwcap(void)
  	return hwcap;
  }
  
@@ -532,7 +541,20 @@ index e12cd22755c7..c3208b21e678 100644
  	void *dst;
  	void *src;
  	long speed = RISCV_HWPROBE_MISALIGNED_SLOW;
-@@ -630,7 +633,7 @@ void check_unaligned_access(int cpu)
+@@ -587,12 +590,6 @@ void check_unaligned_access(int cpu)
+ 	if (per_cpu(misaligned_access_speed, cpu) != RISCV_HWPROBE_MISALIGNED_UNKNOWN)
+ 		return;
+ 
+-	page = alloc_pages(GFP_NOWAIT, get_order(MISALIGNED_BUFFER_SIZE));
+-	if (!page) {
+-		pr_warn("Can't alloc pages to measure memcpy performance");
+-		return;
+-	}
+-
+ 	/* Make an unaligned destination buffer. */
+ 	dst = (void *)((unsigned long)page_address(page) | 0x1);
+ 	/* Unalign src as well, but differently (off by 1 + 2 = 3). */
+@@ -645,7 +642,7 @@ void check_unaligned_access(int cpu)
  		pr_warn("cpu%d: rdtime lacks granularity needed to measure unaligned access speed\n",
  			cpu);
  
@@ -541,7 +563,7 @@ index e12cd22755c7..c3208b21e678 100644
  	}
  
  	if (word_cycles < byte_cycles)
-@@ -644,18 +647,83 @@ void check_unaligned_access(int cpu)
+@@ -659,18 +656,83 @@ void check_unaligned_access(int cpu)
  		(speed == RISCV_HWPROBE_MISALIGNED_FAST) ? "fast" : "slow");
  
  	per_cpu(misaligned_access_speed, cpu) = speed;
@@ -557,10 +579,12 @@ index e12cd22755c7..c3208b21e678 100644
 +
 +	if (smp_processor_id() != 0)
 +		check_unaligned_access(pages[cpu]);
-+}
-+
+ }
+ 
+-static int check_unaligned_access_boot_cpu(void)
 +static int riscv_online_cpu(unsigned int cpu)
-+{
+ {
+-	check_unaligned_access(0);
 +	static struct page *buf;
 +
 +	/* We are already set since the last check */
@@ -576,13 +600,11 @@ index e12cd22755c7..c3208b21e678 100644
 +	check_unaligned_access(buf);
 +	__free_pages(buf, MISALIGNED_BUFFER_ORDER);
 +	return 0;
- }
- 
--static int check_unaligned_access_boot_cpu(void)
++}
++
 +/* Measure unaligned access on all CPUs present at boot in parallel. */
 +static int check_unaligned_access_all_cpus(void)
- {
--	check_unaligned_access(0);
++{
 +	unsigned int cpu;
 +	unsigned int cpu_count = num_possible_cpus();
 +	struct page **bufs = kzalloc(cpu_count * sizeof(struct page *),
@@ -643,10 +665,10 @@ index 1b8da4e40a4d..2cb5e651412c 100644
  	if (has_vector()) {
  		if (riscv_v_setup_vsize())
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index fe3292e310d4..00b32f493860 100644
+index 82d12c93feab..7bbf835fe725 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -117,6 +117,7 @@ config X86
+@@ -118,6 +118,7 @@ config X86
  	select ARCH_USES_CFI_TRAPS		if X86_64 && CFI_CLANG
  	select ARCH_SUPPORTS_LTO_CLANG
  	select ARCH_SUPPORTS_LTO_CLANG_THIN
@@ -654,7 +676,7 @@ index fe3292e310d4..00b32f493860 100644
  	select ARCH_USE_BUILTIN_BSWAP
  	select ARCH_USE_MEMTEST
  	select ARCH_USE_QUEUED_RWLOCKS
-@@ -271,6 +272,7 @@ config X86
+@@ -272,6 +273,7 @@ config X86
  	select HAVE_STATIC_CALL
  	select HAVE_STATIC_CALL_INLINE		if HAVE_OBJTOOL
  	select HAVE_PREEMPT_DYNAMIC_CALL
@@ -687,7 +709,7 @@ index d63b02940747..1ff38ebbd588 100644
  #define _TIF_SSBD		(1 << TIF_SSBD)
  #define _TIF_SPEC_IB		(1 << TIF_SPEC_IB)
 diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
-index 55437f5e0c3a..7fc47007b926 100644
+index bd6a7857ce05..d45dfd10b636 100644
 --- a/drivers/acpi/processor_idle.c
 +++ b/drivers/acpi/processor_idle.c
 @@ -108,7 +108,7 @@ static const struct dmi_system_id processor_power_dmi_table[] = {
@@ -1056,10 +1078,10 @@ index ce397a8797f7..98c3f532822d 100644
  	select INTERVAL_TREE
  	# we need shmfs for the swappable backing store, and in particular
 diff --git a/drivers/gpu/drm/i915/display/intel_crtc.c b/drivers/gpu/drm/i915/display/intel_crtc.c
-index 182c6dd64f47..e7083689cf4d 100644
+index cfbfbfed3f5e..da2becfbc86c 100644
 --- a/drivers/gpu/drm/i915/display/intel_crtc.c
 +++ b/drivers/gpu/drm/i915/display/intel_crtc.c
-@@ -534,7 +534,8 @@ void intel_pipe_update_start(struct intel_crtc_state *new_crtc_state)
+@@ -562,7 +562,8 @@ void intel_pipe_update_start(struct intel_atomic_state *state,
  	 */
  	intel_psr_wait_for_idle_locked(new_crtc_state);
  
@@ -1069,7 +1091,7 @@ index 182c6dd64f47..e7083689cf4d 100644
  
  	crtc->debug.min_vbl = min;
  	crtc->debug.max_vbl = max;
-@@ -559,11 +560,13 @@ void intel_pipe_update_start(struct intel_crtc_state *new_crtc_state)
+@@ -587,11 +588,13 @@ void intel_pipe_update_start(struct intel_atomic_state *state,
  			break;
  		}
  
@@ -1085,7 +1107,7 @@ index 182c6dd64f47..e7083689cf4d 100644
  	}
  
  	finish_wait(wq, &wait);
-@@ -596,7 +599,8 @@ void intel_pipe_update_start(struct intel_crtc_state *new_crtc_state)
+@@ -624,7 +627,8 @@ void intel_pipe_update_start(struct intel_atomic_state *state,
  	return;
  
  irq_disable:
@@ -1095,9 +1117,9 @@ index 182c6dd64f47..e7083689cf4d 100644
  }
  
  #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_VBLANK_EVADE)
-@@ -706,7 +710,8 @@ void intel_pipe_update_end(struct intel_crtc_state *new_crtc_state)
- 		intel_crtc_update_active_timings(new_crtc_state,
- 						 new_crtc_state->vrr.enable);
+@@ -728,7 +732,8 @@ void intel_pipe_update_end(struct intel_atomic_state *state,
+ 	 */
+ 	intel_vrr_send_push(new_crtc_state);
  
 -	local_irq_enable();
 +	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
@@ -1130,24 +1152,25 @@ index f5659ebd08eb..5b6d2f55528d 100644
  	spin_unlock_irqrestore(&dev_priv->uncore.lock, irqflags);
  
 diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-index ecc990ec1b95..8d04b10681f0 100644
+index f2973cd1a8aa..aa77f8601b8a 100644
 --- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
 +++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-@@ -312,10 +312,9 @@ void __intel_breadcrumbs_park(struct intel_breadcrumbs *b)
+@@ -315,7 +315,12 @@ void __intel_breadcrumbs_park(struct intel_breadcrumbs *b)
+ 		return;
+ 
  	/* Kick the work once more to drain the signalers, and disarm the irq */
- 	irq_work_sync(&b->irq_work);
- 	while (READ_ONCE(b->irq_armed) && !atomic_read(&b->active)) {
--		local_irq_disable();
--		signal_irq_work(&b->irq_work);
--		local_irq_enable();
+-	irq_work_queue(&b->irq_work);
++	irq_work_sync(&b->irq_work);
++	while (READ_ONCE(b->irq_armed) && !atomic_read(&b->active)) {
 +		irq_work_queue(&b->irq_work);
- 		cond_resched();
++		cond_resched();
 +		irq_work_sync(&b->irq_work);
- 	}
++	}
  }
  
+ void intel_breadcrumbs_free(struct kref *kref)
 diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-index 3292524469d5..00cb9fd91f41 100644
+index 42e09f158920..ac80e229f1cc 100644
 --- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
 +++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
 @@ -1303,7 +1303,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
@@ -1210,7 +1233,7 @@ index 3292524469d5..00cb9fd91f41 100644
  	}
  
 diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
-index 5fa57a34cf4b..4d65c374d4d7 100644
+index 13fb8e5042c5..b51fb0c97772 100644
 --- a/drivers/gpu/drm/i915/gt/intel_reset.c
 +++ b/drivers/gpu/drm/i915/gt/intel_reset.c
 @@ -164,13 +164,13 @@ static int i915_do_reset(struct intel_gt *gt,
@@ -1401,7 +1424,7 @@ index 4a9e71b2dbbc..021949f252f8 100644
  	lsr = serial_port_in(port, UART_LSR);
  
 diff --git a/drivers/tty/serial/8250/8250_bcm7271.c b/drivers/tty/serial/8250/8250_bcm7271.c
-index aa5aff046756..ff0662c68725 100644
+index 9afd5979c9e0..db23b3a02aef 100644
 --- a/drivers/tty/serial/8250/8250_bcm7271.c
 +++ b/drivers/tty/serial/8250/8250_bcm7271.c
 @@ -567,7 +567,7 @@ static irqreturn_t brcmuart_isr(int irq, void *dev_id)
@@ -1453,7 +1476,7 @@ index aa5aff046756..ff0662c68725 100644
  	serial8250_do_shutdown(port);
  }
  
-@@ -788,7 +788,7 @@ static int brcmuart_handle_irq(struct uart_port *p)
+@@ -807,7 +807,7 @@ static int brcmuart_handle_irq(struct uart_port *p)
  	 * interrupt but there is no data ready.
  	 */
  	if (((iir & UART_IIR_ID) == UART_IIR_RX_TIMEOUT) && !(priv->shutdown)) {
@@ -1462,7 +1485,7 @@ index aa5aff046756..ff0662c68725 100644
  		status = serial_port_in(p, UART_LSR);
  		if ((status & UART_LSR_DR) == 0) {
  
-@@ -813,7 +813,7 @@ static int brcmuart_handle_irq(struct uart_port *p)
+@@ -832,7 +832,7 @@ static int brcmuart_handle_irq(struct uart_port *p)
  
  			handled = 1;
  		}
@@ -1471,7 +1494,7 @@ index aa5aff046756..ff0662c68725 100644
  		if (handled)
  			return 1;
  	}
-@@ -831,7 +831,7 @@ static enum hrtimer_restart brcmuart_hrtimer_func(struct hrtimer *t)
+@@ -850,7 +850,7 @@ static enum hrtimer_restart brcmuart_hrtimer_func(struct hrtimer *t)
  	if (priv->shutdown)
  		return HRTIMER_NORESTART;
  
@@ -1480,7 +1503,7 @@ index aa5aff046756..ff0662c68725 100644
  	status = serial_port_in(p, UART_LSR);
  
  	/*
-@@ -855,7 +855,7 @@ static enum hrtimer_restart brcmuart_hrtimer_func(struct hrtimer *t)
+@@ -874,7 +874,7 @@ static enum hrtimer_restart brcmuart_hrtimer_func(struct hrtimer *t)
  		status |= UART_MCR_RTS;
  		serial_port_out(p, UART_MCR, status);
  	}
@@ -1489,7 +1512,7 @@ index aa5aff046756..ff0662c68725 100644
  	return HRTIMER_NORESTART;
  }
  
-@@ -1154,10 +1154,10 @@ static int __maybe_unused brcmuart_suspend(struct device *dev)
+@@ -1173,10 +1173,10 @@ static int __maybe_unused brcmuart_suspend(struct device *dev)
  	 * This will prevent resume from enabling RTS before the
  	 *  baud rate has been restored.
  	 */
@@ -1502,7 +1525,7 @@ index aa5aff046756..ff0662c68725 100644
  
  	serial8250_suspend_port(priv->line);
  	clk_disable_unprepare(priv->baud_mux_clk);
-@@ -1196,10 +1196,10 @@ static int __maybe_unused brcmuart_resume(struct device *dev)
+@@ -1215,10 +1215,10 @@ static int __maybe_unused brcmuart_resume(struct device *dev)
  
  	if (priv->saved_mctrl & TIOCM_RTS) {
  		/* Restore RTS */
@@ -1672,10 +1695,10 @@ index 7fa66501792d..8b30ca8fdd3f 100644
  
  int serial8250_tx_dma(struct uart_8250_port *p)
 diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index a1f2259cc9a9..53c284bb271d 100644
+index 8aed33be2ebf..5367bcc6256c 100644
 --- a/drivers/tty/serial/8250/8250_dw.c
 +++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -263,20 +263,20 @@ static int dw8250_handle_irq(struct uart_port *p)
+@@ -290,20 +290,20 @@ static int dw8250_handle_irq(struct uart_port *p)
  	 * so we limit the workaround only to non-DMA mode.
  	 */
  	if (!up->dma && rx_timeout) {
@@ -1701,10 +1724,10 @@ index a1f2259cc9a9..53c284bb271d 100644
  		if (status & (UART_LSR_DR | UART_LSR_BI)) {
  			dw8250_writel_ext(p, RZN1_UART_RDMACR, 0);
 diff --git a/drivers/tty/serial/8250/8250_exar.c b/drivers/tty/serial/8250/8250_exar.c
-index 8385be846840..91cf690b7c71 100644
+index 27430fdd9e76..17be6ad24a0f 100644
 --- a/drivers/tty/serial/8250/8250_exar.c
 +++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -201,9 +201,9 @@ static int xr17v35x_startup(struct uart_port *port)
+@@ -243,9 +243,9 @@ static int xr17v35x_startup(struct uart_port *port)
  	 *
  	 * Synchronize UART_IER access against the console.
  	 */
@@ -1744,7 +1767,7 @@ index 6af4e1c1210a..f522eb5026c9 100644
  	}
  
 diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index 74da5676ce67..23457daae8a1 100644
+index 28f9a2679a20..33699e86eb52 100644
 --- a/drivers/tty/serial/8250/8250_mtk.c
 +++ b/drivers/tty/serial/8250/8250_mtk.c
 @@ -102,7 +102,7 @@ static void mtk8250_dma_rx_complete(void *param)
@@ -1765,7 +1788,7 @@ index 74da5676ce67..23457daae8a1 100644
  }
  
  static void mtk8250_rx_dma(struct uart_8250_port *up)
-@@ -368,7 +368,7 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -372,7 +372,7 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
  	 * Ok, we're now changing the port state.  Do it with
  	 * interrupts disabled.
  	 */
@@ -1774,7 +1797,7 @@ index 74da5676ce67..23457daae8a1 100644
  
  	/*
  	 * Update the per-port timeout.
-@@ -416,7 +416,7 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -420,7 +420,7 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
  	if (uart_console(port))
  		up->port.cons->cflag = termios->c_cflag;
  
@@ -2014,7 +2037,7 @@ index a3b25779d921..53e238c8cc89 100644
  	mutex_unlock(&tport->mutex);
  }
 diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 141627370aab..437a7d3d34cd 100644
+index a17803da83f8..2d4e775cd7cb 100644
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
 @@ -557,6 +557,11 @@ static int serial8250_em485_init(struct uart_8250_port *p)
@@ -2139,7 +2162,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	/*
  	 * Check if the device is a Fintek F81216A
-@@ -1344,9 +1361,9 @@ static void autoconfig_irq(struct uart_8250_port *up)
+@@ -1341,9 +1358,9 @@ static void autoconfig_irq(struct uart_8250_port *up)
  	probe_irq_off(probe_irq_on());
  	save_mcr = serial8250_in_MCR(up);
  	/* Synchronize UART_IER access against the console. */
@@ -2151,7 +2174,7 @@ index 141627370aab..437a7d3d34cd 100644
  	serial8250_out_MCR(up, UART_MCR_OUT1 | UART_MCR_OUT2);
  
  	irqs = probe_irq_on();
-@@ -1359,9 +1376,9 @@ static void autoconfig_irq(struct uart_8250_port *up)
+@@ -1356,9 +1373,9 @@ static void autoconfig_irq(struct uart_8250_port *up)
  			UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2);
  	}
  	/* Synchronize UART_IER access against the console. */
@@ -2163,7 +2186,7 @@ index 141627370aab..437a7d3d34cd 100644
  	serial_in(up, UART_LSR);
  	serial_in(up, UART_RX);
  	serial_in(up, UART_IIR);
-@@ -1372,9 +1389,9 @@ static void autoconfig_irq(struct uart_8250_port *up)
+@@ -1369,9 +1386,9 @@ static void autoconfig_irq(struct uart_8250_port *up)
  
  	serial8250_out_MCR(up, save_mcr);
  	/* Synchronize UART_IER access against the console. */
@@ -2175,7 +2198,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	if (port->flags & UPF_FOURPORT)
  		outb_p(save_ICP, ICP);
-@@ -1442,13 +1459,13 @@ static enum hrtimer_restart serial8250_em485_handle_stop_tx(struct hrtimer *t)
+@@ -1436,13 +1453,13 @@ static enum hrtimer_restart serial8250_em485_handle_stop_tx(struct hrtimer *t)
  	unsigned long flags;
  
  	serial8250_rpm_get(p);
@@ -2191,7 +2214,7 @@ index 141627370aab..437a7d3d34cd 100644
  	serial8250_rpm_put(p);
  
  	return HRTIMER_NORESTART;
-@@ -1630,12 +1647,12 @@ static enum hrtimer_restart serial8250_em485_handle_start_tx(struct hrtimer *t)
+@@ -1624,12 +1641,12 @@ static enum hrtimer_restart serial8250_em485_handle_start_tx(struct hrtimer *t)
  	struct uart_8250_port *p = em485->port;
  	unsigned long flags;
  
@@ -2206,7 +2229,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	return HRTIMER_NORESTART;
  }
-@@ -1918,7 +1935,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+@@ -1912,7 +1929,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
  	if (iir & UART_IIR_NO_INT)
  		return 0;
  
@@ -2215,7 +2238,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	status = serial_lsr_in(up);
  
-@@ -1988,9 +2005,9 @@ static int serial8250_tx_threshold_handle_irq(struct uart_port *port)
+@@ -1982,9 +1999,9 @@ static int serial8250_tx_threshold_handle_irq(struct uart_port *port)
  	if ((iir & UART_IIR_ID) == UART_IIR_THRI) {
  		struct uart_8250_port *up = up_to_u8250p(port);
  
@@ -2227,7 +2250,7 @@ index 141627370aab..437a7d3d34cd 100644
  	}
  
  	iir = serial_port_in(port, UART_IIR);
-@@ -2005,10 +2022,10 @@ static unsigned int serial8250_tx_empty(struct uart_port *port)
+@@ -1999,10 +2016,10 @@ static unsigned int serial8250_tx_empty(struct uart_port *port)
  
  	serial8250_rpm_get(up);
  
@@ -2240,7 +2263,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	serial8250_rpm_put(up);
  
-@@ -2070,13 +2087,13 @@ static void serial8250_break_ctl(struct uart_port *port, int break_state)
+@@ -2064,13 +2081,13 @@ static void serial8250_break_ctl(struct uart_port *port, int break_state)
  	unsigned long flags;
  
  	serial8250_rpm_get(up);
@@ -2256,7 +2279,7 @@ index 141627370aab..437a7d3d34cd 100644
  	serial8250_rpm_put(up);
  }
  
-@@ -2211,7 +2228,7 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2205,7 +2222,7 @@ int serial8250_do_startup(struct uart_port *port)
  		 *
  		 * Synchronize UART_IER access against the console.
  		 */
@@ -2265,7 +2288,7 @@ index 141627370aab..437a7d3d34cd 100644
  		up->acr = 0;
  		serial_port_out(port, UART_LCR, UART_LCR_CONF_MODE_B);
  		serial_port_out(port, UART_EFR, UART_EFR_ECB);
-@@ -2221,7 +2238,7 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2215,7 +2232,7 @@ int serial8250_do_startup(struct uart_port *port)
  		serial_port_out(port, UART_LCR, UART_LCR_CONF_MODE_B);
  		serial_port_out(port, UART_EFR, UART_EFR_ECB);
  		serial_port_out(port, UART_LCR, 0);
@@ -2274,7 +2297,7 @@ index 141627370aab..437a7d3d34cd 100644
  	}
  
  	if (port->type == PORT_DA830) {
-@@ -2230,10 +2247,10 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2224,10 +2241,10 @@ int serial8250_do_startup(struct uart_port *port)
  		 *
  		 * Synchronize UART_IER access against the console.
  		 */
@@ -2287,7 +2310,7 @@ index 141627370aab..437a7d3d34cd 100644
  		mdelay(10);
  
  		/* Enable Tx, Rx and free run mode */
-@@ -2347,7 +2364,7 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2341,7 +2358,7 @@ int serial8250_do_startup(struct uart_port *port)
  		 *
  		 * Synchronize UART_IER access against the console.
  		 */
@@ -2296,7 +2319,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  		wait_for_xmitr(up, UART_LSR_THRE);
  		serial_port_out_sync(port, UART_IER, UART_IER_THRI);
-@@ -2359,7 +2376,7 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2353,7 +2370,7 @@ int serial8250_do_startup(struct uart_port *port)
  		iir = serial_port_in(port, UART_IIR);
  		serial_port_out(port, UART_IER, 0);
  
@@ -2305,7 +2328,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  		if (port->irqflags & IRQF_SHARED)
  			enable_irq(port->irq);
-@@ -2382,7 +2399,7 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2376,7 +2393,7 @@ int serial8250_do_startup(struct uart_port *port)
  	 */
  	serial_port_out(port, UART_LCR, UART_LCR_WLEN8);
  
@@ -2314,7 +2337,7 @@ index 141627370aab..437a7d3d34cd 100644
  	if (up->port.flags & UPF_FOURPORT) {
  		if (!up->port.irq)
  			up->port.mctrl |= TIOCM_OUT1;
-@@ -2428,7 +2445,7 @@ int serial8250_do_startup(struct uart_port *port)
+@@ -2422,7 +2439,7 @@ int serial8250_do_startup(struct uart_port *port)
  	}
  
  dont_test_tx_en:
@@ -2323,7 +2346,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	/*
  	 * Clear the interrupt registers again for luck, and clear the
-@@ -2499,17 +2516,17 @@ void serial8250_do_shutdown(struct uart_port *port)
+@@ -2493,17 +2510,17 @@ void serial8250_do_shutdown(struct uart_port *port)
  	 *
  	 * Synchronize UART_IER access against the console.
  	 */
@@ -2344,7 +2367,7 @@ index 141627370aab..437a7d3d34cd 100644
  	if (port->flags & UPF_FOURPORT) {
  		/* reset interrupts on the AST Fourport board */
  		inb((port->iobase & 0xfe0) | 0x1f);
-@@ -2518,7 +2535,7 @@ void serial8250_do_shutdown(struct uart_port *port)
+@@ -2512,7 +2529,7 @@ void serial8250_do_shutdown(struct uart_port *port)
  		port->mctrl &= ~TIOCM_OUT2;
  
  	serial8250_set_mctrl(port, port->mctrl);
@@ -2353,7 +2376,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	/*
  	 * Disable break condition and FIFOs
-@@ -2754,14 +2771,14 @@ void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
+@@ -2748,14 +2765,14 @@ void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
  	quot = serial8250_get_divisor(port, baud, &frac);
  
  	serial8250_rpm_get(up);
@@ -2370,7 +2393,7 @@ index 141627370aab..437a7d3d34cd 100644
  	serial8250_rpm_put(up);
  
  out_unlock:
-@@ -2798,7 +2815,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -2792,7 +2809,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
  	 * Synchronize UART_IER access against the console.
  	 */
  	serial8250_rpm_get(up);
@@ -2379,7 +2402,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	up->lcr = cval;					/* Save computed LCR */
  
-@@ -2901,7 +2918,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -2895,7 +2912,7 @@ serial8250_do_set_termios(struct uart_port *port, struct ktermios *termios,
  		serial_port_out(port, UART_FCR, up->fcr);	/* set fcr */
  	}
  	serial8250_set_mctrl(port, port->mctrl);
@@ -2388,7 +2411,7 @@ index 141627370aab..437a7d3d34cd 100644
  	serial8250_rpm_put(up);
  
  	/* Don't rewrite B0 */
-@@ -2924,15 +2941,15 @@ void serial8250_do_set_ldisc(struct uart_port *port, struct ktermios *termios)
+@@ -2918,15 +2935,15 @@ void serial8250_do_set_ldisc(struct uart_port *port, struct ktermios *termios)
  {
  	if (termios->c_line == N_PPS) {
  		port->flags |= UPF_HARDPPS_CD;
@@ -2408,7 +2431,7 @@ index 141627370aab..437a7d3d34cd 100644
  		}
  	}
  }
-@@ -3328,6 +3345,11 @@ static void serial8250_console_putchar(struct uart_port *port, unsigned char ch)
+@@ -3322,6 +3339,11 @@ static void serial8250_console_putchar(struct uart_port *port, unsigned char ch)
  
  	wait_for_xmitr(up, UART_LSR_THRE);
  	serial_port_out(port, UART_TX, ch);
@@ -2420,7 +2443,7 @@ index 141627370aab..437a7d3d34cd 100644
  }
  
  /*
-@@ -3356,6 +3378,7 @@ static void serial8250_console_restore(struct uart_8250_port *up)
+@@ -3350,6 +3372,7 @@ static void serial8250_console_restore(struct uart_8250_port *up)
  	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
  }
  
@@ -2428,7 +2451,7 @@ index 141627370aab..437a7d3d34cd 100644
  /*
   * Print a string to the serial port using the device FIFO
   *
-@@ -3406,15 +3429,15 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
+@@ -3400,15 +3423,15 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
  	touch_nmi_watchdog();
  
  	if (oops_in_progress)
@@ -2447,7 +2470,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  	/* check scratch reg to see if port powered off during system sleep */
  	if (up->canary && (up->canary != serial_port_in(port, UART_SCR))) {
-@@ -3478,8 +3501,137 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
+@@ -3472,8 +3495,137 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
  		serial8250_modem_status(up);
  
  	if (locked)
@@ -2586,7 +2609,7 @@ index 141627370aab..437a7d3d34cd 100644
  
  static unsigned int probe_baud(struct uart_port *port)
  {
-@@ -3498,6 +3650,7 @@ static unsigned int probe_baud(struct uart_port *port)
+@@ -3492,6 +3644,7 @@ static unsigned int probe_baud(struct uart_port *port)
  
  int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
  {
@@ -2594,7 +2617,7 @@ index 141627370aab..437a7d3d34cd 100644
  	int baud = 9600;
  	int bits = 8;
  	int parity = 'n';
-@@ -3507,6 +3660,8 @@ int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
+@@ -3501,6 +3654,8 @@ int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
  	if (!port->iobase && !port->membase)
  		return -ENODEV;
  
@@ -2857,7 +2880,7 @@ index b5a7404cbacb..eabbf8afc9b5 100644
  	}
  }
 diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index cd3913b933c7..19200ab2af75 100644
+index 362bbcdece0d..9cd660edb165 100644
 --- a/drivers/tty/serial/amba-pl011.c
 +++ b/drivers/tty/serial/amba-pl011.c
 @@ -347,9 +347,9 @@ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
@@ -2944,7 +2967,7 @@ index cd3913b933c7..19200ab2af75 100644
  
  	if (uap->using_tx_dma) {
  		/* In theory, this should already be done by pl011_dma_flush_buffer */
-@@ -1370,9 +1370,9 @@ static void pl011_throttle_rx(struct uart_port *port)
+@@ -1400,9 +1400,9 @@ static void pl011_throttle_rx(struct uart_port *port)
  {
  	unsigned long flags;
  
@@ -2956,7 +2979,7 @@ index cd3913b933c7..19200ab2af75 100644
  }
  
  static void pl011_enable_ms(struct uart_port *port)
-@@ -1390,7 +1390,7 @@ __acquires(&uap->port.lock)
+@@ -1420,7 +1420,7 @@ __acquires(&uap->port.lock)
  {
  	pl011_fifo_to_tty(uap);
  
@@ -2965,7 +2988,7 @@ index cd3913b933c7..19200ab2af75 100644
  	tty_flip_buffer_push(&uap->port.state->port);
  	/*
  	 * If we were temporarily out of DMA mode for a while,
-@@ -1415,7 +1415,7 @@ __acquires(&uap->port.lock)
+@@ -1445,7 +1445,7 @@ __acquires(&uap->port.lock)
  #endif
  		}
  	}
@@ -3879,7 +3902,7 @@ index 249cb380c3c6..7fa809a405e8 100644
  
  /*
 diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index f72e1340b47d..6d0cfb2e86b4 100644
+index 385b41275e8b..71d0cbd74807 100644
 --- a/drivers/tty/serial/fsl_lpuart.c
 +++ b/drivers/tty/serial/fsl_lpuart.c
 @@ -532,9 +532,9 @@ static void lpuart_dma_tx_complete(void *arg)
@@ -4130,7 +4153,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  
  	sport->port.read_status_mask = 0;
  	if (termios->c_iflag & INPCK)
-@@ -2359,7 +2359,7 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -2362,7 +2362,7 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
  			sport->lpuart_dma_rx_use = false;
  	}
  
@@ -4139,7 +4162,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  }
  
  static const char *lpuart_type(struct uart_port *port)
-@@ -2477,9 +2477,9 @@ lpuart_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2480,9 +2480,9 @@ lpuart_console_write(struct console *co, const char *s, unsigned int count)
  	int locked = 1;
  
  	if (oops_in_progress)
@@ -4151,7 +4174,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  
  	/* first save CR2 and then disable interrupts */
  	cr2 = old_cr2 = readb(sport->port.membase + UARTCR2);
-@@ -2495,7 +2495,7 @@ lpuart_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2498,7 +2498,7 @@ lpuart_console_write(struct console *co, const char *s, unsigned int count)
  	writeb(old_cr2, sport->port.membase + UARTCR2);
  
  	if (locked)
@@ -4160,7 +4183,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  }
  
  static void
-@@ -2507,9 +2507,9 @@ lpuart32_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2510,9 +2510,9 @@ lpuart32_console_write(struct console *co, const char *s, unsigned int count)
  	int locked = 1;
  
  	if (oops_in_progress)
@@ -4172,7 +4195,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  
  	/* first save CR2 and then disable interrupts */
  	cr = old_cr = lpuart32_read(&sport->port, UARTCTRL);
-@@ -2525,7 +2525,7 @@ lpuart32_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2528,7 +2528,7 @@ lpuart32_console_write(struct console *co, const char *s, unsigned int count)
  	lpuart32_write(&sport->port, old_cr, UARTCTRL);
  
  	if (locked)
@@ -4181,7 +4204,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  }
  
  /*
-@@ -3089,7 +3089,7 @@ static int lpuart_suspend(struct device *dev)
+@@ -3092,7 +3092,7 @@ static int lpuart_suspend(struct device *dev)
  	uart_suspend_port(&lpuart_reg, &sport->port);
  
  	if (lpuart_uport_is_active(sport)) {
@@ -4190,7 +4213,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  		if (lpuart_is_32(sport)) {
  			/* disable Rx/Tx and interrupts */
  			temp = lpuart32_read(&sport->port, UARTCTRL);
-@@ -3101,7 +3101,7 @@ static int lpuart_suspend(struct device *dev)
+@@ -3104,7 +3104,7 @@ static int lpuart_suspend(struct device *dev)
  			temp &= ~(UARTCR2_TE | UARTCR2_TIE | UARTCR2_TCIE);
  			writeb(temp, sport->port.membase + UARTCR2);
  		}
@@ -4199,7 +4222,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  
  		if (sport->lpuart_dma_rx_use) {
  			/*
-@@ -3114,7 +3114,7 @@ static int lpuart_suspend(struct device *dev)
+@@ -3117,7 +3117,7 @@ static int lpuart_suspend(struct device *dev)
  			lpuart_dma_rx_free(&sport->port);
  
  			/* Disable Rx DMA to use UART port as wakeup source */
@@ -4208,7 +4231,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  			if (lpuart_is_32(sport)) {
  				temp = lpuart32_read(&sport->port, UARTBAUD);
  				lpuart32_write(&sport->port, temp & ~UARTBAUD_RDMAE,
-@@ -3123,11 +3123,11 @@ static int lpuart_suspend(struct device *dev)
+@@ -3126,11 +3126,11 @@ static int lpuart_suspend(struct device *dev)
  				writeb(readb(sport->port.membase + UARTCR5) &
  				       ~UARTCR5_RDMAS, sport->port.membase + UARTCR5);
  			}
@@ -4222,7 +4245,7 @@ index f72e1340b47d..6d0cfb2e86b4 100644
  			if (lpuart_is_32(sport)) {
  				temp = lpuart32_read(&sport->port, UARTBAUD);
  				temp &= ~UARTBAUD_TDMAE;
-@@ -3137,7 +3137,7 @@ static int lpuart_suspend(struct device *dev)
+@@ -3140,7 +3140,7 @@ static int lpuart_suspend(struct device *dev)
  				temp &= ~UARTCR5_TDMAS;
  				writeb(temp, sport->port.membase + UARTCR5);
  			}
@@ -4347,10 +4370,10 @@ index 819f957b6b84..a75eafbcbea3 100644
  
  static const char *icom_type(struct uart_port *port)
 diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index cd36251ba1c0..4123cb76c324 100644
+index a1476e47c6aa..b072cee52cb1 100644
 --- a/drivers/tty/serial/imx.c
 +++ b/drivers/tty/serial/imx.c
-@@ -575,7 +575,7 @@ static void imx_uart_dma_tx_callback(void *data)
+@@ -585,7 +585,7 @@ static void imx_uart_dma_tx_callback(void *data)
  	unsigned long flags;
  	u32 ucr1;
  
@@ -4359,7 +4382,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	dma_unmap_sg(sport->port.dev, sgl, sport->dma_tx_nents, DMA_TO_DEVICE);
  
-@@ -600,7 +600,7 @@ static void imx_uart_dma_tx_callback(void *data)
+@@ -610,7 +610,7 @@ static void imx_uart_dma_tx_callback(void *data)
  		imx_uart_writel(sport, ucr4, UCR4);
  	}
  
@@ -4368,7 +4391,7 @@ index cd36251ba1c0..4123cb76c324 100644
  }
  
  /* called with port.lock taken and irqs off */
-@@ -766,11 +766,11 @@ static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
+@@ -781,11 +781,11 @@ static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
  	struct imx_port *sport = dev_id;
  	irqreturn_t ret;
  
@@ -4382,7 +4405,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return ret;
  }
-@@ -779,9 +779,9 @@ static irqreturn_t imx_uart_txint(int irq, void *dev_id)
+@@ -794,9 +794,9 @@ static irqreturn_t imx_uart_txint(int irq, void *dev_id)
  {
  	struct imx_port *sport = dev_id;
  
@@ -4394,7 +4417,7 @@ index cd36251ba1c0..4123cb76c324 100644
  	return IRQ_HANDLED;
  }
  
-@@ -895,11 +895,11 @@ static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
+@@ -910,11 +910,11 @@ static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
  	struct imx_port *sport = dev_id;
  	irqreturn_t ret;
  
@@ -4408,7 +4431,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return ret;
  }
-@@ -962,7 +962,7 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+@@ -977,7 +977,7 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
  	unsigned int usr1, usr2, ucr1, ucr2, ucr3, ucr4;
  	irqreturn_t ret = IRQ_NONE;
  
@@ -4417,7 +4440,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	usr1 = imx_uart_readl(sport, USR1);
  	usr2 = imx_uart_readl(sport, USR2);
-@@ -1032,7 +1032,7 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+@@ -1047,7 +1047,7 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
  		ret = IRQ_HANDLED;
  	}
  
@@ -4426,7 +4449,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return ret;
  }
-@@ -1115,7 +1115,7 @@ static void imx_uart_break_ctl(struct uart_port *port, int break_state)
+@@ -1130,7 +1130,7 @@ static void imx_uart_break_ctl(struct uart_port *port, int break_state)
  	unsigned long flags;
  	u32 ucr1;
  
@@ -4435,7 +4458,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	ucr1 = imx_uart_readl(sport, UCR1) & ~UCR1_SNDBRK;
  
-@@ -1124,7 +1124,7 @@ static void imx_uart_break_ctl(struct uart_port *port, int break_state)
+@@ -1139,7 +1139,7 @@ static void imx_uart_break_ctl(struct uart_port *port, int break_state)
  
  	imx_uart_writel(sport, ucr1, UCR1);
  
@@ -4444,7 +4467,7 @@ index cd36251ba1c0..4123cb76c324 100644
  }
  
  /*
-@@ -1137,9 +1137,9 @@ static void imx_uart_timeout(struct timer_list *t)
+@@ -1152,9 +1152,9 @@ static void imx_uart_timeout(struct timer_list *t)
  	unsigned long flags;
  
  	if (sport->port.state) {
@@ -4456,7 +4479,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  		mod_timer(&sport->timer, jiffies + MCTRL_TIMEOUT);
  	}
-@@ -1169,9 +1169,9 @@ static void imx_uart_dma_rx_callback(void *data)
+@@ -1184,9 +1184,9 @@ static void imx_uart_dma_rx_callback(void *data)
  	status = dmaengine_tx_status(chan, sport->rx_cookie, &state);
  
  	if (status == DMA_ERROR) {
@@ -4468,7 +4491,7 @@ index cd36251ba1c0..4123cb76c324 100644
  		return;
  	}
  
-@@ -1200,9 +1200,9 @@ static void imx_uart_dma_rx_callback(void *data)
+@@ -1215,9 +1215,9 @@ static void imx_uart_dma_rx_callback(void *data)
  		r_bytes = rx_ring->head - rx_ring->tail;
  
  		/* If we received something, check for 0xff flood */
@@ -4480,7 +4503,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  		if (!(sport->port.ignore_status_mask & URXD_DUMMY_READ)) {
  
-@@ -1460,7 +1460,7 @@ static int imx_uart_startup(struct uart_port *port)
+@@ -1475,7 +1475,7 @@ static int imx_uart_startup(struct uart_port *port)
  	if (!uart_console(port) && imx_uart_dma_init(sport) == 0)
  		dma_is_inited = 1;
  
@@ -4489,7 +4512,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	/* Reset fifo's and state machines */
  	imx_uart_soft_reset(sport);
-@@ -1533,7 +1533,7 @@ static int imx_uart_startup(struct uart_port *port)
+@@ -1548,7 +1548,7 @@ static int imx_uart_startup(struct uart_port *port)
  
  	imx_uart_disable_loopback_rs485(sport);
  
@@ -4498,7 +4521,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return 0;
  }
-@@ -1558,21 +1558,21 @@ static void imx_uart_shutdown(struct uart_port *port)
+@@ -1573,21 +1573,21 @@ static void imx_uart_shutdown(struct uart_port *port)
  			sport->dma_is_rxing = 0;
  		}
  
@@ -4524,7 +4547,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	/*
  	 * Stop our timer.
-@@ -1583,7 +1583,7 @@ static void imx_uart_shutdown(struct uart_port *port)
+@@ -1598,7 +1598,7 @@ static void imx_uart_shutdown(struct uart_port *port)
  	 * Disable all interrupts, port and break condition.
  	 */
  
@@ -4533,7 +4556,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	ucr1 = imx_uart_readl(sport, UCR1);
  	ucr1 &= ~(UCR1_TRDYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_RXDMAEN |
-@@ -1605,7 +1605,7 @@ static void imx_uart_shutdown(struct uart_port *port)
+@@ -1620,7 +1620,7 @@ static void imx_uart_shutdown(struct uart_port *port)
  	ucr4 &= ~UCR4_TCEN;
  	imx_uart_writel(sport, ucr4, UCR4);
  
@@ -4542,7 +4565,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	clk_disable_unprepare(sport->clk_per);
  	clk_disable_unprepare(sport->clk_ipg);
-@@ -1668,7 +1668,7 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -1683,7 +1683,7 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
  	baud = uart_get_baud_rate(port, termios, old, 50, port->uartclk / 16);
  	quot = uart_get_divisor(port, baud);
  
@@ -4551,7 +4574,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	/*
  	 * Read current UCR2 and save it for future use, then clear all the bits
-@@ -1796,7 +1796,7 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -1811,7 +1811,7 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
  	if (UART_ENABLE_MS(&sport->port, termios->c_cflag))
  		imx_uart_enable_ms(&sport->port);
  
@@ -4560,7 +4583,7 @@ index cd36251ba1c0..4123cb76c324 100644
  }
  
  static const char *imx_uart_type(struct uart_port *port)
-@@ -1858,7 +1858,7 @@ static int imx_uart_poll_init(struct uart_port *port)
+@@ -1873,7 +1873,7 @@ static int imx_uart_poll_init(struct uart_port *port)
  
  	imx_uart_setup_ufcr(sport, TXTL_DEFAULT, RXTL_DEFAULT);
  
@@ -4569,7 +4592,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	/*
  	 * Be careful about the order of enabling bits here. First enable the
-@@ -1886,7 +1886,7 @@ static int imx_uart_poll_init(struct uart_port *port)
+@@ -1901,7 +1901,7 @@ static int imx_uart_poll_init(struct uart_port *port)
  	imx_uart_writel(sport, ucr1 | UCR1_RRDYEN, UCR1);
  	imx_uart_writel(sport, ucr2 | UCR2_ATEN, UCR2);
  
@@ -4578,7 +4601,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return 0;
  }
-@@ -2005,9 +2005,9 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2016,9 +2016,9 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
  	if (sport->port.sysrq)
  		locked = 0;
  	else if (oops_in_progress)
@@ -4590,7 +4613,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	/*
  	 *	First, save UCR1/2/3 and then disable interrupts
-@@ -2035,7 +2035,7 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
+@@ -2046,7 +2046,7 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
  	imx_uart_ucrs_restore(sport, &old_ucr);
  
  	if (locked)
@@ -4599,7 +4622,7 @@ index cd36251ba1c0..4123cb76c324 100644
  }
  
  /*
-@@ -2193,10 +2193,10 @@ static enum hrtimer_restart imx_trigger_start_tx(struct hrtimer *t)
+@@ -2204,10 +2204,10 @@ static enum hrtimer_restart imx_trigger_start_tx(struct hrtimer *t)
  	struct imx_port *sport = container_of(t, struct imx_port, trigger_start_tx);
  	unsigned long flags;
  
@@ -4612,7 +4635,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return HRTIMER_NORESTART;
  }
-@@ -2206,10 +2206,10 @@ static enum hrtimer_restart imx_trigger_stop_tx(struct hrtimer *t)
+@@ -2217,10 +2217,10 @@ static enum hrtimer_restart imx_trigger_stop_tx(struct hrtimer *t)
  	struct imx_port *sport = container_of(t, struct imx_port, trigger_stop_tx);
  	unsigned long flags;
  
@@ -4625,7 +4648,7 @@ index cd36251ba1c0..4123cb76c324 100644
  
  	return HRTIMER_NORESTART;
  }
-@@ -2476,9 +2476,9 @@ static void imx_uart_restore_context(struct imx_port *sport)
+@@ -2487,9 +2487,9 @@ static void imx_uart_restore_context(struct imx_port *sport)
  {
  	unsigned long flags;
  
@@ -4637,7 +4660,7 @@ index cd36251ba1c0..4123cb76c324 100644
  		return;
  	}
  
-@@ -2493,7 +2493,7 @@ static void imx_uart_restore_context(struct imx_port *sport)
+@@ -2504,7 +2504,7 @@ static void imx_uart_restore_context(struct imx_port *sport)
  	imx_uart_writel(sport, sport->saved_reg[2], UCR3);
  	imx_uart_writel(sport, sport->saved_reg[3], UCR4);
  	sport->context_saved = false;
@@ -4646,7 +4669,7 @@ index cd36251ba1c0..4123cb76c324 100644
  }
  
  static void imx_uart_save_context(struct imx_port *sport)
-@@ -2501,7 +2501,7 @@ static void imx_uart_save_context(struct imx_port *sport)
+@@ -2512,7 +2512,7 @@ static void imx_uart_save_context(struct imx_port *sport)
  	unsigned long flags;
  
  	/* Save necessary regs */
@@ -4655,7 +4678,7 @@ index cd36251ba1c0..4123cb76c324 100644
  	sport->saved_reg[0] = imx_uart_readl(sport, UCR1);
  	sport->saved_reg[1] = imx_uart_readl(sport, UCR2);
  	sport->saved_reg[2] = imx_uart_readl(sport, UCR3);
-@@ -2513,7 +2513,7 @@ static void imx_uart_save_context(struct imx_port *sport)
+@@ -2524,7 +2524,7 @@ static void imx_uart_save_context(struct imx_port *sport)
  	sport->saved_reg[8] = imx_uart_readl(sport, UBMR);
  	sport->saved_reg[9] = imx_uart_readl(sport, IMX21_UTS);
  	sport->context_saved = true;
@@ -6223,10 +6246,10 @@ index e308d5022b3f..3a95bf5d55d3 100644
  
  /* serial core request to claim uart iomem */
 diff --git a/drivers/tty/serial/pmac_zilog.c b/drivers/tty/serial/pmac_zilog.c
-index 13668ffdb1e7..c8bf08c19c64 100644
+index 29bc80d39e8b..77691fbbf779 100644
 --- a/drivers/tty/serial/pmac_zilog.c
 +++ b/drivers/tty/serial/pmac_zilog.c
-@@ -246,9 +246,9 @@ static bool pmz_receive_chars(struct uart_pmac_port *uap)
+@@ -245,9 +245,9 @@ static bool pmz_receive_chars(struct uart_pmac_port *uap)
  #endif /* USE_CTRL_O_SYSRQ */
  		if (uap->port.sysrq) {
  			int swallow;
@@ -6238,7 +6261,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  			if (swallow)
  				goto next_char;
  		}
-@@ -435,7 +435,7 @@ static irqreturn_t pmz_interrupt(int irq, void *dev_id)
+@@ -421,7 +421,7 @@ static irqreturn_t pmz_interrupt(int irq, void *dev_id)
  	uap_a = pmz_get_port_A(uap);
  	uap_b = uap_a->mate;
  
@@ -6247,7 +6270,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  	r3 = read_zsreg(uap_a, R3);
  
  	/* Channel A */
-@@ -456,14 +456,14 @@ static irqreturn_t pmz_interrupt(int irq, void *dev_id)
+@@ -442,14 +442,14 @@ static irqreturn_t pmz_interrupt(int irq, void *dev_id)
  		rc = IRQ_HANDLED;
  	}
   skip_a:
@@ -6264,7 +6287,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  	push = false;
  	if (r3 & (CHBEXT | CHBTxIP | CHBRxIP)) {
  		if (!ZS_IS_OPEN(uap_b)) {
-@@ -481,7 +481,7 @@ static irqreturn_t pmz_interrupt(int irq, void *dev_id)
+@@ -467,7 +467,7 @@ static irqreturn_t pmz_interrupt(int irq, void *dev_id)
  		rc = IRQ_HANDLED;
  	}
   skip_b:
@@ -6273,7 +6296,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  	if (push)
  		tty_flip_buffer_push(&uap->port.state->port);
  
-@@ -497,9 +497,9 @@ static inline u8 pmz_peek_status(struct uart_pmac_port *uap)
+@@ -483,9 +483,9 @@ static inline u8 pmz_peek_status(struct uart_pmac_port *uap)
  	unsigned long flags;
  	u8 status;
  	
@@ -6285,7 +6308,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  
  	return status;
  }
-@@ -685,7 +685,7 @@ static void pmz_break_ctl(struct uart_port *port, int break_state)
+@@ -671,7 +671,7 @@ static void pmz_break_ctl(struct uart_port *port, int break_state)
  	else
  		clear_bits |= SND_BRK;
  
@@ -6294,7 +6317,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  
  	new_reg = (uap->curregs[R5] | set_bits) & ~clear_bits;
  	if (new_reg != uap->curregs[R5]) {
-@@ -693,7 +693,7 @@ static void pmz_break_ctl(struct uart_port *port, int break_state)
+@@ -679,7 +679,7 @@ static void pmz_break_ctl(struct uart_port *port, int break_state)
  		write_zsreg(uap, R5, uap->curregs[R5]);
  	}
  
@@ -6303,7 +6326,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  }
  
  #ifdef CONFIG_PPC_PMAC
-@@ -865,18 +865,18 @@ static void pmz_irda_reset(struct uart_pmac_port *uap)
+@@ -851,18 +851,18 @@ static void pmz_irda_reset(struct uart_pmac_port *uap)
  {
  	unsigned long flags;
  
@@ -6326,7 +6349,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  	msleep(10);
  }
  
-@@ -896,9 +896,9 @@ static int pmz_startup(struct uart_port *port)
+@@ -882,9 +882,9 @@ static int pmz_startup(struct uart_port *port)
  	 * initialize the chip
  	 */
  	if (!ZS_IS_CONS(uap)) {
@@ -6338,7 +6361,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  	}	
  	sprintf(uap->irq_name, PMACZILOG_NAME"%d", uap->port.line);
  	if (request_irq(uap->port.irq, pmz_interrupt, IRQF_SHARED,
-@@ -921,9 +921,9 @@ static int pmz_startup(struct uart_port *port)
+@@ -907,9 +907,9 @@ static int pmz_startup(struct uart_port *port)
  		pmz_irda_reset(uap);
  
  	/* Enable interrupt requests for the channel */
@@ -6350,7 +6373,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  
  	return 0;
  }
-@@ -933,7 +933,7 @@ static void pmz_shutdown(struct uart_port *port)
+@@ -919,7 +919,7 @@ static void pmz_shutdown(struct uart_port *port)
  	struct uart_pmac_port *uap = to_pmz(port);
  	unsigned long flags;
  
@@ -6359,7 +6382,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  
  	/* Disable interrupt requests for the channel */
  	pmz_interrupt_control(uap, 0);
-@@ -948,19 +948,19 @@ static void pmz_shutdown(struct uart_port *port)
+@@ -934,19 +934,19 @@ static void pmz_shutdown(struct uart_port *port)
  		pmz_maybe_update_regs(uap);
  	}
  
@@ -6382,7 +6405,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  }
  
  /* Shared by TTY driver and serial console setup.  The port lock is held
-@@ -1247,7 +1247,7 @@ static void pmz_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -1233,7 +1233,7 @@ static void pmz_set_termios(struct uart_port *port, struct ktermios *termios,
  	struct uart_pmac_port *uap = to_pmz(port);
  	unsigned long flags;
  
@@ -6391,7 +6414,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  
  	/* Disable IRQs on the port */
  	pmz_interrupt_control(uap, 0);
-@@ -1259,7 +1259,7 @@ static void pmz_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -1245,7 +1245,7 @@ static void pmz_set_termios(struct uart_port *port, struct ktermios *termios,
  	if (ZS_IS_OPEN(uap))
  		pmz_interrupt_control(uap, 1);
  
@@ -6400,7 +6423,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  }
  
  static const char *pmz_type(struct uart_port *port)
-@@ -1896,7 +1896,7 @@ static void pmz_console_write(struct console *con, const char *s, unsigned int c
+@@ -1882,7 +1882,7 @@ static void pmz_console_write(struct console *con, const char *s, unsigned int c
  	struct uart_pmac_port *uap = &pmz_ports[con->index];
  	unsigned long flags;
  
@@ -6409,7 +6432,7 @@ index 13668ffdb1e7..c8bf08c19c64 100644
  
  	/* Turn of interrupts and enable the transmitter. */
  	write_zsreg(uap, R1, uap->curregs[1] & ~TxINT_ENAB);
-@@ -1908,7 +1908,7 @@ static void pmz_console_write(struct console *con, const char *s, unsigned int c
+@@ -1894,7 +1894,7 @@ static void pmz_console_write(struct console *con, const char *s, unsigned int c
  	write_zsreg(uap, R1, uap->curregs[1]);
  	/* Don't disable the transmitter. */
  
@@ -6533,7 +6556,7 @@ index 73c60f5ea027..46e70e155aab 100644
  	clk_disable(up->clk);
  
 diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-index b8aa4c1293ba..7e78f97e8f43 100644
+index 2e1b1c827dfe..549909644011 100644
 --- a/drivers/tty/serial/qcom_geni_serial.c
 +++ b/drivers/tty/serial/qcom_geni_serial.c
 @@ -482,9 +482,9 @@ static void qcom_geni_serial_console_write(struct console *co, const char *s,
@@ -6557,7 +6580,7 @@ index b8aa4c1293ba..7e78f97e8f43 100644
  }
  
  static void handle_rx_console(struct uart_port *uport, u32 bytes, bool drop)
-@@ -970,7 +970,7 @@ static irqreturn_t qcom_geni_serial_isr(int isr, void *dev)
+@@ -972,7 +972,7 @@ static irqreturn_t qcom_geni_serial_isr(int isr, void *dev)
  	if (uport->suspended)
  		return IRQ_NONE;
  
@@ -6867,7 +6890,7 @@ index ad011f1e2f4d..be7bcd75d9f4 100644
  
  static const char *sa1100_type(struct uart_port *port)
 diff --git a/drivers/tty/serial/samsung_tty.c b/drivers/tty/serial/samsung_tty.c
-index 07fb8a9dac63..ee51a0368a55 100644
+index 5a4d88e13471..a82b65155f6e 100644
 --- a/drivers/tty/serial/samsung_tty.c
 +++ b/drivers/tty/serial/samsung_tty.c
 @@ -248,7 +248,7 @@ static void s3c24xx_serial_rx_enable(struct uart_port *port)
@@ -6985,7 +7008,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  	return IRQ_HANDLED;
  }
  
-@@ -1033,7 +1033,7 @@ static void s3c24xx_serial_break_ctl(struct uart_port *port, int break_state)
+@@ -1032,7 +1032,7 @@ static void s3c24xx_serial_break_ctl(struct uart_port *port, int break_state)
  	unsigned long flags;
  	unsigned int ucon;
  
@@ -6994,7 +7017,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  
  	ucon = rd_regl(port, S3C2410_UCON);
  
-@@ -1044,7 +1044,7 @@ static void s3c24xx_serial_break_ctl(struct uart_port *port, int break_state)
+@@ -1043,7 +1043,7 @@ static void s3c24xx_serial_break_ctl(struct uart_port *port, int break_state)
  
  	wr_regl(port, S3C2410_UCON, ucon);
  
@@ -7003,7 +7026,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  }
  
  static int s3c24xx_serial_request_dma(struct s3c24xx_uart_port *p)
-@@ -1303,7 +1303,7 @@ static int s3c64xx_serial_startup(struct uart_port *port)
+@@ -1302,7 +1302,7 @@ static int s3c64xx_serial_startup(struct uart_port *port)
  	ourport->rx_enabled = 1;
  	ourport->tx_enabled = 0;
  
@@ -7012,7 +7035,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  
  	ufcon = rd_regl(port, S3C2410_UFCON);
  	ufcon |= S3C2410_UFCON_RESETRX | S5PV210_UFCON_RXTRIG8;
-@@ -1313,7 +1313,7 @@ static int s3c64xx_serial_startup(struct uart_port *port)
+@@ -1312,7 +1312,7 @@ static int s3c64xx_serial_startup(struct uart_port *port)
  
  	enable_rx_pio(ourport);
  
@@ -7021,7 +7044,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  
  	/* Enable Rx Interrupt */
  	s3c24xx_clear_bit(port, S3C64XX_UINTM_RXD, S3C64XX_UINTM);
-@@ -1341,7 +1341,7 @@ static int apple_s5l_serial_startup(struct uart_port *port)
+@@ -1340,7 +1340,7 @@ static int apple_s5l_serial_startup(struct uart_port *port)
  	ourport->rx_enabled = 1;
  	ourport->tx_enabled = 0;
  
@@ -7030,7 +7053,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  
  	ufcon = rd_regl(port, S3C2410_UFCON);
  	ufcon |= S3C2410_UFCON_RESETRX | S5PV210_UFCON_RXTRIG8;
-@@ -1351,7 +1351,7 @@ static int apple_s5l_serial_startup(struct uart_port *port)
+@@ -1350,7 +1350,7 @@ static int apple_s5l_serial_startup(struct uart_port *port)
  
  	enable_rx_pio(ourport);
  
@@ -7039,7 +7062,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  
  	/* Enable Rx Interrupt */
  	s3c24xx_set_bit(port, APPLE_S5L_UCON_RXTHRESH_ENA, S3C2410_UCON);
-@@ -1626,7 +1626,7 @@ static void s3c24xx_serial_set_termios(struct uart_port *port,
+@@ -1625,7 +1625,7 @@ static void s3c24xx_serial_set_termios(struct uart_port *port,
  		ulcon |= S3C2410_LCON_PNONE;
  	}
  
@@ -7048,7 +7071,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  
  	dev_dbg(port->dev,
  		"setting ulcon to %08x, brddiv to %d, udivslot %08x\n",
-@@ -1684,7 +1684,7 @@ static void s3c24xx_serial_set_termios(struct uart_port *port,
+@@ -1683,7 +1683,7 @@ static void s3c24xx_serial_set_termios(struct uart_port *port,
  	if ((termios->c_cflag & CREAD) == 0)
  		port->ignore_status_mask |= RXSTAT_DUMMY_READ;
  
@@ -7057,7 +7080,7 @@ index 07fb8a9dac63..ee51a0368a55 100644
  }
  
  static const char *s3c24xx_serial_type(struct uart_port *port)
-@@ -2376,14 +2376,14 @@ s3c24xx_serial_console_write(struct console *co, const char *s,
+@@ -2375,14 +2375,14 @@ s3c24xx_serial_console_write(struct console *co, const char *s,
  	if (cons_uart->sysrq)
  		locked = false;
  	else if (oops_in_progress)
@@ -7125,150 +7148,28 @@ index f3cd69346482..dbec29d9a6c3 100644
  
  static int __init sbd_console_setup(struct console *co, char *options)
 diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
-index 6aeb821d9b1d..a99c58cd5706 100644
+index 7a9924d9b294..be9ae5cdd1b8 100644
 --- a/drivers/tty/serial/sc16is7xx.c
 +++ b/drivers/tty/serial/sc16is7xx.c
-@@ -668,9 +668,9 @@ static void sc16is7xx_handle_tx(struct uart_port *port)
- 	}
+@@ -817,6 +817,7 @@ static void sc16is7xx_tx_proc(struct kthread_work *ws)
+ {
+ 	struct uart_port *port = &(to_sc16is7xx_one(ws, tx_work)->port);
+ 	struct sc16is7xx_one *one = to_sc16is7xx_one(port, port);
++	unsigned long flags;
  
- 	if (uart_circ_empty(xmit) || uart_tx_stopped(port)) {
--		spin_lock_irqsave(&port->lock, flags);
-+		uart_port_lock_irqsave(port, &flags);
- 		sc16is7xx_stop_tx(port);
--		spin_unlock_irqrestore(&port->lock, flags);
-+		uart_port_unlock_irqrestore(port, flags);
- 		return;
- 	}
- 
-@@ -696,13 +696,13 @@ static void sc16is7xx_handle_tx(struct uart_port *port)
- 		sc16is7xx_fifo_write(port, to_send);
- 	}
- 
--	spin_lock_irqsave(&port->lock, flags);
-+	uart_port_lock_irqsave(port, &flags);
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(port);
- 
- 	if (uart_circ_empty(xmit))
- 		sc16is7xx_stop_tx(port);
--	spin_unlock_irqrestore(&port->lock, flags);
-+	uart_port_unlock_irqrestore(port, flags);
- }
- 
- static unsigned int sc16is7xx_get_hwmctrl(struct uart_port *port)
-@@ -734,7 +734,7 @@ static void sc16is7xx_update_mlines(struct sc16is7xx_one *one)
- 
- 	one->old_mctrl = status;
- 
--	spin_lock_irqsave(&port->lock, flags);
-+	uart_port_lock_irqsave(port, &flags);
- 	if ((changed & TIOCM_RNG) && (status & TIOCM_RNG))
- 		port->icount.rng++;
- 	if (changed & TIOCM_DSR)
-@@ -745,7 +745,7 @@ static void sc16is7xx_update_mlines(struct sc16is7xx_one *one)
- 		uart_handle_cts_change(port, status & TIOCM_CTS);
- 
- 	wake_up_interruptible(&port->state->port.delta_msr_wait);
--	spin_unlock_irqrestore(&port->lock, flags);
-+	uart_port_unlock_irqrestore(port, flags);
- }
- 
- static bool sc16is7xx_port_irq(struct sc16is7xx_port *s, int portno)
-@@ -836,9 +836,9 @@ static void sc16is7xx_tx_proc(struct kthread_work *ws)
+ 	if ((port->rs485.flags & SER_RS485_ENABLED) &&
+ 	    (port->rs485.delay_rts_before_send > 0))
+@@ -825,6 +826,10 @@ static void sc16is7xx_tx_proc(struct kthread_work *ws)
+ 	mutex_lock(&one->efr_lock);
  	sc16is7xx_handle_tx(port);
- 	mutex_unlock(&s->efr_lock);
- 
--	spin_lock_irqsave(&port->lock, flags);
+ 	mutex_unlock(&one->efr_lock);
++
 +	uart_port_lock_irqsave(port, &flags);
- 	sc16is7xx_ier_set(port, SC16IS7XX_IER_THRI_BIT);
--	spin_unlock_irqrestore(&port->lock, flags);
++	sc16is7xx_ier_set(port, SC16IS7XX_IER_THRI_BIT);
 +	uart_port_unlock_irqrestore(port, flags);
  }
  
  static void sc16is7xx_reconf_rs485(struct uart_port *port)
-@@ -849,14 +849,14 @@ static void sc16is7xx_reconf_rs485(struct uart_port *port)
- 	struct serial_rs485 *rs485 = &port->rs485;
- 	unsigned long irqflags;
- 
--	spin_lock_irqsave(&port->lock, irqflags);
-+	uart_port_lock_irqsave(port, &irqflags);
- 	if (rs485->flags & SER_RS485_ENABLED) {
- 		efcr |=	SC16IS7XX_EFCR_AUTO_RS485_BIT;
- 
- 		if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
- 			efcr |= SC16IS7XX_EFCR_RTS_INVERT_BIT;
- 	}
--	spin_unlock_irqrestore(&port->lock, irqflags);
-+	uart_port_unlock_irqrestore(port, irqflags);
- 
- 	sc16is7xx_port_update(port, SC16IS7XX_EFCR_REG, mask, efcr);
- }
-@@ -867,10 +867,10 @@ static void sc16is7xx_reg_proc(struct kthread_work *ws)
- 	struct sc16is7xx_one_config config;
- 	unsigned long irqflags;
- 
--	spin_lock_irqsave(&one->port.lock, irqflags);
-+	uart_port_lock_irqsave(&one->port, &irqflags);
- 	config = one->config;
- 	memset(&one->config, 0, sizeof(one->config));
--	spin_unlock_irqrestore(&one->port.lock, irqflags);
-+	uart_port_unlock_irqrestore(&one->port, irqflags);
- 
- 	if (config.flags & SC16IS7XX_RECONF_MD) {
- 		u8 mcr = 0;
-@@ -976,18 +976,18 @@ static void sc16is7xx_throttle(struct uart_port *port)
- 	 * value set in MCR register. Stop reading data from RX FIFO so the
- 	 * AutoRTS feature will de-activate RTS output.
- 	 */
--	spin_lock_irqsave(&port->lock, flags);
-+	uart_port_lock_irqsave(port, &flags);
- 	sc16is7xx_ier_clear(port, SC16IS7XX_IER_RDI_BIT);
--	spin_unlock_irqrestore(&port->lock, flags);
-+	uart_port_unlock_irqrestore(port, flags);
- }
- 
- static void sc16is7xx_unthrottle(struct uart_port *port)
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&port->lock, flags);
-+	uart_port_lock_irqsave(port, &flags);
- 	sc16is7xx_ier_set(port, SC16IS7XX_IER_RDI_BIT);
--	spin_unlock_irqrestore(&port->lock, flags);
-+	uart_port_unlock_irqrestore(port, flags);
- }
- 
- static unsigned int sc16is7xx_tx_empty(struct uart_port *port)
-@@ -1126,7 +1126,7 @@ static void sc16is7xx_set_termios(struct uart_port *port,
- 	/* Setup baudrate generator */
- 	baud = sc16is7xx_set_baud(port, baud);
- 
--	spin_lock_irqsave(&port->lock, flags);
-+	uart_port_lock_irqsave(port, &flags);
- 
- 	/* Update timeout according to new baud rate */
- 	uart_update_timeout(port, termios->c_cflag, baud);
-@@ -1134,7 +1134,7 @@ static void sc16is7xx_set_termios(struct uart_port *port,
- 	if (UART_ENABLE_MS(port, termios->c_cflag))
- 		sc16is7xx_enable_ms(port);
- 
--	spin_unlock_irqrestore(&port->lock, flags);
-+	uart_port_unlock_irqrestore(port, flags);
- }
- 
- static int sc16is7xx_config_rs485(struct uart_port *port, struct ktermios *termios,
-@@ -1221,9 +1221,9 @@ static int sc16is7xx_startup(struct uart_port *port)
- 	sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val);
- 
- 	/* Enable modem status polling */
--	spin_lock_irqsave(&port->lock, flags);
-+	uart_port_lock_irqsave(port, &flags);
- 	sc16is7xx_enable_ms(port);
--	spin_unlock_irqrestore(&port->lock, flags);
-+	uart_port_unlock_irqrestore(port, flags);
- 
- 	return 0;
- }
 diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
 index d4ec943cb8e9..6d4006b41975 100644
 --- a/drivers/tty/serial/serial-tegra.c
@@ -7410,7 +7311,7 @@ index d4ec943cb8e9..6d4006b41975 100644
  
  static const char *tegra_uart_type(struct uart_port *u)
 diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 18b49b1439a5..fa0791ba9773 100644
+index 2eceef54e0b3..6cd64ccc2035 100644
 --- a/drivers/tty/serial/serial_core.c
 +++ b/drivers/tty/serial/serial_core.c
 @@ -79,7 +79,7 @@ static inline void uart_port_deref(struct uart_port *uport)
@@ -7464,7 +7365,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  }
  
  /*
-@@ -702,11 +702,11 @@ static void uart_send_xchar(struct tty_struct *tty, char ch)
+@@ -715,11 +715,11 @@ static void uart_send_xchar(struct tty_struct *tty, char ch)
  	if (port->ops->send_xchar)
  		port->ops->send_xchar(port, ch);
  	else {
@@ -7478,7 +7379,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  	}
  	uart_port_deref(port);
  }
-@@ -1085,9 +1085,9 @@ static int uart_tiocmget(struct tty_struct *tty)
+@@ -1098,9 +1098,9 @@ static int uart_tiocmget(struct tty_struct *tty)
  
  	if (!tty_io_error(tty)) {
  		result = uport->mctrl;
@@ -7490,7 +7391,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  	}
  out:
  	mutex_unlock(&port->mutex);
-@@ -1223,16 +1223,16 @@ static int uart_wait_modem_status(struct uart_state *state, unsigned long arg)
+@@ -1236,16 +1236,16 @@ static int uart_wait_modem_status(struct uart_state *state, unsigned long arg)
  	uport = uart_port_ref(state);
  	if (!uport)
  		return -EIO;
@@ -7511,7 +7412,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  
  		set_current_state(TASK_INTERRUPTIBLE);
  
-@@ -1277,9 +1277,9 @@ static int uart_get_icount(struct tty_struct *tty,
+@@ -1290,9 +1290,9 @@ static int uart_get_icount(struct tty_struct *tty,
  	uport = uart_port_ref(state);
  	if (!uport)
  		return -EIO;
@@ -7523,19 +7424,19 @@ index 18b49b1439a5..fa0791ba9773 100644
  	uart_port_deref(uport);
  
  	icount->cts         = cnow.cts;
-@@ -1421,9 +1421,9 @@ static int uart_rs485_config(struct uart_port *port)
- 	uart_sanitize_serial_rs485(port, rs485);
+@@ -1445,9 +1445,9 @@ static int uart_rs485_config(struct uart_port *port)
  	uart_set_rs485_termination(port, rs485);
+ 	uart_set_rs485_rx_during_tx(port, rs485);
  
 -	spin_lock_irqsave(&port->lock, flags);
 +	uart_port_lock_irqsave(port, &flags);
  	ret = port->rs485_config(port, NULL, rs485);
 -	spin_unlock_irqrestore(&port->lock, flags);
 +	uart_port_unlock_irqrestore(port, flags);
- 	if (ret)
+ 	if (ret) {
  		memset(rs485, 0, sizeof(*rs485));
- 
-@@ -1436,9 +1436,9 @@ static int uart_get_rs485_config(struct uart_port *port,
+ 		/* unset GPIOs */
+@@ -1464,9 +1464,9 @@ static int uart_get_rs485_config(struct uart_port *port,
  	unsigned long flags;
  	struct serial_rs485 aux;
  
@@ -7547,25 +7448,25 @@ index 18b49b1439a5..fa0791ba9773 100644
  
  	if (copy_to_user(rs485, &aux, sizeof(aux)))
  		return -EFAULT;
-@@ -1465,7 +1465,7 @@ static int uart_set_rs485_config(struct tty_struct *tty, struct uart_port *port,
- 	uart_sanitize_serial_rs485(port, &rs485);
+@@ -1494,7 +1494,7 @@ static int uart_set_rs485_config(struct tty_struct *tty, struct uart_port *port,
  	uart_set_rs485_termination(port, &rs485);
+ 	uart_set_rs485_rx_during_tx(port, &rs485);
  
 -	spin_lock_irqsave(&port->lock, flags);
 +	uart_port_lock_irqsave(port, &flags);
  	ret = port->rs485_config(port, &tty->termios, &rs485);
  	if (!ret) {
  		port->rs485 = rs485;
-@@ -1474,7 +1474,7 @@ static int uart_set_rs485_config(struct tty_struct *tty, struct uart_port *port,
+@@ -1503,7 +1503,7 @@ static int uart_set_rs485_config(struct tty_struct *tty, struct uart_port *port,
  		if (!(rs485.flags & SER_RS485_ENABLED))
  			port->ops->set_mctrl(port, port->mctrl);
  	}
 -	spin_unlock_irqrestore(&port->lock, flags);
 +	uart_port_unlock_irqrestore(port, flags);
- 	if (ret)
- 		return ret;
- 
-@@ -1493,9 +1493,9 @@ static int uart_get_iso7816_config(struct uart_port *port,
+ 	if (ret) {
+ 		/* restore old GPIO settings */
+ 		gpiod_set_value_cansleep(port->rs485_term_gpio,
+@@ -1528,9 +1528,9 @@ static int uart_get_iso7816_config(struct uart_port *port,
  	if (!port->iso7816_config)
  		return -ENOTTY;
  
@@ -7577,7 +7478,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  
  	if (copy_to_user(iso7816, &aux, sizeof(aux)))
  		return -EFAULT;
-@@ -1524,9 +1524,9 @@ static int uart_set_iso7816_config(struct uart_port *port,
+@@ -1559,9 +1559,9 @@ static int uart_set_iso7816_config(struct uart_port *port,
  		if (iso7816.reserved[i])
  			return -EINVAL;
  
@@ -7589,7 +7490,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  	if (ret)
  		return ret;
  
-@@ -1743,9 +1743,9 @@ static void uart_tty_port_shutdown(struct tty_port *port)
+@@ -1778,9 +1778,9 @@ static void uart_tty_port_shutdown(struct tty_port *port)
  	if (WARN(!uport, "detached port still initialized!\n"))
  		return;
  
@@ -7599,14 +7500,15 @@ index 18b49b1439a5..fa0791ba9773 100644
 -	spin_unlock_irq(&uport->lock);
 +	uart_port_unlock_irq(uport);
  
+ 	serial_base_port_shutdown(uport);
  	uart_port_shutdown(port);
- 
-@@ -1759,10 +1759,10 @@ static void uart_tty_port_shutdown(struct tty_port *port)
+@@ -1795,11 +1795,11 @@ static void uart_tty_port_shutdown(struct tty_port *port)
  	/*
  	 * Free the transmit buffer.
  	 */
 -	spin_lock_irq(&uport->lock);
 +	uart_port_lock_irq(uport);
+ 	uart_circ_clear(&state->xmit);
  	buf = state->xmit.buf;
  	state->xmit.buf = NULL;
 -	spin_unlock_irq(&uport->lock);
@@ -7614,7 +7516,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  
  	free_page((unsigned long)buf);
  
-@@ -1905,10 +1905,10 @@ static bool uart_carrier_raised(struct tty_port *port)
+@@ -1942,10 +1942,10 @@ static bool uart_carrier_raised(struct tty_port *port)
  	 */
  	if (WARN_ON(!uport))
  		return true;
@@ -7627,7 +7529,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  	uart_port_deref(uport);
  
  	return mctrl & TIOCM_CAR;
-@@ -2025,9 +2025,9 @@ static void uart_line_info(struct seq_file *m, struct uart_driver *drv, int i)
+@@ -2062,9 +2062,9 @@ static void uart_line_info(struct seq_file *m, struct uart_driver *drv, int i)
  		pm_state = state->pm_state;
  		if (pm_state != UART_PM_STATE_ON)
  			uart_change_pm(state, UART_PM_STATE_ON);
@@ -7639,7 +7541,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  		if (pm_state != UART_PM_STATE_ON)
  			uart_change_pm(state, pm_state);
  
-@@ -2366,9 +2366,9 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+@@ -2403,9 +2403,9 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
  	 */
  	if (!console_suspend_enabled && uart_console(uport)) {
  		if (uport->ops->start_rx) {
@@ -7651,7 +7553,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  		}
  		goto unlock;
  	}
-@@ -2383,7 +2383,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+@@ -2420,7 +2420,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
  		tty_port_set_suspended(port, true);
  		tty_port_set_initialized(port, false);
  
@@ -7660,7 +7562,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  		ops->stop_tx(uport);
  		if (!(uport->rs485.flags & SER_RS485_ENABLED))
  			ops->set_mctrl(uport, 0);
-@@ -2391,7 +2391,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
+@@ -2428,7 +2428,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
  		mctrl = uport->mctrl;
  		uport->mctrl = 0;
  		ops->stop_rx(uport);
@@ -7669,7 +7571,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  
  		/*
  		 * Wait for the transmitter to empty.
-@@ -2463,9 +2463,9 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+@@ -2500,9 +2500,9 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
  			uart_change_pm(state, UART_PM_STATE_ON);
  		uport->ops->set_termios(uport, &termios, NULL);
  		if (!console_suspend_enabled && uport->ops->start_rx) {
@@ -7681,7 +7583,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  		}
  		if (console_suspend_enabled)
  			console_start(uport->cons);
-@@ -2476,10 +2476,10 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+@@ -2513,10 +2513,10 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
  		int ret;
  
  		uart_change_pm(state, UART_PM_STATE_ON);
@@ -7694,7 +7596,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  		if (console_suspend_enabled || !uart_console(uport)) {
  			/* Protected by port mutex for now */
  			struct tty_struct *tty = port->tty;
-@@ -2489,11 +2489,11 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
+@@ -2526,11 +2526,11 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
  				if (tty)
  					uart_change_line_settings(tty, state, NULL);
  				uart_rs485_config(uport);
@@ -7708,7 +7610,7 @@ index 18b49b1439a5..fa0791ba9773 100644
  				tty_port_set_initialized(port, true);
  			} else {
  				/*
-@@ -2596,11 +2596,11 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
+@@ -2642,11 +2642,11 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
  		 * keep the DTR setting that is set in uart_set_options()
  		 * We probably don't need a spinlock around this, but
  		 */
@@ -7745,17 +7647,21 @@ index 7d5aaa8d422b..e51ca593ab86 100644
  	return IRQ_HANDLED;
  }
 diff --git a/drivers/tty/serial/serial_port.c b/drivers/tty/serial/serial_port.c
-index 862423237007..88975a4df306 100644
+index 469ad26cde48..66fd117d8aea 100644
 --- a/drivers/tty/serial/serial_port.c
 +++ b/drivers/tty/serial/serial_port.c
-@@ -35,10 +35,10 @@ static int serial_port_runtime_resume(struct device *dev)
+@@ -38,14 +38,14 @@ static int serial_port_runtime_resume(struct device *dev)
  		goto out;
  
  	/* Flush any pending TX for the port */
 -	spin_lock_irqsave(&port->lock, flags);
 +	uart_port_lock_irqsave(port, &flags);
+ 	if (!port_dev->tx_enabled)
+ 		goto unlock;
  	if (__serial_port_busy(port))
  		port->ops->start_tx(port);
+ 
+ unlock:
 -	spin_unlock_irqrestore(&port->lock, flags);
 +	uart_port_unlock_irqrestore(port, flags);
  
@@ -7860,7 +7766,7 @@ index be08fb6f749c..eaa980722455 100644
  
  static void
 diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index a560b729fa3b..84ab434c94ba 100644
+index f793624fd501..2559c97812fa 100644
 --- a/drivers/tty/serial/sh-sci.c
 +++ b/drivers/tty/serial/sh-sci.c
 @@ -1205,7 +1205,7 @@ static void sci_dma_tx_complete(void *arg)
@@ -7881,7 +7787,7 @@ index a560b729fa3b..84ab434c94ba 100644
  }
  
  /* Locking: called with port lock held */
-@@ -1320,7 +1320,7 @@ static void sci_dma_rx_complete(void *arg)
+@@ -1325,7 +1325,7 @@ static void sci_dma_rx_complete(void *arg)
  	dev_dbg(port->dev, "%s(%d) active cookie %d\n", __func__, port->line,
  		s->active_rx);
  
@@ -7890,7 +7796,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	active = sci_dma_rx_find_active(s);
  	if (active >= 0)
-@@ -1347,20 +1347,20 @@ static void sci_dma_rx_complete(void *arg)
+@@ -1352,20 +1352,20 @@ static void sci_dma_rx_complete(void *arg)
  
  	dma_async_issue_pending(chan);
  
@@ -7915,7 +7821,7 @@ index a560b729fa3b..84ab434c94ba 100644
  }
  
  static void sci_dma_tx_release(struct sci_port *s)
-@@ -1409,13 +1409,13 @@ static int sci_dma_rx_submit(struct sci_port *s, bool port_lock_held)
+@@ -1414,13 +1414,13 @@ static int sci_dma_rx_submit(struct sci_port *s, bool port_lock_held)
  fail:
  	/* Switch to PIO */
  	if (!port_lock_held)
@@ -7931,7 +7837,7 @@ index a560b729fa3b..84ab434c94ba 100644
  	return -EAGAIN;
  }
  
-@@ -1437,14 +1437,14 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+@@ -1442,14 +1442,14 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
  	 * transmit till the end, and then the rest. Take the port lock to get a
  	 * consistent xmit buffer state.
  	 */
@@ -7948,7 +7854,7 @@ index a560b729fa3b..84ab434c94ba 100644
  		return;
  	}
  
-@@ -1452,7 +1452,7 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+@@ -1457,7 +1457,7 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
  					   DMA_MEM_TO_DEV,
  					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
  	if (!desc) {
@@ -7957,7 +7863,7 @@ index a560b729fa3b..84ab434c94ba 100644
  		dev_warn(port->dev, "Failed preparing Tx DMA descriptor\n");
  		goto switch_to_pio;
  	}
-@@ -1464,12 +1464,12 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+@@ -1469,12 +1469,12 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
  	desc->callback_param = s;
  	s->cookie_tx = dmaengine_submit(desc);
  	if (dma_submit_error(s->cookie_tx)) {
@@ -7972,7 +7878,7 @@ index a560b729fa3b..84ab434c94ba 100644
  	dev_dbg(port->dev, "%s: %p: %d...%d, cookie %d\n",
  		__func__, xmit->buf, tail, head, s->cookie_tx);
  
-@@ -1477,10 +1477,10 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
+@@ -1482,10 +1482,10 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
  	return;
  
  switch_to_pio:
@@ -7985,7 +7891,7 @@ index a560b729fa3b..84ab434c94ba 100644
  	return;
  }
  
-@@ -1497,17 +1497,17 @@ static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
+@@ -1502,17 +1502,17 @@ static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
  
  	dev_dbg(port->dev, "DMA Rx timed out\n");
  
@@ -8006,7 +7912,7 @@ index a560b729fa3b..84ab434c94ba 100644
  		dev_dbg(port->dev, "Cookie %d #%d has already completed\n",
  			s->active_rx, active);
  
-@@ -1525,7 +1525,7 @@ static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
+@@ -1530,7 +1530,7 @@ static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
  	 */
  	status = dmaengine_tx_status(s->chan_rx, s->active_rx, &state);
  	if (status == DMA_COMPLETE) {
@@ -8015,7 +7921,7 @@ index a560b729fa3b..84ab434c94ba 100644
  		dev_dbg(port->dev, "Transaction complete after DMA engine was stopped");
  		return HRTIMER_NORESTART;
  	}
-@@ -1546,7 +1546,7 @@ static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
+@@ -1551,7 +1551,7 @@ static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
  
  	sci_dma_rx_reenable_irq(s);
  
@@ -8024,7 +7930,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	return HRTIMER_NORESTART;
  }
-@@ -1770,9 +1770,9 @@ static irqreturn_t sci_tx_interrupt(int irq, void *ptr)
+@@ -1775,9 +1775,9 @@ static irqreturn_t sci_tx_interrupt(int irq, void *ptr)
  	struct uart_port *port = ptr;
  	unsigned long flags;
  
@@ -8036,7 +7942,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	return IRQ_HANDLED;
  }
-@@ -1786,11 +1786,11 @@ static irqreturn_t sci_tx_end_interrupt(int irq, void *ptr)
+@@ -1791,11 +1791,11 @@ static irqreturn_t sci_tx_end_interrupt(int irq, void *ptr)
  	if (port->type != PORT_SCI)
  		return sci_tx_interrupt(irq, ptr);
  
@@ -8050,7 +7956,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	return IRQ_HANDLED;
  }
-@@ -2187,7 +2187,7 @@ static void sci_break_ctl(struct uart_port *port, int break_state)
+@@ -2192,7 +2192,7 @@ static void sci_break_ctl(struct uart_port *port, int break_state)
  		return;
  	}
  
@@ -8059,7 +7965,7 @@ index a560b729fa3b..84ab434c94ba 100644
  	scsptr = serial_port_in(port, SCSPTR);
  	scscr = serial_port_in(port, SCSCR);
  
-@@ -2201,7 +2201,7 @@ static void sci_break_ctl(struct uart_port *port, int break_state)
+@@ -2206,7 +2206,7 @@ static void sci_break_ctl(struct uart_port *port, int break_state)
  
  	serial_port_out(port, SCSPTR, scsptr);
  	serial_port_out(port, SCSCR, scscr);
@@ -8068,7 +7974,7 @@ index a560b729fa3b..84ab434c94ba 100644
  }
  
  static int sci_startup(struct uart_port *port)
-@@ -2233,7 +2233,7 @@ static void sci_shutdown(struct uart_port *port)
+@@ -2238,7 +2238,7 @@ static void sci_shutdown(struct uart_port *port)
  	s->autorts = false;
  	mctrl_gpio_disable_ms(to_sci_port(port)->gpios);
  
@@ -8077,7 +7983,7 @@ index a560b729fa3b..84ab434c94ba 100644
  	sci_stop_rx(port);
  	sci_stop_tx(port);
  	/*
-@@ -2243,7 +2243,7 @@ static void sci_shutdown(struct uart_port *port)
+@@ -2248,7 +2248,7 @@ static void sci_shutdown(struct uart_port *port)
  	scr = serial_port_in(port, SCSCR);
  	serial_port_out(port, SCSCR, scr &
  			(SCSCR_CKE1 | SCSCR_CKE0 | s->hscif_tot));
@@ -8086,7 +7992,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  #ifdef CONFIG_SERIAL_SH_SCI_DMA
  	if (s->chan_rx_saved) {
-@@ -2545,7 +2545,7 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -2550,7 +2550,7 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
  		serial_port_out(port, SCCKS, sccks);
  	}
  
@@ -8095,7 +8001,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	sci_reset(port);
  
-@@ -2667,7 +2667,7 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
+@@ -2672,7 +2672,7 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
  	if ((termios->c_cflag & CREAD) != 0)
  		sci_start_rx(port);
  
@@ -8104,7 +8010,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	sci_port_disable(s);
  
-@@ -3052,9 +3052,9 @@ static void serial_console_write(struct console *co, const char *s,
+@@ -3057,9 +3057,9 @@ static void serial_console_write(struct console *co, const char *s,
  	if (port->sysrq)
  		locked = 0;
  	else if (oops_in_progress)
@@ -8116,7 +8022,7 @@ index a560b729fa3b..84ab434c94ba 100644
  
  	/* first save SCSCR then disable interrupts, keep clock source */
  	ctrl = serial_port_in(port, SCSCR);
-@@ -3074,7 +3074,7 @@ static void serial_console_write(struct console *co, const char *s,
+@@ -3079,7 +3079,7 @@ static void serial_console_write(struct console *co, const char *s,
  	serial_port_out(port, SCSCR, ctrl);
  
  	if (locked)
@@ -8392,10 +8298,10 @@ index 92b9f6894006..a821f5d76a26 100644
  
  static int asc_console_setup(struct console *co, char *options)
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 5e9cf0c48813..8c51ec9433d6 100644
+index 9ef90bb30a47..b963f9ccb070 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -537,7 +537,7 @@ static void stm32_usart_rx_dma_complete(void *arg)
+@@ -535,7 +535,7 @@ static void stm32_usart_rx_dma_complete(void *arg)
  	unsigned int size;
  	unsigned long flags;
  
@@ -8404,7 +8310,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  	size = stm32_usart_receive_chars(port, false);
  	uart_unlock_and_check_sysrq_irqrestore(port, flags);
  	if (size)
-@@ -643,9 +643,9 @@ static void stm32_usart_tx_dma_complete(void *arg)
+@@ -641,9 +641,9 @@ static void stm32_usart_tx_dma_complete(void *arg)
  	stm32_usart_tx_dma_terminate(stm32port);
  
  	/* Let's see if we have pending data to send */
@@ -8416,7 +8322,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  }
  
  static void stm32_usart_tx_interrupt_enable(struct uart_port *port)
-@@ -889,7 +889,7 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
+@@ -892,7 +892,7 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
  	if (!stm32_port->throttled) {
  		if (((sr & USART_SR_RXNE) && !stm32_usart_rx_dma_started(stm32_port)) ||
  		    ((sr & USART_SR_ERR_MASK) && stm32_usart_rx_dma_started(stm32_port))) {
@@ -8425,7 +8331,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  			size = stm32_usart_receive_chars(port, false);
  			uart_unlock_and_check_sysrq(port);
  			if (size)
-@@ -898,14 +898,14 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
+@@ -902,15 +902,15 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
  	}
  
  	if ((sr & USART_SR_TXE) && !(stm32_port->tx_ch)) {
@@ -8434,6 +8340,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  		stm32_usart_transmit_chars(port);
 -		spin_unlock(&port->lock);
 +		uart_port_unlock(port);
+ 		ret = IRQ_HANDLED;
  	}
  
  	/* Receiver timeout irq for DMA RX */
@@ -8443,7 +8350,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  		size = stm32_usart_receive_chars(port, false);
  		uart_unlock_and_check_sysrq(port);
  		if (size)
-@@ -993,7 +993,7 @@ static void stm32_usart_throttle(struct uart_port *port)
+@@ -999,7 +999,7 @@ static void stm32_usart_throttle(struct uart_port *port)
  	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
  	unsigned long flags;
  
@@ -8452,7 +8359,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  
  	/*
  	 * Pause DMA transfer, so the RX data gets queued into the FIFO.
-@@ -1006,7 +1006,7 @@ static void stm32_usart_throttle(struct uart_port *port)
+@@ -1012,7 +1012,7 @@ static void stm32_usart_throttle(struct uart_port *port)
  		stm32_usart_clr_bits(port, ofs->cr3, stm32_port->cr3_irq);
  
  	stm32_port->throttled = true;
@@ -8461,7 +8368,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  }
  
  /* Unthrottle the remote, the input buffer can now accept data. */
-@@ -1016,7 +1016,7 @@ static void stm32_usart_unthrottle(struct uart_port *port)
+@@ -1022,7 +1022,7 @@ static void stm32_usart_unthrottle(struct uart_port *port)
  	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
  	unsigned long flags;
  
@@ -8470,7 +8377,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  	stm32_usart_set_bits(port, ofs->cr1, stm32_port->cr1_irq);
  	if (stm32_port->cr3_irq)
  		stm32_usart_set_bits(port, ofs->cr3, stm32_port->cr3_irq);
-@@ -1030,7 +1030,7 @@ static void stm32_usart_unthrottle(struct uart_port *port)
+@@ -1036,7 +1036,7 @@ static void stm32_usart_unthrottle(struct uart_port *port)
  	if (stm32_port->rx_ch)
  		stm32_usart_rx_dma_start_or_resume(port);
  
@@ -8479,7 +8386,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  }
  
  /* Receive stop */
-@@ -1158,7 +1158,7 @@ static void stm32_usart_set_termios(struct uart_port *port,
+@@ -1165,7 +1165,7 @@ static void stm32_usart_set_termios(struct uart_port *port,
  
  	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk / 8);
  
@@ -8488,7 +8395,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  
  	ret = readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
  						isr,
-@@ -1349,7 +1349,7 @@ static void stm32_usart_set_termios(struct uart_port *port,
+@@ -1356,7 +1356,7 @@ static void stm32_usart_set_termios(struct uart_port *port,
  	writel_relaxed(cr1, port->membase + ofs->cr1);
  
  	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
@@ -8497,7 +8404,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  
  	/* Handle modem control interrupts */
  	if (UART_ENABLE_MS(port, termios->c_cflag))
-@@ -1399,9 +1399,9 @@ static void stm32_usart_pm(struct uart_port *port, unsigned int state,
+@@ -1406,9 +1406,9 @@ static void stm32_usart_pm(struct uart_port *port, unsigned int state,
  		pm_runtime_get_sync(port->dev);
  		break;
  	case UART_PM_STATE_OFF:
@@ -8509,7 +8416,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  		pm_runtime_put_sync(port->dev);
  		break;
  	}
-@@ -1884,9 +1884,9 @@ static void stm32_usart_console_write(struct console *co, const char *s,
+@@ -1891,9 +1891,9 @@ static void stm32_usart_console_write(struct console *co, const char *s,
  	int locked = 1;
  
  	if (oops_in_progress)
@@ -8521,7 +8428,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  
  	/* Save and disable interrupts, enable the transmitter */
  	old_cr1 = readl_relaxed(port->membase + ofs->cr1);
-@@ -1900,7 +1900,7 @@ static void stm32_usart_console_write(struct console *co, const char *s,
+@@ -1907,7 +1907,7 @@ static void stm32_usart_console_write(struct console *co, const char *s,
  	writel_relaxed(old_cr1, port->membase + ofs->cr1);
  
  	if (locked)
@@ -8530,7 +8437,7 @@ index 5e9cf0c48813..8c51ec9433d6 100644
  }
  
  static int stm32_usart_console_setup(struct console *co, char *options)
-@@ -2035,7 +2035,7 @@ static int __maybe_unused stm32_usart_serial_en_wakeup(struct uart_port *port,
+@@ -2042,7 +2042,7 @@ static int __maybe_unused stm32_usart_serial_en_wakeup(struct uart_port *port,
  		 * low-power mode.
  		 */
  		if (stm32_port->rx_ch) {
@@ -9742,7 +9649,7 @@ index fc53e0ad56d9..448bbef47456 100644
  
  #endif /* _LINUX_BH_H */
 diff --git a/include/linux/console.h b/include/linux/console.h
-index 7de11c763eb3..f8a062867888 100644
+index 7de11c763eb3..1eb9580e9b18 100644
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
 @@ -16,7 +16,9 @@
@@ -9876,7 +9783,7 @@ index 7de11c763eb3..f8a062867888 100644
  };
  
  /**
-@@ -187,6 +296,18 @@ enum cons_flags {
+@@ -187,6 +296,17 @@ enum cons_flags {
   * @dropped:		Number of unreported dropped ringbuffer records
   * @data:		Driver private data
   * @node:		hlist node for the console list
@@ -9888,14 +9795,13 @@ index 7de11c763eb3..f8a062867888 100644
 + * @nbcon_state:	State for nbcon consoles
 + * @nbcon_seq:		Sequence number of the next record for nbcon to print
 + * @pbufs:		Pointer to nbcon private buffer
-+ * @locked_port:	True, if the port lock is locked by nbcon
 + * @kthread:		Printer kthread for this console
 + * @rcuwait:		RCU-safe wait object for @kthread waking
 + * @irq_work:		Defer @kthread waking to IRQ work context
   */
  struct console {
  	char			name[16];
-@@ -206,6 +327,21 @@ struct console {
+@@ -206,6 +326,20 @@ struct console {
  	unsigned long		dropped;
  	void			*data;
  	struct hlist_node	node;
@@ -9910,14 +9816,13 @@ index 7de11c763eb3..f8a062867888 100644
 +	atomic_t		__private nbcon_state;
 +	atomic_long_t		__private nbcon_seq;
 +	struct printk_buffers	*pbufs;
-+	bool			locked_port;
 +	struct task_struct	*kthread;
 +	struct rcuwait		rcuwait;
 +	struct irq_work		irq_work;
  };
  
  #ifdef CONFIG_LOCKDEP
-@@ -332,6 +468,22 @@ static inline bool console_is_registered(const struct console *con)
+@@ -332,6 +466,22 @@ static inline bool console_is_registered(const struct console *con)
  	lockdep_assert_console_list_lock_held();			\
  	hlist_for_each_entry(con, &console_list, node)
  
@@ -10022,36 +9927,8 @@ index b8e60a20416b..ffa5248a90e2 100644
  };
  
  static inline void input_queue_head_incr(struct softnet_data *sd)
-diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-index 9aa6358a1a16..cd16f0330fba 100644
---- a/include/linux/preempt.h
-+++ b/include/linux/preempt.h
-@@ -230,15 +230,21 @@ do { \
- #define preempt_enable() \
- do { \
- 	barrier(); \
--	if (unlikely(preempt_count_dec_and_test())) \
-+	if (unlikely(preempt_count_dec_and_test())) { \
-+		instrumentation_begin(); \
- 		__preempt_schedule(); \
-+		instrumentation_end(); \
-+	} \
- } while (0)
- 
- #define preempt_enable_notrace() \
- do { \
- 	barrier(); \
--	if (unlikely(__preempt_count_dec_and_test())) \
-+	if (unlikely(__preempt_count_dec_and_test())) { \
-+		instrumentation_begin(); \
- 		__preempt_schedule_notrace(); \
-+		instrumentation_end(); \
-+	} \
- } while (0)
- 
- #define preempt_check_resched() \
 diff --git a/include/linux/printk.h b/include/linux/printk.h
-index 8ef499ab3c1e..7a942e987b16 100644
+index e4878bb58f66..ebebc32e78de 100644
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
 @@ -9,6 +9,8 @@
@@ -10258,101 +10135,87 @@ index be65de65fe61..ec46e3b49ee9 100644
  int serial8250_console_exit(struct uart_port *port);
  
 diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index bb6f073bc159..245c11753eff 100644
+index 5da5eb719f61..1694f998c5a9 100644
 --- a/include/linux/serial_core.h
 +++ b/include/linux/serial_core.h
-@@ -588,6 +588,111 @@ struct uart_port {
- 	void			*private_data;		/* generic platform data pointer */
- };
+@@ -489,6 +489,7 @@ struct uart_port {
+ 	struct uart_icount	icount;			/* statistics */
  
-+/**
-+ * uart_port_lock - Lock the UART port
-+ * @up:		Pointer to UART port structure
-+ */
-+static inline void uart_port_lock(struct uart_port *up)
-+{
-+	spin_lock(&up->lock);
+ 	struct console		*cons;			/* struct console, if any */
++	bool			nbcon_locked_port;	/* True, if the port is locked by nbcon */
+ 	/* flags must be updated while holding port mutex */
+ 	upf_t			flags;
+ 
+@@ -596,6 +597,7 @@ struct uart_port {
+ static inline void uart_port_lock(struct uart_port *up)
+ {
+ 	spin_lock(&up->lock);
 +	nbcon_acquire(up);
-+}
-+
-+/**
-+ * uart_port_lock_irq - Lock the UART port and disable interrupts
-+ * @up:		Pointer to UART port structure
-+ */
-+static inline void uart_port_lock_irq(struct uart_port *up)
-+{
-+	spin_lock_irq(&up->lock);
+ }
+ 
+ /**
+@@ -605,6 +607,7 @@ static inline void uart_port_lock(struct uart_port *up)
+ static inline void uart_port_lock_irq(struct uart_port *up)
+ {
+ 	spin_lock_irq(&up->lock);
 +	nbcon_acquire(up);
-+}
-+
-+/**
-+ * uart_port_lock_irqsave - Lock the UART port, save and disable interrupts
-+ * @up:		Pointer to UART port structure
-+ * @flags:	Pointer to interrupt flags storage
-+ */
-+static inline void uart_port_lock_irqsave(struct uart_port *up, unsigned long *flags)
-+{
-+	spin_lock_irqsave(&up->lock, *flags);
+ }
+ 
+ /**
+@@ -615,6 +618,7 @@ static inline void uart_port_lock_irq(struct uart_port *up)
+ static inline void uart_port_lock_irqsave(struct uart_port *up, unsigned long *flags)
+ {
+ 	spin_lock_irqsave(&up->lock, *flags);
 +	nbcon_acquire(up);
-+}
-+
-+/**
-+ * uart_port_trylock - Try to lock the UART port
-+ * @up:		Pointer to UART port structure
-+ *
-+ * Returns: True if lock was acquired, false otherwise
-+ */
-+static inline bool uart_port_trylock(struct uart_port *up)
-+{
+ }
+ 
+ /**
+@@ -625,7 +629,11 @@ static inline void uart_port_lock_irqsave(struct uart_port *up, unsigned long *f
+  */
+ static inline bool uart_port_trylock(struct uart_port *up)
+ {
+-	return spin_trylock(&up->lock);
 +	if (!spin_trylock(&up->lock))
 +		return false;
 +
 +	nbcon_acquire(up);
 +	return true;
-+}
-+
-+/**
-+ * uart_port_trylock_irqsave - Try to lock the UART port, save and disable interrupts
-+ * @up:		Pointer to UART port structure
-+ * @flags:	Pointer to interrupt flags storage
-+ *
-+ * Returns: True if lock was acquired, false otherwise
-+ */
-+static inline bool uart_port_trylock_irqsave(struct uart_port *up, unsigned long *flags)
-+{
+ }
+ 
+ /**
+@@ -637,7 +645,11 @@ static inline bool uart_port_trylock(struct uart_port *up)
+  */
+ static inline bool uart_port_trylock_irqsave(struct uart_port *up, unsigned long *flags)
+ {
+-	return spin_trylock_irqsave(&up->lock, *flags);
 +	if (!spin_trylock_irqsave(&up->lock, *flags))
 +		return false;
 +
 +	nbcon_acquire(up);
 +	return true;
-+}
-+
-+/**
-+ * uart_port_unlock - Unlock the UART port
-+ * @up:		Pointer to UART port structure
-+ */
-+static inline void uart_port_unlock(struct uart_port *up)
-+{
+ }
+ 
+ /**
+@@ -646,6 +658,7 @@ static inline bool uart_port_trylock_irqsave(struct uart_port *up, unsigned long
+  */
+ static inline void uart_port_unlock(struct uart_port *up)
+ {
 +	nbcon_release(up);
-+	spin_unlock(&up->lock);
-+}
-+
-+/**
-+ * uart_port_unlock_irq - Unlock the UART port and re-enable interrupts
-+ * @up:		Pointer to UART port structure
-+ */
-+static inline void uart_port_unlock_irq(struct uart_port *up)
-+{
+ 	spin_unlock(&up->lock);
+ }
+ 
+@@ -655,6 +668,7 @@ static inline void uart_port_unlock(struct uart_port *up)
+  */
+ static inline void uart_port_unlock_irq(struct uart_port *up)
+ {
 +	nbcon_release(up);
-+	spin_unlock_irq(&up->lock);
-+}
-+
-+/**
-+ * uart_port_lock_irqrestore - Unlock the UART port, restore interrupts
-+ * @up:		Pointer to UART port structure
-+ * @flags:	The saved interrupt flags for restore
-+ */
-+static inline void uart_port_unlock_irqrestore(struct uart_port *up, unsigned long flags)
+ 	spin_unlock_irq(&up->lock);
+ }
+ 
+@@ -664,6 +678,19 @@ static inline void uart_port_unlock_irq(struct uart_port *up)
+  * @flags:	The saved interrupt flags for restore
+  */
+ static inline void uart_port_unlock_irqrestore(struct uart_port *up, unsigned long flags)
 +{
 +	nbcon_release(up);
 +	spin_unlock_irqrestore(&up->lock, flags);
@@ -10366,14 +10229,10 @@ index bb6f073bc159..245c11753eff 100644
 +
 +/* Only for use in the console->driver_exit() callback. */
 +static inline void __uart_port_unlock_irqrestore(struct uart_port *up, unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&up->lock, flags);
-+}
-+
- static inline int serial_port_in(struct uart_port *up, int offset)
  {
- 	return up->serial_in(up, offset);
-@@ -956,14 +1061,14 @@ static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
+ 	spin_unlock_irqrestore(&up->lock, flags);
+ }
+@@ -1061,14 +1088,14 @@ static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
  	u8 sysrq_ch;
  
  	if (!port->has_sysrq) {
@@ -10390,7 +10249,7 @@ index bb6f073bc159..245c11753eff 100644
  
  	if (sysrq_ch)
  		handle_sysrq(sysrq_ch);
-@@ -975,14 +1080,14 @@ static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port
+@@ -1080,14 +1107,14 @@ static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port
  	u8 sysrq_ch;
  
  	if (!port->has_sysrq) {
@@ -10407,7 +10266,7 @@ index bb6f073bc159..245c11753eff 100644
  
  	if (sysrq_ch)
  		handle_sysrq(sysrq_ch);
-@@ -998,12 +1103,12 @@ static inline int uart_prepare_sysrq_char(struct uart_port *port, u8 ch)
+@@ -1103,12 +1130,12 @@ static inline int uart_prepare_sysrq_char(struct uart_port *port, u8 ch)
  }
  static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
  {
@@ -10472,7 +10331,7 @@ index 9ea0b28068f4..5ded1450ac1a 100644
  
  #ifndef CONFIG_HAVE_ARCH_WITHIN_STACK_FRAMES
 diff --git a/include/linux/trace_events.h b/include/linux/trace_events.h
-index cf9f0c61796e..bdc1066f977b 100644
+index 696f8dc4aa53..e44b47305235 100644
 --- a/include/linux/trace_events.h
 +++ b/include/linux/trace_events.h
 @@ -178,8 +178,8 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status);
@@ -10546,10 +10405,10 @@ index c2f1fd95a821..0f3d4c2a41cb 100644
  	select PREEMPT_BUILD
  	default y if HAVE_PREEMPT_DYNAMIC_CALL
 diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index d7ee4bc3f2ba..c1f706038637 100644
+index 5ff4f1cd3644..fd42f0b17dec 100644
 --- a/kernel/entry/common.c
 +++ b/kernel/entry/common.c
-@@ -155,7 +155,7 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+@@ -161,7 +161,7 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
  
  		local_irq_enable_exit_to_user(ti_work);
  
@@ -10558,7 +10417,7 @@ index d7ee4bc3f2ba..c1f706038637 100644
  			schedule();
  
  		if (ti_work & _TIF_UPROBE)
-@@ -385,7 +385,7 @@ void raw_irqentry_exit_cond_resched(void)
+@@ -391,7 +391,7 @@ void raw_irqentry_exit_cond_resched(void)
  		rcu_irq_exit_check_preempt();
  		if (IS_ENABLED(CONFIG_DEBUG_ENTRY))
  			WARN_ON_ONCE(!on_thread_stack());
@@ -11028,7 +10887,7 @@ index d1473c624105..c7196de838ed 100644
  			ww_mutex_set_context_fastpath(lock, ww_ctx);
  		return 0;
 diff --git a/kernel/panic.c b/kernel/panic.c
-index ffa037fa777d..9215df21d8c2 100644
+index ef9f9a4e928d..9215df21d8c2 100644
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
 @@ -366,6 +366,8 @@ void panic(const char *fmt, ...)
@@ -11040,23 +10899,15 @@ index ffa037fa777d..9215df21d8c2 100644
  	panic_print_sys_info(false);
  
  	kmsg_dump(KMSG_DUMP_PANIC);
-@@ -442,6 +444,15 @@ void panic(const char *fmt, ...)
- 
- 	/* Do not scroll important messages printed above */
- 	suppress_printk = 1;
-+
-+	/*
-+	 * The final messages may not have been printed if in a context that
-+	 * defers printing (such as NMI) and irq_work is not available.
-+	 * Explicitly flush the kernel log buffer one last time.
-+	 */
-+	console_flush_on_panic(CONSOLE_FLUSH_PENDING);
+@@ -449,6 +451,7 @@ void panic(const char *fmt, ...)
+ 	 * Explicitly flush the kernel log buffer one last time.
+ 	 */
+ 	console_flush_on_panic(CONSOLE_FLUSH_PENDING);
 +	nbcon_atomic_flush_unsafe();
-+
+ 
  	local_irq_enable();
  	for (i = 0; ; i += PANIC_TIMER_STEP) {
- 		touch_softlockup_watchdog();
-@@ -619,6 +630,7 @@ bool oops_may_print(void)
+@@ -627,6 +630,7 @@ bool oops_may_print(void)
   */
  void oops_enter(void)
  {
@@ -11064,7 +10915,7 @@ index ffa037fa777d..9215df21d8c2 100644
  	tracing_off();
  	/* can't trust the integrity of the kernel anymore: */
  	debug_locks_off();
-@@ -641,6 +653,7 @@ void oops_exit(void)
+@@ -649,6 +653,7 @@ void oops_exit(void)
  {
  	do_oops_enter_exit();
  	print_oops_end_marker();
@@ -11072,7 +10923,7 @@ index ffa037fa777d..9215df21d8c2 100644
  	kmsg_dump(KMSG_DUMP_OOPS);
  }
  
-@@ -652,6 +665,8 @@ struct warn_args {
+@@ -660,6 +665,8 @@ struct warn_args {
  void __warn(const char *file, int line, void *caller, unsigned taint,
  	    struct pt_regs *regs, struct warn_args *args)
  {
@@ -11081,7 +10932,7 @@ index ffa037fa777d..9215df21d8c2 100644
  	disable_trace_on_warning();
  
  	if (file)
-@@ -682,6 +697,8 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
+@@ -690,6 +697,8 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
  
  	/* Just a warning, don't kill lockdep. */
  	add_taint(taint, LOCKDEP_STILL_OK);
@@ -11276,10 +11127,10 @@ index 7d4979d5c3ce..7db6992c54f3 100644
 +#endif
 diff --git a/kernel/printk/nbcon.c b/kernel/printk/nbcon.c
 new file mode 100644
-index 000000000000..1b1b585b1675
+index 000000000000..b941039ee7d2
 --- /dev/null
 +++ b/kernel/printk/nbcon.c
-@@ -0,0 +1,1664 @@
+@@ -0,0 +1,1665 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +// Copyright (C) 2022 Linutronix GmbH, John Ogness
 +// Copyright (C) 2022 Intel, Thomas Gleixner
@@ -12363,6 +12214,7 @@ index 000000000000..1b1b585b1675
 +		}
 +
 +		console_srcu_read_unlock(cookie);
++		cond_resched();
 +
 +	} while (backlog);
 +
@@ -12868,7 +12720,7 @@ index 000000000000..1b1b585b1675
 +	if (!uart_is_nbcon(up))
 +		return;
 +
-+	WARN_ON_ONCE(con->locked_port);
++	WARN_ON_ONCE(up->nbcon_locked_port);
 +
 +	do {
 +		do {
@@ -12879,7 +12731,7 @@ index 000000000000..1b1b585b1675
 +
 +	} while (!nbcon_context_enter_unsafe(&ctxt));
 +
-+	con->locked_port = true;
++	up->nbcon_locked_port = true;
 +}
 +EXPORT_SYMBOL_GPL(nbcon_acquire);
 +
@@ -12905,13 +12757,13 @@ index 000000000000..1b1b585b1675
 +		.prio		= NBCON_PRIO_NORMAL,
 +	};
 +
-+	if (!con->locked_port)
++	if (!up->nbcon_locked_port)
 +		return;
 +
 +	if (nbcon_context_exit_unsafe(&ctxt))
 +		nbcon_context_release(&ctxt);
 +
-+	con->locked_port = false;
++	up->nbcon_locked_port = false;
 +}
 +EXPORT_SYMBOL_GPL(nbcon_release);
 +
@@ -12945,7 +12797,7 @@ index 000000000000..1b1b585b1675
 +}
 +device_initcall(printk_init_ops);
 diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 0b3af1529778..ddf79752c80c 100644
+index 0fca282c0a25..249576a8c351 100644
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
 @@ -102,12 +102,6 @@ DEFINE_STATIC_SRCU(console_srcu);
@@ -13060,34 +12912,16 @@ index 0b3af1529778..ddf79752c80c 100644
  /* /dev/kmsg - userspace message inject/listen interface */
  struct devkmsg_user {
  	atomic64_t seq;
-@@ -1848,12 +1889,25 @@ static bool console_waiter;
+@@ -1848,7 +1889,7 @@ static bool console_waiter;
   * there may be a waiter spinning (like a spinlock). Also it must be
   * ready to hand over the lock at the end of the section.
   */
 -static void console_lock_spinning_enable(void)
 +void console_lock_spinning_enable(void)
  {
-+	/*
-+	 * Do not use spinning in panic(). The panic CPU wants to keep the lock.
-+	 * Non-panic CPUs abandon the flush anyway.
-+	 *
-+	 * Just keep the lockdep annotation. The panic-CPU should avoid
-+	 * taking console_owner_lock because it might cause a deadlock.
-+	 * This looks like the easiest way how to prevent false lockdep
-+	 * reports without handling races a lockless way.
-+	 */
-+	if (panic_in_progress())
-+		goto lockdep;
-+
- 	raw_spin_lock(&console_owner_lock);
- 	console_owner = current;
- 	raw_spin_unlock(&console_owner_lock);
- 
-+lockdep:
- 	/* The waiter may spin on us after setting console_owner */
- 	spin_acquire(&console_owner_dep_map, 0, 0, _THIS_IP_);
- }
-@@ -1874,10 +1928,26 @@ static void console_lock_spinning_enable(void)
+ 	/*
+ 	 * Do not use spinning in panic(). The panic CPU wants to keep the lock.
+@@ -1887,7 +1928,7 @@ static void console_lock_spinning_enable(void)
   *
   * Return: 1 if the lock rights were passed, 0 otherwise.
   */
@@ -13096,26 +12930,7 @@ index 0b3af1529778..ddf79752c80c 100644
  {
  	int waiter;
  
-+	/*
-+	 * Ignore spinning waiters during panic() because they might get stopped
-+	 * or blocked at any time,
-+	 *
-+	 * It is safe because nobody is allowed to start spinning during panic
-+	 * in the first place. If there has been a waiter then non panic CPUs
-+	 * might stay spinning. They would get stopped anyway. The panic context
-+	 * will never start spinning and an interrupted spin on panic CPU will
-+	 * never continue.
-+	 */
-+	if (panic_in_progress()) {
-+		/* Keep lockdep happy. */
-+		spin_release(&console_owner_dep_map, _THIS_IP_);
-+		return 0;
-+	}
-+
- 	raw_spin_lock(&console_owner_lock);
- 	waiter = READ_ONCE(console_waiter);
- 	console_owner = NULL;
-@@ -2263,55 +2333,123 @@ int vprintk_store(int facility, int level,
+@@ -2298,54 +2339,123 @@ int vprintk_store(int facility, int level,
  	return ret;
  }
  
@@ -13143,8 +12958,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	if (unlikely(suppress_printk))
  		return 0;
  
--	if (unlikely(suppress_panic_printk) &&
--	    atomic_read(&panic_cpu) != raw_smp_processor_id())
+-	if (unlikely(suppress_panic_printk) && other_cpu_in_panic())
 +	/*
 +	 * The messages on the panic CPU are the most important. If
 +	 * non-panic CPUs are generating any messages, they will be
@@ -13254,7 +13068,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  	return printed_len;
  }
-@@ -2339,6 +2477,14 @@ EXPORT_SYMBOL(_printk);
+@@ -2373,6 +2483,14 @@ EXPORT_SYMBOL(_printk);
  static bool pr_flush(int timeout_ms, bool reset_on_progress);
  static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progress);
  
@@ -13269,7 +13083,7 @@ index 0b3af1529778..ddf79752c80c 100644
  #else /* CONFIG_PRINTK */
  
  #define printk_time		false
-@@ -2349,25 +2495,11 @@ static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progre
+@@ -2383,25 +2501,11 @@ static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progre
  
  static u64 syslog_seq;
  
@@ -13297,7 +13111,7 @@ index 0b3af1529778..ddf79752c80c 100644
  #endif /* CONFIG_PRINTK */
  
  #ifdef CONFIG_EARLY_PRINTK
-@@ -2575,6 +2707,8 @@ void suspend_console(void)
+@@ -2609,6 +2713,8 @@ void suspend_console(void)
  void resume_console(void)
  {
  	struct console *con;
@@ -13306,7 +13120,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  	if (!console_suspend_enabled)
  		return;
-@@ -2591,6 +2725,20 @@ void resume_console(void)
+@@ -2625,6 +2731,20 @@ void resume_console(void)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -13327,7 +13141,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	pr_flush(1000, true);
  }
  
-@@ -2605,7 +2753,8 @@ void resume_console(void)
+@@ -2639,7 +2759,8 @@ void resume_console(void)
   */
  static int console_cpu_notify(unsigned int cpu)
  {
@@ -13337,7 +13151,7 @@ index 0b3af1529778..ddf79752c80c 100644
  		/* If trylock fails, someone else is doing the printing */
  		if (console_trylock())
  			console_unlock();
-@@ -2613,26 +2762,6 @@ static int console_cpu_notify(unsigned int cpu)
+@@ -2647,26 +2768,6 @@ static int console_cpu_notify(unsigned int cpu)
  	return 0;
  }
  
@@ -13364,7 +13178,7 @@ index 0b3af1529778..ddf79752c80c 100644
  /**
   * console_lock - block the console subsystem from printing
   *
-@@ -2682,42 +2811,16 @@ int is_console_locked(void)
+@@ -2716,42 +2817,16 @@ int is_console_locked(void)
  }
  EXPORT_SYMBOL(is_console_locked);
  
@@ -13411,7 +13225,7 @@ index 0b3af1529778..ddf79752c80c 100644
  /*
   * Prepend the message in @pmsg->pbufs->outbuf with a "dropped message". This
   * is achieved by shifting the existing message over and inserting the dropped
-@@ -2732,8 +2835,7 @@ static void __console_unlock(void)
+@@ -2766,8 +2841,7 @@ static void __console_unlock(void)
   *
   * If @pmsg->pbufs->outbuf is modified, @pmsg->outbuf_len is updated.
   */
@@ -13421,7 +13235,7 @@ index 0b3af1529778..ddf79752c80c 100644
  {
  	struct printk_buffers *pbufs = pmsg->pbufs;
  	const size_t scratchbuf_sz = sizeof(pbufs->scratchbuf);
-@@ -2764,9 +2866,6 @@ static void console_prepend_dropped(struct printk_message *pmsg, unsigned long d
+@@ -2798,9 +2872,6 @@ static void console_prepend_dropped(struct printk_message *pmsg, unsigned long d
  	memcpy(outbuf, scratchbuf, len);
  	pmsg->outbuf_len += len;
  }
@@ -13431,7 +13245,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  /*
   * Read and format the specified record (or a later record if the specified
-@@ -2787,11 +2886,9 @@ static void console_prepend_dropped(struct printk_message *pmsg, unsigned long d
+@@ -2821,11 +2892,9 @@ static void console_prepend_dropped(struct printk_message *pmsg, unsigned long d
   * of @pmsg are valid. (See the documentation of struct printk_message
   * for information about the @pmsg fields.)
   */
@@ -13445,7 +13259,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	struct printk_buffers *pbufs = pmsg->pbufs;
  	const size_t scratchbuf_sz = sizeof(pbufs->scratchbuf);
  	const size_t outbuf_sz = sizeof(pbufs->outbuf);
-@@ -2819,17 +2916,6 @@ static bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
+@@ -2853,17 +2922,6 @@ static bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
  	pmsg->seq = r.info->seq;
  	pmsg->dropped = r.info->seq - seq;
  
@@ -13463,7 +13277,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	/* Skip record that has level above the console loglevel. */
  	if (may_suppress && suppress_message_printing(r.info->level))
  		goto out;
-@@ -2846,6 +2932,13 @@ static bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
+@@ -2880,6 +2938,13 @@ static bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
  	return true;
  }
  
@@ -13477,7 +13291,7 @@ index 0b3af1529778..ddf79752c80c 100644
  /*
   * Print one record for the given console. The record printed is whatever
   * record is the next available record for the given console.
-@@ -2863,12 +2956,10 @@ static bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
+@@ -2897,12 +2962,10 @@ static bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
   */
  static bool console_emit_next_record(struct console *con, bool *handover, int cookie)
  {
@@ -13492,7 +13306,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	};
  	unsigned long flags;
  
-@@ -2890,35 +2981,59 @@ static bool console_emit_next_record(struct console *con, bool *handover, int co
+@@ -2924,35 +2987,59 @@ static bool console_emit_next_record(struct console *con, bool *handover, int co
  		con->dropped = 0;
  	}
  
@@ -13572,7 +13386,7 @@ index 0b3af1529778..ddf79752c80c 100644
  /*
   * Print out all remaining records to all consoles.
   *
-@@ -2957,13 +3072,33 @@ static bool console_flush_all(bool do_cond_resched, u64 *next_seq, bool *handove
+@@ -2991,13 +3078,33 @@ static bool console_flush_all(bool do_cond_resched, u64 *next_seq, bool *handove
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(con) {
@@ -13608,7 +13422,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  			/*
  			 * If a handover has occurred, the SRCU read lock
-@@ -2973,8 +3108,8 @@ static bool console_flush_all(bool do_cond_resched, u64 *next_seq, bool *handove
+@@ -3007,8 +3114,8 @@ static bool console_flush_all(bool do_cond_resched, u64 *next_seq, bool *handove
  				return false;
  
  			/* Track the next of the highest seq flushed. */
@@ -13619,7 +13433,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  			if (!progress)
  				continue;
-@@ -2997,19 +3132,7 @@ static bool console_flush_all(bool do_cond_resched, u64 *next_seq, bool *handove
+@@ -3031,19 +3138,7 @@ static bool console_flush_all(bool do_cond_resched, u64 *next_seq, bool *handove
  	return false;
  }
  
@@ -13640,7 +13454,7 @@ index 0b3af1529778..ddf79752c80c 100644
  {
  	bool do_cond_resched;
  	bool handover;
-@@ -3053,6 +3176,32 @@ void console_unlock(void)
+@@ -3087,6 +3182,32 @@ void console_unlock(void)
  		 */
  	} while (prb_read_valid(prb, next_seq, NULL) && console_trylock());
  }
@@ -13673,7 +13487,7 @@ index 0b3af1529778..ddf79752c80c 100644
  EXPORT_SYMBOL(console_unlock);
  
  /**
-@@ -3163,6 +3312,7 @@ void console_flush_on_panic(enum con_flush_mode mode)
+@@ -3197,6 +3318,7 @@ void console_flush_on_panic(enum con_flush_mode mode)
  
  	if (mode == CONSOLE_REPLAY_ALL) {
  		struct console *c;
@@ -13681,7 +13495,7 @@ index 0b3af1529778..ddf79752c80c 100644
  		int cookie;
  		u64 seq;
  
-@@ -3170,16 +3320,25 @@ void console_flush_on_panic(enum con_flush_mode mode)
+@@ -3204,16 +3326,25 @@ void console_flush_on_panic(enum con_flush_mode mode)
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(c) {
@@ -13713,7 +13527,7 @@ index 0b3af1529778..ddf79752c80c 100644
  }
  
  /*
-@@ -3236,13 +3395,122 @@ EXPORT_SYMBOL(console_stop);
+@@ -3270,13 +3401,122 @@ EXPORT_SYMBOL(console_stop);
  
  void console_start(struct console *console)
  {
@@ -13836,7 +13650,7 @@ index 0b3af1529778..ddf79752c80c 100644
  static int __read_mostly keep_bootcon;
  
  static int __init keep_bootcon_setup(char *str)
-@@ -3326,11 +3594,6 @@ static void try_enable_default_console(struct console *newcon)
+@@ -3375,11 +3615,6 @@ static void try_enable_default_console(struct console *newcon)
  		newcon->flags |= CON_CONSDEV;
  }
  
@@ -13848,7 +13662,7 @@ index 0b3af1529778..ddf79752c80c 100644
  static void console_init_seq(struct console *newcon, bool bootcon_registered)
  {
  	struct console *con;
-@@ -3379,11 +3642,20 @@ static void console_init_seq(struct console *newcon, bool bootcon_registered)
+@@ -3428,11 +3663,20 @@ static void console_init_seq(struct console *newcon, bool bootcon_registered)
  
  				newcon->seq = prb_next_seq(prb);
  				for_each_console(con) {
@@ -13873,7 +13687,7 @@ index 0b3af1529778..ddf79752c80c 100644
  				}
  			}
  
-@@ -3444,6 +3716,15 @@ void register_console(struct console *newcon)
+@@ -3493,6 +3737,15 @@ void register_console(struct console *newcon)
  		goto unlock;
  	}
  
@@ -13889,7 +13703,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	/*
  	 * See if we want to enable this console driver by default.
  	 *
-@@ -3471,8 +3752,11 @@ void register_console(struct console *newcon)
+@@ -3520,8 +3773,11 @@ void register_console(struct console *newcon)
  		err = try_enable_preferred_console(newcon, false);
  
  	/* printk() messages are not printed to the Braille console. */
@@ -13902,7 +13716,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  	/*
  	 * If we have a bootconsole, and are switching to a real console,
-@@ -3488,6 +3772,17 @@ void register_console(struct console *newcon)
+@@ -3537,6 +3793,17 @@ void register_console(struct console *newcon)
  	newcon->dropped = 0;
  	console_init_seq(newcon, bootcon_registered);
  
@@ -13920,7 +13734,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	/*
  	 * Put this console in the list - keep the
  	 * preferred driver at the head of the list.
-@@ -3540,6 +3835,11 @@ EXPORT_SYMBOL(register_console);
+@@ -3589,6 +3856,11 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -13932,7 +13746,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	int res;
  
  	lockdep_assert_console_list_lock_held();
-@@ -3579,11 +3879,50 @@ static int unregister_console_locked(struct console *console)
+@@ -3628,11 +3900,50 @@ static int unregister_console_locked(struct console *console)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -13983,7 +13797,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	return res;
  }
  
-@@ -3728,69 +4067,94 @@ late_initcall(printk_late_init);
+@@ -3777,69 +4088,94 @@ late_initcall(printk_late_init);
  /* If @con is specified, only wait for that console. Otherwise wait for all. */
  static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progress)
  {
@@ -14105,7 +13919,7 @@ index 0b3af1529778..ddf79752c80c 100644
  
  		last_diff = diff;
  	}
-@@ -3831,9 +4195,16 @@ static void wake_up_klogd_work_func(struct irq_work *irq_work)
+@@ -3880,9 +4216,16 @@ static void wake_up_klogd_work_func(struct irq_work *irq_work)
  	int pending = this_cpu_xchg(printk_pending, 0);
  
  	if (pending & PRINTK_PENDING_OUTPUT) {
@@ -14125,7 +13939,7 @@ index 0b3af1529778..ddf79752c80c 100644
  	}
  
  	if (pending & PRINTK_PENDING_WAKEUP)
-@@ -3901,11 +4272,16 @@ void defer_console_output(void)
+@@ -3950,11 +4293,16 @@ void defer_console_output(void)
  	 * New messages may have been added directly to the ringbuffer
  	 * using vprintk_store(), so wake any waiters as well.
  	 */
@@ -14773,10 +14587,10 @@ index 6d10927a07d8..8d9408d653de 100644
  {
  #ifdef CONFIG_KGDB_KDB
 diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index ade42d6a9d9b..eebb9b4548fb 100644
+index 781146600aa4..7ee1c84b52ee 100644
 --- a/kernel/rcu/rcutorture.c
 +++ b/kernel/rcu/rcutorture.c
-@@ -2408,6 +2408,12 @@ static int rcutorture_booster_init(unsigned int cpu)
+@@ -2409,6 +2409,12 @@ static int rcutorture_booster_init(unsigned int cpu)
  		WARN_ON_ONCE(!t);
  		sp.sched_priority = 2;
  		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
@@ -14790,7 +14604,7 @@ index ade42d6a9d9b..eebb9b4548fb 100644
  
  	/* Don't allow time recalculation while creating a new task. */
 diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index e09f4f624261..3114830489ef 100644
+index 11a1fac3a589..6f085a159fca 100644
 --- a/kernel/rcu/tree_stall.h
 +++ b/kernel/rcu/tree_stall.h
 @@ -8,6 +8,7 @@
@@ -14801,7 +14615,7 @@ index e09f4f624261..3114830489ef 100644
  
  //////////////////////////////////////////////////////////////////////////////
  //
-@@ -603,6 +604,8 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
+@@ -604,6 +605,8 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
  	if (rcu_stall_is_suppressed())
  		return;
  
@@ -14810,7 +14624,7 @@ index e09f4f624261..3114830489ef 100644
  	/*
  	 * OK, time to rat on our buddy...
  	 * See Documentation/RCU/stallwarn.rst for info on how to debug
-@@ -657,6 +660,8 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
+@@ -658,6 +661,8 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
  	panic_on_rcu_stall();
  
  	rcu_force_quiescent_state();  /* Kick them all. */
@@ -14820,7 +14634,7 @@ index e09f4f624261..3114830489ef 100644
  
  static void print_cpu_stall(unsigned long gps)
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index a854b71836dd..7609a0a40569 100644
+index dcb30e304871..92ded5b2ab6d 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -898,14 +898,15 @@ static inline void hrtick_rq_init(struct rq *rq)
@@ -15092,10 +14906,10 @@ index 4c3d0d9f3db6..63e19b89c8c3 100644
  }
  late_initcall(sched_init_debug);
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index d336af9cba13..cf1584dd9c2e 100644
+index 01b3fc97ddc2..1e499b4e3c78 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -1016,8 +1016,10 @@ static void clear_buddies(struct cfs_rq *cfs_rq, struct sched_entity *se);
+@@ -1022,8 +1022,10 @@ static void clear_buddies(struct cfs_rq *cfs_rq, struct sched_entity *se);
   * XXX: strictly: vd_i += N*r_i/w_i such that: vd_i > ve_i
   * this is probably good enough.
   */
@@ -15107,7 +14921,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  	if ((s64)(se->vruntime - se->deadline) < 0)
  		return;
  
-@@ -1036,10 +1038,19 @@ static void update_deadline(struct cfs_rq *cfs_rq, struct sched_entity *se)
+@@ -1042,10 +1044,19 @@ static void update_deadline(struct cfs_rq *cfs_rq, struct sched_entity *se)
  	/*
  	 * The task has consumed its request, reschedule.
  	 */
@@ -15130,7 +14944,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  }
  
  #include "pelt.h"
-@@ -1147,7 +1158,7 @@ static void update_tg_load_avg(struct cfs_rq *cfs_rq)
+@@ -1153,7 +1164,7 @@ static void update_tg_load_avg(struct cfs_rq *cfs_rq)
  /*
   * Update the current task's runtime statistics.
   */
@@ -15139,7 +14953,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  {
  	struct sched_entity *curr = cfs_rq->curr;
  	u64 now = rq_clock_task(rq_of(cfs_rq));
-@@ -1174,7 +1185,7 @@ static void update_curr(struct cfs_rq *cfs_rq)
+@@ -1180,7 +1191,7 @@ static void update_curr(struct cfs_rq *cfs_rq)
  	schedstat_add(cfs_rq->exec_clock, delta_exec);
  
  	curr->vruntime += calc_delta_fair(delta_exec, curr);
@@ -15148,7 +14962,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  	update_min_vruntime(cfs_rq);
  
  	if (entity_is_task(curr)) {
-@@ -1188,6 +1199,11 @@ static void update_curr(struct cfs_rq *cfs_rq)
+@@ -1194,6 +1205,11 @@ static void update_curr(struct cfs_rq *cfs_rq)
  	account_cfs_rq_runtime(cfs_rq, delta_exec);
  }
  
@@ -15160,7 +14974,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  static void update_curr_fair(struct rq *rq)
  {
  	update_curr(cfs_rq_of(&rq->curr->se));
-@@ -5398,7 +5414,7 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
+@@ -5404,7 +5420,7 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
  	/*
  	 * Update run-time statistics of the 'current'.
  	 */
@@ -15169,7 +14983,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  
  	/*
  	 * Ensure that runnable average is periodically updated.
-@@ -5412,7 +5428,7 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
+@@ -5418,7 +5434,7 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
  	 * validating it and just reschedule.
  	 */
  	if (queued) {
@@ -15178,7 +14992,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  		return;
  	}
  	/*
-@@ -5558,7 +5574,7 @@ static void __account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
+@@ -5564,7 +5580,7 @@ static void __account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
  	 * hierarchy can be throttled
  	 */
  	if (!assign_cfs_rq_runtime(cfs_rq) && likely(cfs_rq->curr))
@@ -15187,7 +15001,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  }
  
  static __always_inline
-@@ -5818,7 +5834,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+@@ -5824,7 +5840,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
  
  	/* Determine whether we need to wake up potentially idle CPU: */
  	if (rq->curr == rq->idle && rq->cfs.nr_running)
@@ -15196,7 +15010,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  }
  
  #ifdef CONFIG_SMP
-@@ -6523,7 +6539,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
+@@ -6529,7 +6545,7 @@ static void hrtick_start_fair(struct rq *rq, struct task_struct *p)
  
  		if (delta < 0) {
  			if (task_current(rq, p))
@@ -15205,7 +15019,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -8175,7 +8191,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
+@@ -8207,7 +8223,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	 * prevents us from potentially nominating it as a false LAST_BUDDY
  	 * below.
  	 */
@@ -15214,7 +15028,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  		return;
  
  	/* Idle tasks are by definition preempted by non-idle tasks. */
-@@ -8217,7 +8233,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
+@@ -8249,7 +8265,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	return;
  
  preempt:
@@ -15223,7 +15037,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  }
  
  #ifdef CONFIG_SMP
-@@ -12374,7 +12390,7 @@ static inline void task_tick_core(struct rq *rq, struct task_struct *curr)
+@@ -12401,7 +12417,7 @@ static inline void task_tick_core(struct rq *rq, struct task_struct *curr)
  	 */
  	if (rq->core->core_forceidle_count && rq->cfs.nr_running == 1 &&
  	    __entity_slice_used(&curr->se, MIN_NR_TASKS_DURING_FORCEIDLE))
@@ -15232,7 +15046,7 @@ index d336af9cba13..cf1584dd9c2e 100644
  }
  
  /*
-@@ -12539,7 +12555,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
+@@ -12566,7 +12582,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)
@@ -15266,10 +15080,10 @@ index 5007b25c5bc6..95e1b3df1400 100644
  	raw_local_irq_disable();
  
 diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 904dd8534597..563161845e79 100644
+index 4ac36eb4cdee..acd1510e8d47 100644
 --- a/kernel/sched/rt.c
 +++ b/kernel/sched/rt.c
-@@ -2249,8 +2249,11 @@ static int rto_next_cpu(struct root_domain *rd)
+@@ -2253,8 +2253,11 @@ static int rto_next_cpu(struct root_domain *rd)
  
  		rd->rto_cpu = cpu;
  
@@ -15283,10 +15097,10 @@ index 904dd8534597..563161845e79 100644
  		rd->rto_cpu = -1;
  
 diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 04846272409c..c4307934af6b 100644
+index 35c38daa2d3e..5c976c7dcc91 100644
 --- a/kernel/sched/sched.h
 +++ b/kernel/sched/sched.h
-@@ -2435,6 +2435,7 @@ extern void init_sched_fair_class(void);
+@@ -2437,6 +2437,7 @@ extern void init_sched_fair_class(void);
  extern void reweight_task(struct task_struct *p, int prio);
  
  extern void resched_curr(struct rq *rq);
@@ -15340,7 +15154,7 @@ index 09019017d669..b71026341056 100644
  	cgroup_leave_frozen(true);
  
 diff --git a/kernel/softirq.c b/kernel/softirq.c
-index 210cf5f8d92c..cae0ae2e2b0b 100644
+index bd9716d7bb63..2fde8af88e48 100644
 --- a/kernel/softirq.c
 +++ b/kernel/softirq.c
 @@ -247,6 +247,19 @@ void __local_bh_enable_ip(unsigned long ip, unsigned int cnt)
@@ -15363,7 +15177,7 @@ index 210cf5f8d92c..cae0ae2e2b0b 100644
  /*
   * Invoked from ksoftirqd_run() outside of the interrupt disabled section
   * to acquire the per CPU local lock for reentrancy protection.
-@@ -619,6 +632,24 @@ static inline void tick_irq_exit(void)
+@@ -623,6 +636,24 @@ static inline void tick_irq_exit(void)
  #endif
  }
  
@@ -15388,7 +15202,7 @@ index 210cf5f8d92c..cae0ae2e2b0b 100644
  static inline void __irq_exit_rcu(void)
  {
  #ifndef __ARCH_IRQ_EXIT_IRQS_DISABLED
-@@ -631,6 +662,10 @@ static inline void __irq_exit_rcu(void)
+@@ -635,6 +666,10 @@ static inline void __irq_exit_rcu(void)
  	if (!in_interrupt() && local_softirq_pending())
  		invoke_softirq();
  
@@ -15399,7 +15213,7 @@ index 210cf5f8d92c..cae0ae2e2b0b 100644
  	tick_irq_exit();
  }
  
-@@ -963,12 +998,70 @@ static struct smp_hotplug_thread softirq_threads = {
+@@ -967,12 +1002,70 @@ static struct smp_hotplug_thread softirq_threads = {
  	.thread_comm		= "ksoftirqd/%u",
  };
  
@@ -15472,10 +15286,10 @@ index 210cf5f8d92c..cae0ae2e2b0b 100644
  }
  early_initcall(spawn_ksoftirqd);
 diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 760793998cdd..9f4d7ab03e39 100644
+index edb0f821dcea..a7290012179a 100644
 --- a/kernel/time/hrtimer.c
 +++ b/kernel/time/hrtimer.c
-@@ -1808,7 +1808,7 @@ void hrtimer_interrupt(struct clock_event_device *dev)
+@@ -1809,7 +1809,7 @@ void hrtimer_interrupt(struct clock_event_device *dev)
  	if (!ktime_before(now, cpu_base->softirq_expires_next)) {
  		cpu_base->softirq_expires_next = KTIME_MAX;
  		cpu_base->softirq_activated = 1;
@@ -15484,7 +15298,7 @@ index 760793998cdd..9f4d7ab03e39 100644
  	}
  
  	__hrtimer_run_queues(cpu_base, now, flags, HRTIMER_ACTIVE_HARD);
-@@ -1921,7 +1921,7 @@ void hrtimer_run_queues(void)
+@@ -1922,7 +1922,7 @@ void hrtimer_run_queues(void)
  	if (!ktime_before(now, cpu_base->softirq_expires_next)) {
  		cpu_base->softirq_expires_next = KTIME_MAX;
  		cpu_base->softirq_activated = 1;
@@ -15494,7 +15308,7 @@ index 760793998cdd..9f4d7ab03e39 100644
  
  	__hrtimer_run_queues(cpu_base, now, flags, HRTIMER_ACTIVE_HARD);
 diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index 5cbd0cee83c0..2d7036714c81 100644
+index 55cbc49f70d1..1a0ed106b192 100644
 --- a/kernel/time/tick-sched.c
 +++ b/kernel/time/tick-sched.c
 @@ -795,7 +795,7 @@ static void tick_nohz_restart(struct tick_sched *ts, ktime_t now)
@@ -15538,10 +15352,10 @@ index 63a8ce7177dd..b3fbe97d1e34 100644
  
  /*
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index fc00356a5a0a..5e1752c747d4 100644
+index fd398af792b4..03653fcb3ee3 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -2694,6 +2694,8 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
+@@ -2708,6 +2708,8 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
  
  	if (tif_need_resched())
  		trace_flags |= TRACE_FLAG_NEED_RESCHED;
@@ -15587,7 +15401,7 @@ index 3b7d3e9eb6ea..5a4fefbc0856 100644
  		need_resched = 'p';
  		break;
 diff --git a/net/core/dev.c b/net/core/dev.c
-index e480afb50d4c..227338b8cda8 100644
+index 5a5bd339f11e..8f193d7b8b41 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -4705,15 +4705,6 @@ static void rps_trigger_softirq(void *data)
@@ -15639,7 +15453,7 @@ index e480afb50d4c..227338b8cda8 100644
  static int napi_threaded_poll(void *data)
  {
  	struct napi_struct *napi = data;
-@@ -11606,7 +11623,11 @@ static int __init net_dev_init(void)
+@@ -11619,7 +11636,11 @@ static int __init net_dev_init(void)
  		INIT_CSD(&sd->csd, rps_trigger_softirq, sd);
  		sd->cpu = i;
  #endif
@@ -15652,10 +15466,10 @@ index e480afb50d4c..227338b8cda8 100644
  
  		init_gro_hash(&sd->backlog);
 diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 011d69029112..9a9fbe18bf2f 100644
+index f0a9ef1aeaa2..682175af439d 100644
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -6844,8 +6844,13 @@ nodefer:	__kfree_skb(skb);
+@@ -6863,8 +6863,13 @@ nodefer:	__kfree_skb(skb);
  	/* Make sure to trigger NET_RX_SOFTIRQ on the remote CPU
  	 * if we are unlucky enough (this seems very unlikely).
  	 */

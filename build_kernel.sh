@@ -175,24 +175,27 @@ fi
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} == "6.9" ]; then
+    if [ ${KERNEL_BASE_VER} == "6.10" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.10-rc6-rt11.patch .;
+        patch -p1 < ./patch-6.10-rc6-rt11.patch;
+    elif [ ${KERNEL_BASE_VER} == "6.9" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.9-rt5.patch .;
         patch -p1 < ./patch-6.9-rt5.patch;
     elif [ ${KERNEL_BASE_VER} == "6.6" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.14-rt21.patch .;
-        patch -p1 < ./patch-6.6.14-rt21.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.36-rt35.patch .;
+        patch -p1 < ./patch-6.6.36-rt35.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.75-rt23.patch .;
-        patch -p1 < ./patch-6.1.75-rt23.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.96-rt35.patch .;
+        patch -p1 < ./patch-6.1.96-rt35.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.145-rt73.patch .;
-        patch -p1 < ./patch-5.15.145-rt73.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.160-rt77.patch .;
+        patch -p1 < ./patch-5.15.160-rt77.patch;
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.209-rt101.patch .;
-        patch -p1 < ./patch-5.10.209-rt101.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.219-rt111.patch .;
+        patch -p1 < ./patch-5.10.219-rt111.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.264-rt88.patch .;
-        patch -p1 < ./patch-5.4.264-rt88.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.278-rt91.patch .;
+        patch -p1 < ./patch-5.4.278-rt91.patch;
     fi
 fi
 
