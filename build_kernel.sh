@@ -230,9 +230,6 @@ if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest rc
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-v2-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
-    echo "*** Copying and applying perf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/perf-patches-v3-all/*.patch .;
-    patch -p1 < ./0001-perf-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/pf-patches-v12/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
@@ -290,9 +287,6 @@ elif [ ${KERNEL_BASE_VER} == "6.9" ]; then  # Latest mainline
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v3-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
-    echo "*** Copying and applying perf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/perf-patches-v3-all/*.patch .;
-    patch -p1 < ./0001-perf-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v20/*.patch .;
     patch -p1 < ./0001-pf-patches.patch;
