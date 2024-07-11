@@ -52,12 +52,6 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
   VBOX_SUPPORT			Add support for VirtualBox (default: no)
 ```
 
-### Benchmarks
-
-See [OpenBenchmarking](https://openbenchmarking.org/result/2406165-NE-OSBENCHTE40&sgm=1&ppt=D&shm=1&sgm=1&ppt=D)
-for benchmarks comparing the default Ubuntu 22.04 LTS kernel and the default custom kernel created by this script.
-Spoiler alert: we kicked some serious ass.
-
 ### Building other versions
 
 By default, the latest 6.9 stable kernel will be built with the following:
@@ -87,13 +81,13 @@ To build other versions, you can use the following convention:
 6.6 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.37 KERNEL_SUB_VER=060637 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.39 KERNEL_SUB_VER=060639 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.97 KERNEL_SUB_VER=060197 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.98 KERNEL_SUB_VER=060198 ./build_kernel.sh
 ```
 
 5.15 LTS:
@@ -209,6 +203,11 @@ Examples of the `nohz_full` setting:
 8. To stay up-to-date with the repo, you can always `git stash` your changes, then run `git pull`, and then run `git stash apply` to apply back your changes.
 
 9. The build script is now yours; not mine. Feel free to make any modifications to it, and have fun.
+
+### Benchmarks
+
+See [OpenBenchmarking](https://openbenchmarking.org/result/2406165-NE-OSBENCHTE40&sgm=1&ppt=D&shm=1&sgm=1&ppt=D)
+for benchmarks comparing the default Ubuntu 22.04 LTS kernel and the default custom kernel created by this script.
 
 ### Script in action
 
