@@ -6,7 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.10 (rc)
+- 6.10 (mainline)
 - 6.9 (stable)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -54,7 +54,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.9 stable kernel will be built with the following:
+By default, the latest 6.10 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless
@@ -81,50 +81,44 @@ To build other versions, you can use the following convention:
 6.6 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.39 KERNEL_SUB_VER=060639 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.43 KERNEL_SUB_VER=060643 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.98 KERNEL_SUB_VER=060198 ./build_kernel.sh
+$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.102 KERNEL_SUB_VER=0601102 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.162 KERNEL_SUB_VER=0515162 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.164 KERNEL_SUB_VER=0515164 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.221 KERNEL_SUB_VER=0510221 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.223 KERNEL_SUB_VER=0510223 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.279 KERNEL_SUB_VER=0504279 ./build_kernel.sh
+$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.281 KERNEL_SUB_VER=0504281 ./build_kernel.sh
 ```
 
 #### Development kernels
 
-6.10-rc6:
+6.11-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10-rc6 KERNEL_SUB_VER=061000rc6 ./build_kernel.sh
+$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.11 KERNEL_PATCH_VER=6.11-rc1 KERNEL_SUB_VER=061100rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
-
-6.7-rt:
-
-```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.7 KERNEL_PATCH_VER=6.7 KERNEL_SUB_VER=060700 ./build_kernel.sh
-```
 
 6.6-rt:
 
