@@ -143,7 +143,13 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     # Deprecated as of 5.4.45 but can still be applied
     # See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
     echo "*** Copying and applying Ubuntu patches... 1/4 ✓";
-    [ ${KERNEL_BASE_VER} == "5.4" ] && KERNEL_BASE_VER_OVERRIDE=5.4 || KERNEL_BASE_VER_OVERRIDE=5.7+;
+    if [ ${KERNEL_BASE_VER} == "5.4" ]; then
+        KERNEL_BASE_VER_OVERRIDE=5.4;
+    elif [ ${KERNEL_BASE_VER} == "6.10" ]; then
+        KERNEL_BASE_VER_OVERRIDE=6.10+;
+    else
+        KERNEL_BASE_VER_OVERRIDE=5.7+;
+    fi
     cp -v ${CUSTOM_PATCH_PATH}/ubuntu-${KERNEL_BASE_VER_OVERRIDE}/*.patch .;
     patch -p1 < ./0001-base-packaging.patch;
     patch -p1 < ./0002-UBUNTU-SAUCE-add-vmlinux.strip-to-BOOT_TARGETS1-on-p.patch;
