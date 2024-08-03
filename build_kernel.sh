@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.10"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.2"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061002"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061003"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -207,8 +207,26 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest mainline
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-sep/*.patch .;
+    patch -p1 < ./0001-x86-cpufeatures-Add-AMD-FAST-CPPC-feature-flag.patch;
+    patch -p1 < ./0002-cpufreq-amd-pstate-change-cpu-freq-transition-delay-.patch;
+    patch -p1 < ./0003-cpufreq-amd-pstate-Allow-users-to-write-default-EPP-.patch;
+    patch -p1 < ./0004-cpufreq-amd-pstate-optimize-the-initial-frequency-va.patch;
+    patch -p1 < ./0005-cpufreq-amd-pstate-remove-unused-variable-nominal_fr.patch;
+    patch -p1 < ./0006-cpufreq-amd-pstate-show-CPPC-debug-message-if-CPPC-i.patch;
+    patch -p1 < ./0007-cpufreq-amd-pstate-add-debug-message-while-CPPC-is-s.patch;
+    patch -p1 < ./0008-Documentation-PM-amd-pstate-add-guided-mode-to-the-O.patch;
+    patch -p1 < ./0009-cpufreq-amd-pstate-switch-boot_cpu_has-to-cpu_featur.patch;
+    patch -p1 < ./0010-cpufreq-amd-pstate-enable-shared-memory-type-CPPC-by.patch;
+    patch -p1 < ./0011-cpufreq-amd-pstate-auto-load-pstate-driver-by-defaul.patch;
+    patch -p1 < ./0012-cpufreq-amd-pstate-fix-setting-policy-current-freque.patch;
+    patch -p1 < ./0013-cpufreq-amd-pstate-Make-amd-pstate-unit-tests-depend.patch;
+    patch -p1 < ./0014-cpufreq-amd-pstate-Don-t-create-attributes-when-regi.patch;
+    patch -p1 < ./0015-cpufreq-simplify-boolean-parsing-with-kstrtobool-in-.patch;
+    patch -p1 < ./0016-cpufreq-acpi-move-MSR_K7_HWCR_CPB_DIS_BIT-into-msr-i.patch;
+    patch -p1 < ./0017-cpufreq-amd-pstate-initialize-core-precision-boost-s.patch;
+    patch -p1 < ./0018-cpufreq-amd-pstate-Cap-the-CPPC.max_perf-to-nominal_.patch;
+    patch -p1 < ./0019-Documentation-cpufreq-amd-pstate-update-doc-for-Per-.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
@@ -238,11 +256,9 @@ if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5/*.patch .;
-    patch -p1 < ./0001-pf-patches.patch;
-    echo "*** Copying and applying steamdeck patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/steamdeck-patches/*.patch .;
-    patch -p1 < ./0001-steamdeck-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5-sep/*.patch .;
+    patch -p1 < ./0001-uas-set-host-status-byte-on-data-completion-error.patch;
+    patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
@@ -265,8 +281,50 @@ if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest mainline
     patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
     if [ ${KERNEL_TYPE} != "rt" ]; then
         echo "*** Copying and applying eevdf patches.. ✓";
-        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/eevdf-patches-v2-all/*.patch .;
-        patch -p1 < ./0001-eevdf-patches.patch;
+        cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/eevdf-patches-v2-sep/*.patch .;
+        patch -p1 < ./0001-sched-syscalls-Split-out-kernel-sched-syscalls.c-fro.patch;
+        patch -p1 < ./0002-sched-Fix-spelling-in-comments.patch;
+        patch -p1 < ./0003-sched-core-Simplify-prefetch_curr_exec_start.patch;
+        patch -p1 < ./0004-sched-core-Clean-up-kernel-sched-sched.h-a-bit.patch;
+        patch -p1 < ./0005-sched-headers-Move-struct-pre-declarations-to-the-be.patch;
+        patch -p1 < ./0006-idle-Remove-stale-RCU-comment.patch;
+        patch -p1 < ./0007-sched-balance-Skip-unnecessary-updates-to-idle-load-.patch;
+        patch -p1 < ./0010-sched-psi-Optimise-psi_group_change-a-bit.patch;
+        patch -p1 < ./0012-sched-Update-MAINTAINERS-and-CREDITS.patch;
+        patch -p1 < ./0013-sched-fair-Make-SCHED_IDLE-entity-be-preempted-in-st.patch;
+        patch -p1 < ./0014-sched-deadline-Comment-sched_dl_entity-dl_server-var.patch;
+        patch -p1 < ./0015-sched-core-Add-clearing-of-dl_server-in-put_prev_tas.patch;
+        patch -p1 < ./0016-sched-core-Clear-prev-dl_server-in-CFS-pick-fast-pat.patch;
+        patch -p1 < ./0017-sched-fair-Add-trivial-fair-server.patch;
+        patch -p1 < ./0018-sched-deadline-Deferrable-dl-server.patch;
+        patch -p1 < ./0019-sched-fair-Fair-server-interface.patch;
+        patch -p1 < ./0020-sched-core-Fix-priority-checking-for-DL-server-picks.patch;
+        patch -p1 < ./0021-sched-core-Fix-picking-of-tasks-for-core-scheduling-.patch;
+        patch -p1 < ./0022-sched-rt-Remove-default-bandwidth-control.patch;
+        patch -p1 < ./0023-sched-eevdf-Add-feature-comments.patch;
+        patch -p1 < ./0024-sched-eevdf-Remove-min_vruntime_copy.patch;
+        patch -p1 < ./0025-sched-fair-Cleanup-pick_task_fair-vs-throttle.patch;
+        patch -p1 < ./0026-sched-fair-Cleanup-pick_task_fair-s-curr.patch;
+        patch -p1 < ./0027-sched-fair-Unify-pick_-next_-_task_fair.patch;
+        patch -p1 < ./0028-sched-Allow-sched_class-dequeue_task-to-fail.patch;
+        patch -p1 < ./0029-sched-fair-Re-organize-dequeue_task_fair.patch;
+        patch -p1 < ./0030-sched-Split-DEQUEUE_SLEEP-from-deactivate_task.patch;
+        patch -p1 < ./0031-sched-Prepare-generic-code-for-delayed-dequeue.patch;
+        patch -p1 < ./0032-sched-uclamg-Handle-delayed-dequeue.patch;
+        patch -p1 < ./0033-sched-fair-Assert-set_next-put_prev-_entity-are-prop.patch;
+        patch -p1 < ./0034-sched-fair-Prepare-exit-cleanup-paths-for-delayed_de.patch;
+        patch -p1 < ./0035-sched-fair-Prepare-pick_next_task-for-delayed-dequeu.patch;
+        patch -p1 < ./0036-sched-fair-Implement-ENQUEUE_DELAYED.patch;
+        patch -p1 < ./0037-sched-freezer-Mark-TASK_FROZEN-special.patch;
+        patch -p1 < ./0038-sched-Teach-dequeue_task-about-special-task-states.patch;
+        patch -p1 < ./0039-sched-fair-Implement-delayed-dequeue.patch;
+        patch -p1 < ./0040-sched-fair-Implement-DELAY_ZERO.patch;
+        patch -p1 < ./0041-sched-eevdf-Fixup-PELT-vs-DELAYED_DEQUEUE.patch;
+        patch -p1 < ./0042-sched-fair-Avoid-re-setting-virtual-deadline-on-migr.patch;
+        patch -p1 < ./0043-sched-eevdf-Allow-shorter-slices-to-wakeup-preempt.patch;
+        patch -p1 < ./0044-sched-eevdf-Use-sched_attr-sched_runtime-to-set-requ.patch;
+        patch -p1 < ./0045-sched-eevdf-Propagate-min_slice-up-the-cgroup-hierar.patch;
+        patch -p1 < ./0046-sched-time-Introduce-CLOCK_THREAD_DVFS_ID.patch;
     fi
 elif [ ${KERNEL_BASE_VER} == "6.9" ]; then  # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
@@ -962,11 +1020,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.10.2-061002+customidle-generic
-# 6.10.2-061002+customfull-generic
-# 6.10.2-061002+customrt-generic
+# 6.10.3-061003+customidle-generic
+# 6.10.3-061003+customfull-generic
+# 6.10.3-061003+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.10.2-061002+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.10.3-061003+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1104,7 +1162,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.10.2-061002+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.10.3-061003+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
