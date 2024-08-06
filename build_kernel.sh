@@ -145,7 +145,7 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     echo "*** Copying and applying Ubuntu patches... 1/4 ✓";
     if [ ${KERNEL_BASE_VER} == "5.4" ]; then
         KERNEL_BASE_VER_OVERRIDE=5.4;
-    elif [ ${KERNEL_BASE_VER} == "6.10" ]; then
+    elif [ ${KERNEL_BASE_VER} == "6.10" ] || [ ${KERNEL_BASE_VER} == "6.11" ]; then
         KERNEL_BASE_VER_OVERRIDE=6.10+;
     else
         KERNEL_BASE_VER_OVERRIDE=5.7+;
@@ -202,7 +202,20 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.10" ]; then   # Latest mainline
+if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
+    echo "*** Copying and applying graysky cpu patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
+    patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
+    echo "*** Copying and applying iosched patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/6.10/iosched-patches-all/*.patch .;
+    patch -p1 < ./0001-iosched-patches.patch;
+    echo "*** Copying and applying ntsync patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/6.10/ntsync-patches-all/*.patch .;
+    patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying O3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/6.10/kbuild-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-Cachy-Allow-O3.patch;
+elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-sep/*.patch .;
     patch -p1 < ./0001-x86-cpufeatures-Add-AMD-FAST-CPPC-feature-flag.patch;
