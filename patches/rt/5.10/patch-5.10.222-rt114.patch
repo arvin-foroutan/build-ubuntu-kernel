@@ -1430,10 +1430,10 @@ index b6fbbd527dd7..5b08f55ec85d 100644
  				uprobe_notify_resume(regs);
  
 diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 4d63fcd7574b..06fced951e75 100644
+index afe8be2fef88..46e82c623787 100644
 --- a/arch/arm64/kvm/arm.c
 +++ b/arch/arm64/kvm/arm.c
-@@ -708,7 +708,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -710,7 +710,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
  		 * involves poking the GIC, which must be done in a
  		 * non-preemptible context.
  		 */
@@ -1442,7 +1442,7 @@ index 4d63fcd7574b..06fced951e75 100644
  
  		kvm_pmu_flush_hwstate(vcpu);
  
-@@ -757,7 +757,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -759,7 +759,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
  				kvm_timer_sync_user(vcpu);
  			kvm_vgic_sync_hwstate(vcpu);
  			local_irq_enable();
@@ -1451,7 +1451,7 @@ index 4d63fcd7574b..06fced951e75 100644
  			continue;
  		}
  
-@@ -829,7 +829,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -831,7 +831,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
  		/* Exit types that need handling before we can be preempted */
  		handle_exit_early(vcpu, ret);
  
@@ -1668,10 +1668,10 @@ index 6e345fefcdca..681408d6816f 100644
  	volatile unsigned int lock;
  } arch_spinlock_t;
 diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
-index 7abc5f37bfaf..733e0e3324b8 100644
+index b53d4688d5a7..66ace55e37d3 100644
 --- a/arch/ia64/kernel/time.c
 +++ b/arch/ia64/kernel/time.c
-@@ -138,12 +138,8 @@ void vtime_account_kernel(struct task_struct *tsk)
+@@ -139,12 +139,8 @@ void vtime_account_kernel(struct task_struct *tsk)
  	struct thread_info *ti = task_thread_info(tsk);
  	__u64 stime = vtime_delta(tsk);
  
@@ -1685,7 +1685,7 @@ index 7abc5f37bfaf..733e0e3324b8 100644
  	else
  		ti->stime += stime;
  }
-@@ -156,6 +152,20 @@ void vtime_account_idle(struct task_struct *tsk)
+@@ -157,6 +153,20 @@ void vtime_account_idle(struct task_struct *tsk)
  	ti->idle_time += vtime_delta(tsk);
  }
  
@@ -3225,7 +3225,7 @@ index 245f1f8df656..f05555dde8e7 100644
  }
  
 diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
-index 3de2adc0a807..2eef587bf51d 100644
+index a2883360d07c..3a94a0988da6 100644
 --- a/arch/powerpc/xmon/xmon.c
 +++ b/arch/powerpc/xmon/xmon.c
 @@ -3003,7 +3003,7 @@ print_address(unsigned long addr)
@@ -5938,10 +5938,10 @@ index b2a475a0ca4a..b665a33b449b 100644
  
  void qxl_release_fence_buffer_objects(struct qxl_release *release)
 diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
-index 07d23a1e62a0..add8e60440b2 100644
+index 8643eebe9e24..b128857f18e9 100644
 --- a/drivers/gpu/drm/radeon/radeon_display.c
 +++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -1828,6 +1828,7 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int pipe,
+@@ -1822,6 +1822,7 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int pipe,
  	struct radeon_device *rdev = dev->dev_private;
  
  	/* preempt_disable_rt() should go right here in PREEMPT_RT patchset. */
@@ -5949,7 +5949,7 @@ index 07d23a1e62a0..add8e60440b2 100644
  
  	/* Get optional system timestamp before query. */
  	if (stime)
-@@ -1920,6 +1921,7 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int pipe,
+@@ -1914,6 +1915,7 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int pipe,
  		*etime = ktime_get();
  
  	/* preempt_enable_rt() should go right here in PREEMPT_RT patchset. */
@@ -7312,10 +7312,10 @@ index 799be3a5d25e..d5165a7da071 100644
  	cifs_dbg(FYI, "%s: for %s\n", __func__, name->name);
  
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 976c7474d62a..380c528e6e98 100644
+index 406a71abb1b5..5db6daa9bf84 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -2504,9 +2504,10 @@ EXPORT_SYMBOL(d_rehash);
+@@ -2510,9 +2510,10 @@ EXPORT_SYMBOL(d_rehash);
  static inline unsigned start_dir_add(struct inode *dir)
  {
  
@@ -7328,7 +7328,7 @@ index 976c7474d62a..380c528e6e98 100644
  			return n;
  		cpu_relax();
  	}
-@@ -2514,26 +2515,30 @@ static inline unsigned start_dir_add(struct inode *dir)
+@@ -2520,26 +2521,30 @@ static inline unsigned start_dir_add(struct inode *dir)
  
  static inline void end_dir_add(struct inode *dir, unsigned n)
  {
@@ -7371,7 +7371,7 @@ index 976c7474d62a..380c528e6e98 100644
  {
  	unsigned int hash = name->hash;
  	struct hlist_bl_head *b = in_lookup_hash(parent, hash);
-@@ -2547,7 +2552,7 @@ struct dentry *d_alloc_parallel(struct dentry *parent,
+@@ -2553,7 +2558,7 @@ struct dentry *d_alloc_parallel(struct dentry *parent,
  
  retry:
  	rcu_read_lock();
@@ -7380,7 +7380,7 @@ index 976c7474d62a..380c528e6e98 100644
  	r_seq = read_seqbegin(&rename_lock);
  	dentry = __d_lookup_rcu(parent, name, &d_seq);
  	if (unlikely(dentry)) {
-@@ -2575,7 +2580,7 @@ struct dentry *d_alloc_parallel(struct dentry *parent,
+@@ -2581,7 +2586,7 @@ struct dentry *d_alloc_parallel(struct dentry *parent,
  	}
  
  	hlist_bl_lock(b);
@@ -7389,7 +7389,7 @@ index 976c7474d62a..380c528e6e98 100644
  		hlist_bl_unlock(b);
  		rcu_read_unlock();
  		goto retry;
-@@ -2648,7 +2653,7 @@ void __d_lookup_done(struct dentry *dentry)
+@@ -2654,7 +2659,7 @@ void __d_lookup_done(struct dentry *dentry)
  	hlist_bl_lock(b);
  	dentry->d_flags &= ~DCACHE_PAR_LOOKUP;
  	__hlist_bl_del(&dentry->d_u.d_in_lookup_hash);
@@ -7558,7 +7558,7 @@ index 5c7139aa2bda..4ee8239c055f 100644
  	inode->dirtied_when = 0;
  
 diff --git a/fs/namei.c b/fs/namei.c
-index cb37d7c477e0..f4961a4af74c 100644
+index 72521a614514..9aa4692717fb 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
 @@ -1532,7 +1532,7 @@ static struct dentry *__lookup_slow(const struct qstr *name,
@@ -7606,7 +7606,7 @@ index b020a12c53a2..364ba37d62d3 100644
  	 * After the slowpath clears MNT_WRITE_HOLD, mnt_is_readonly will
  	 * be set to match its requirements. So we must not load that until
 diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 9f88ca7b2001..bc8a78ecfe1c 100644
+index 935029632d5f..8597c3f60cca 100644
 --- a/fs/nfs/dir.c
 +++ b/fs/nfs/dir.c
 @@ -484,7 +484,7 @@ void nfs_prime_dcache(struct dentry *parent, struct nfs_entry *entry,
@@ -8028,7 +8028,7 @@ index c1bd4883e2fa..842d223dfe17 100644
  
  static inline void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt)
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 6de70634e547..16e5e3096a50 100644
+index 6a26ef54ac25..b4ea53666ee3 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
 @@ -701,7 +701,7 @@ struct inode {
@@ -9504,7 +9504,7 @@ index 2fb373a5c1ed..723bc2df6388 100644
  #define BLOCKING_NOTIFIER_INIT(name) {				\
  		.rwsem = __RWSEM_INITIALIZER((name).rwsem),	\
 diff --git a/include/linux/pid.h b/include/linux/pid.h
-index fa10acb8d6a4..2f86f84e9fc1 100644
+index af308e15f174..33c14785c46b 100644
 --- a/include/linux/pid.h
 +++ b/include/linux/pid.h
 @@ -3,6 +3,7 @@
@@ -12439,7 +12439,7 @@ index 09f58853f692..cdf97ea30b4c 100644
  	}
  }
 diff --git a/kernel/exit.c b/kernel/exit.c
-index bacdaf980933..b86f388d3e64 100644
+index af9c8e794e4d..8ae0586d035f 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
 @@ -199,7 +199,7 @@ static void __exit_signal(struct task_struct *tsk)
@@ -12452,7 +12452,7 @@ index bacdaf980933..b86f388d3e64 100644
  	spin_unlock(&sighand->siglock);
  
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 633b0af1d1a7..5dc7abedf08f 100644
+index 8b8a5a172b15..cb4383aa2d05 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -42,6 +42,7 @@
@@ -13013,10 +13013,10 @@ index e20c19e3ba49..777168d58f02 100644
  	NULL
  };
 diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 508fe5278285..3ce6a31db7b4 100644
+index 9d6cc9c15a55..fc6a04482590 100644
 --- a/kernel/kthread.c
 +++ b/kernel/kthread.c
-@@ -264,6 +264,7 @@ EXPORT_SYMBOL_GPL(kthread_parkme);
+@@ -279,6 +279,7 @@ void __noreturn kthread_exit(long result)
  
  static int kthread(void *_create)
  {
@@ -13024,7 +13024,7 @@ index 508fe5278285..3ce6a31db7b4 100644
  	/* Copy data: it's on kthread's stack */
  	struct kthread_create_info *create = _create;
  	int (*threadfn)(void *data) = create->threadfn;
-@@ -294,6 +295,13 @@ static int kthread(void *_create)
+@@ -309,6 +310,13 @@ static int kthread(void *_create)
  	init_completion(&self->parked);
  	current->vfork_done = &self->exited;
  
@@ -13038,7 +13038,7 @@ index 508fe5278285..3ce6a31db7b4 100644
  	/* OK, tell user we're spawned, wait for stop or wakeup */
  	__set_current_state(TASK_UNINTERRUPTIBLE);
  	create->result = current;
-@@ -391,7 +399,6 @@ struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
+@@ -406,7 +414,6 @@ struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
  	}
  	task = create->result;
  	if (!IS_ERR(task)) {
@@ -13046,7 +13046,7 @@ index 508fe5278285..3ce6a31db7b4 100644
  		char name[TASK_COMM_LEN];
  
  		/*
-@@ -400,13 +407,6 @@ struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
+@@ -415,13 +422,6 @@ struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
  		 */
  		vsnprintf(name, sizeof(name), namefmt, args);
  		set_task_comm(task, name);
@@ -23838,7 +23838,7 @@ index 619a60944bb6..4a11967c8daa 100644
  
  static int preemptoff_tracer_init(struct trace_array *tr)
 diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 718357289899..a2478605e761 100644
+index 5453af26ff76..ffe4023ce71b 100644
 --- a/kernel/trace/trace_kprobe.c
 +++ b/kernel/trace/trace_kprobe.c
 @@ -1394,8 +1394,7 @@ __kprobe_trace_func(struct trace_kprobe *tk, struct pt_regs *regs,
@@ -25010,7 +25010,7 @@ index 1352a27951e3..72b9a2d95c72 100644
  #if defined(HASHED_PAGE_VIRTUAL)
  
 diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index ddc8ed096dec..5bf696318643 100644
+index 186ae9dba0fd..80ebd6147f5d 100644
 --- a/mm/memcontrol.c
 +++ b/mm/memcontrol.c
 @@ -63,6 +63,7 @@
@@ -27420,7 +27420,7 @@ index e491b083b348..ef432cea2e10 100644
  			 struct gnet_stats_basic_cpu __percpu *cpu,
  			 struct gnet_stats_basic_packed *b)
 diff --git a/net/core/sock.c b/net/core/sock.c
-index b4ecd0071e22..4e2510b02342 100644
+index d5818a5a86fd..bacc1c57a1d5 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
 @@ -3095,12 +3095,11 @@ void lock_sock_nested(struct sock *sk, int subclass)
@@ -27497,10 +27497,10 @@ index ecdd9e83f2f4..73b5aa797645 100644
  	sch->ops = ops;
  	sch->flags = ops->static_flags;
 diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index 06e503466c32..16bd1278a989 100644
+index d1eacf3358b8..415d2b828458 100644
 --- a/net/sunrpc/svc_xprt.c
 +++ b/net/sunrpc/svc_xprt.c
-@@ -422,7 +422,7 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
+@@ -448,7 +448,7 @@ void svc_xprt_enqueue(struct svc_xprt *xprt)
  	if (test_and_set_bit(XPT_BUSY, &xprt->xpt_flags))
  		return;
  
@@ -27509,7 +27509,7 @@ index 06e503466c32..16bd1278a989 100644
  	pool = svc_pool_for_cpu(xprt->xpt_server, cpu);
  
  	atomic_long_inc(&pool->sp_stats.packets);
-@@ -446,7 +446,7 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
+@@ -472,7 +472,7 @@ void svc_xprt_enqueue(struct svc_xprt *xprt)
  	rqstp = NULL;
  out_unlock:
  	rcu_read_unlock();
@@ -27517,7 +27517,7 @@ index 06e503466c32..16bd1278a989 100644
 +	put_cpu_light();
  	trace_svc_xprt_do_enqueue(xprt, rqstp);
  }
- EXPORT_SYMBOL_GPL(svc_xprt_do_enqueue);
+ EXPORT_SYMBOL_GPL(svc_xprt_enqueue);
 diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
 index ba73014805a4..14e1f36bdda5 100644
 --- a/net/xfrm/xfrm_state.c

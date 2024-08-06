@@ -496,10 +496,10 @@ index b3e1beccf4588..03183563feb8c 100644
  				uprobe_notify_resume(regs);
  
 diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 47d737672abaf..177675aa05dd1 100644
+index 9ded5443de487..c14d8bb47a35e 100644
 --- a/arch/arm64/kvm/arm.c
 +++ b/arch/arm64/kvm/arm.c
-@@ -828,7 +828,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -830,7 +830,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
  		 * involves poking the GIC, which must be done in a
  		 * non-preemptible context.
  		 */
@@ -508,7 +508,7 @@ index 47d737672abaf..177675aa05dd1 100644
  
  		kvm_pmu_flush_hwstate(vcpu);
  
-@@ -852,7 +852,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -854,7 +854,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
  				kvm_timer_sync_user(vcpu);
  			kvm_vgic_sync_hwstate(vcpu);
  			local_irq_enable();
@@ -517,7 +517,7 @@ index 47d737672abaf..177675aa05dd1 100644
  			continue;
  		}
  
-@@ -921,7 +921,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -923,7 +923,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
  		/* Exit types that need handling before we can be preempted */
  		handle_exit_early(vcpu, ret);
  
@@ -1233,7 +1233,7 @@ index 3a43a2dee6581..37bd37cdf2b60 100644
  			return NMI_HANDLED;
  		}
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 7bfc037022ad5..1a1fdce5ef44b 100644
+index ef56b79629d1c..f243b512a597b 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
 @@ -8713,6 +8713,14 @@ int kvm_arch_init(void *opaque)
@@ -1507,23 +1507,6 @@ index 254e67141a776..7a39029b083f4 100644
  
  	/* Send VRR Push to terminate Vblank */
  	intel_vrr_send_push(new_crtc_state);
-diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-index 209cf265bf746..6e1b9068d944c 100644
---- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-@@ -311,10 +311,9 @@ void __intel_breadcrumbs_park(struct intel_breadcrumbs *b)
- 	/* Kick the work once more to drain the signalers, and disarm the irq */
- 	irq_work_sync(&b->irq_work);
- 	while (READ_ONCE(b->irq_armed) && !atomic_read(&b->active)) {
--		local_irq_disable();
--		signal_irq_work(&b->irq_work);
--		local_irq_enable();
-+		irq_work_queue(&b->irq_work);
- 		cond_resched();
-+		irq_work_sync(&b->irq_work);
- 	}
- }
- 
 diff --git a/drivers/gpu/drm/i915/gt/intel_context.h b/drivers/gpu/drm/i915/gt/intel_context.h
 index c410989507466..601274ba86e46 100644
 --- a/drivers/gpu/drm/i915/gt/intel_context.h
@@ -1858,10 +1841,10 @@ index 1cf68f85b2e11..8ccf0c928bb44 100644
  	return IRQ_HANDLED;
  }
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 1810a994c07ca..2eef022001ddf 100644
+index dccd94ee138e2..03499b8e270c3 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -1422,7 +1422,7 @@ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr)
+@@ -1452,7 +1452,7 @@ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr)
  	if (irq <= 0)
  		return -ENXIO;
  
@@ -1883,10 +1866,10 @@ index 1f1d572880859..dc6816d36d069 100644
  	  This allows LEDs to be controlled by active CPUs. This shows
  	  the active CPUs across an array of LEDs so you can see which
 diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index c2a42486f9855..451a22641b5aa 100644
+index bcd43cca94f9f..ca3040875afeb 100644
 --- a/drivers/md/raid5.c
 +++ b/drivers/md/raid5.c
-@@ -2218,8 +2218,9 @@ static void raid_run_ops(struct stripe_head *sh, unsigned long ops_request)
+@@ -2217,8 +2217,9 @@ static void raid_run_ops(struct stripe_head *sh, unsigned long ops_request)
  	struct raid5_percpu *percpu;
  	unsigned long cpu;
  
@@ -1897,7 +1880,7 @@ index c2a42486f9855..451a22641b5aa 100644
  	if (test_bit(STRIPE_OP_BIOFILL, &ops_request)) {
  		ops_run_biofill(sh);
  		overlap_clear++;
-@@ -2278,7 +2279,8 @@ static void raid_run_ops(struct stripe_head *sh, unsigned long ops_request)
+@@ -2277,7 +2278,8 @@ static void raid_run_ops(struct stripe_head *sh, unsigned long ops_request)
  			if (test_and_clear_bit(R5_Overlap, &dev->flags))
  				wake_up(&sh->raid_conf->wait_for_overlap);
  		}
@@ -1907,7 +1890,7 @@ index c2a42486f9855..451a22641b5aa 100644
  }
  
  static void free_stripe(struct kmem_cache *sc, struct stripe_head *sh)
-@@ -7110,6 +7112,7 @@ static int raid456_cpu_up_prepare(unsigned int cpu, struct hlist_node *node)
+@@ -7101,6 +7103,7 @@ static int raid456_cpu_up_prepare(unsigned int cpu, struct hlist_node *node)
  			__func__, cpu);
  		return -ENOMEM;
  	}
@@ -2666,10 +2649,10 @@ index 1929e80c09ee1..48eb8c30c6dbf 100644
  	cifs_dbg(FYI, "%s: for %s\n", __func__, name->name);
  
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 422c440b492a5..697522852e208 100644
+index 9a29cfdaa5416..aaf5a51d7c82a 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -2538,7 +2538,13 @@ EXPORT_SYMBOL(d_rehash);
+@@ -2544,7 +2544,13 @@ EXPORT_SYMBOL(d_rehash);
  
  static inline unsigned start_dir_add(struct inode *dir)
  {
@@ -2684,7 +2667,7 @@ index 422c440b492a5..697522852e208 100644
  	for (;;) {
  		unsigned n = dir->i_dir_seq;
  		if (!(n & 1) && cmpxchg(&dir->i_dir_seq, n, n + 1) == n)
-@@ -2550,25 +2556,30 @@ static inline unsigned start_dir_add(struct inode *dir)
+@@ -2556,25 +2562,30 @@ static inline unsigned start_dir_add(struct inode *dir)
  static inline void end_dir_add(struct inode *dir, unsigned n)
  {
  	smp_store_release(&dir->i_dir_seq, n + 2);
@@ -2726,7 +2709,7 @@ index 422c440b492a5..697522852e208 100644
  {
  	unsigned int hash = name->hash;
  	struct hlist_bl_head *b = in_lookup_hash(parent, hash);
-@@ -2683,7 +2694,7 @@ void __d_lookup_done(struct dentry *dentry)
+@@ -2689,7 +2700,7 @@ void __d_lookup_done(struct dentry *dentry)
  	hlist_bl_lock(b);
  	dentry->d_flags &= ~DCACHE_PAR_LOOKUP;
  	__hlist_bl_del(&dentry->d_u.d_in_lookup_hash);
@@ -3535,7 +3518,7 @@ index 9c4534a69a8f7..e9d5e9ae92a90 100644
  #endif /* CONFIG_SMP */
  
 diff --git a/include/linux/printk.h b/include/linux/printk.h
-index 9497f6b983399..eddfc5de6ee71 100644
+index c4fb84822111d..e9b39c26b62fe 100644
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
 @@ -47,6 +47,12 @@ static inline const char *printk_skip_headers(const char *buffer)
@@ -4025,7 +4008,7 @@ index 979586e34da8f..3f33747e980ba 100644
  int serial8250_console_exit(struct uart_port *port);
  
 diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 15de91c65a09a..2ad707cee5c39 100644
+index b230c422dc3b9..1e771104029f7 100644
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
 @@ -301,6 +301,7 @@ struct sk_buff_head {
@@ -4739,10 +4722,10 @@ index f40ca4f09afce..0f674646943d7 100644
  }
  NOKPROBE_SYMBOL(kgdb_roundup_cpus);
 diff --git a/kernel/debug/kdb/kdb_io.c b/kernel/debug/kdb/kdb_io.c
-index 6735ac36b7187..539a2f0dc89d9 100644
+index a3b4b55d2e2e1..036b655ac92b0 100644
 --- a/kernel/debug/kdb/kdb_io.c
 +++ b/kernel/debug/kdb/kdb_io.c
-@@ -559,23 +559,17 @@ static void kdb_msg_write(const char *msg, int msg_len)
+@@ -572,23 +572,17 @@ static void kdb_msg_write(const char *msg, int msg_len)
  		cp++;
  	}
  
@@ -4805,7 +4788,7 @@ index d11d4047a0ca8..9327f590cd866 100644
  	}
  }
 diff --git a/kernel/exit.c b/kernel/exit.c
-index 80efdfda6662b..6ff17e977392e 100644
+index 890e5cb6799b0..80c7736aaa07f 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
 @@ -64,6 +64,7 @@
@@ -5167,7 +5150,7 @@ index db8c248ebc8c8..f7df715ec28e6 100644
 +}
 +early_initcall(irq_work_init_threads);
 diff --git a/kernel/kcov.c b/kernel/kcov.c
-index 80bfe71bbe13e..36ca640c4f8e7 100644
+index 793486e00dd6f..131f2e4a10deb 100644
 --- a/kernel/kcov.c
 +++ b/kernel/kcov.c
 @@ -88,6 +88,7 @@ static struct list_head kcov_remote_areas = LIST_HEAD_INIT(kcov_remote_areas);
@@ -5189,7 +5172,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  
  /* Must be called with kcov_remote_lock locked. */
  static struct kcov_remote *kcov_remote_find(u64 handle)
-@@ -824,7 +827,7 @@ void kcov_remote_start(u64 handle)
+@@ -825,7 +828,7 @@ void kcov_remote_start(u64 handle)
  	if (!in_task() && !in_serving_softirq())
  		return;
  
@@ -5198,7 +5181,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  
  	/*
  	 * Check that kcov_remote_start() is not called twice in background
-@@ -832,7 +835,7 @@ void kcov_remote_start(u64 handle)
+@@ -833,7 +836,7 @@ void kcov_remote_start(u64 handle)
  	 */
  	mode = READ_ONCE(t->kcov_mode);
  	if (WARN_ON(in_task() && kcov_mode_enabled(mode))) {
@@ -5207,7 +5190,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  		return;
  	}
  	/*
-@@ -841,14 +844,15 @@ void kcov_remote_start(u64 handle)
+@@ -842,14 +845,15 @@ void kcov_remote_start(u64 handle)
  	 * happened while collecting coverage from a background thread.
  	 */
  	if (WARN_ON(in_serving_softirq() && t->kcov_softirq)) {
@@ -5225,7 +5208,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  		return;
  	}
  	kcov_debug("handle = %llx, context: %s\n", handle,
-@@ -869,19 +873,19 @@ void kcov_remote_start(u64 handle)
+@@ -870,19 +874,19 @@ void kcov_remote_start(u64 handle)
  		size = CONFIG_KCOV_IRQ_AREA_SIZE;
  		area = this_cpu_ptr(&kcov_percpu_data)->irq_area;
  	}
@@ -5248,7 +5231,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  	/* Reset coverage size. */
  	*(u64 *)area = 0;
  
-@@ -891,7 +895,7 @@ void kcov_remote_start(u64 handle)
+@@ -892,7 +896,7 @@ void kcov_remote_start(u64 handle)
  	}
  	kcov_start(t, kcov, size, area, mode, sequence);
  
@@ -5257,7 +5240,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  
  }
  EXPORT_SYMBOL(kcov_remote_start);
-@@ -965,12 +969,12 @@ void kcov_remote_stop(void)
+@@ -966,12 +970,12 @@ void kcov_remote_stop(void)
  	if (!in_task() && !in_serving_softirq())
  		return;
  
@@ -5272,7 +5255,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  		return;
  	}
  	/*
-@@ -978,12 +982,12 @@ void kcov_remote_stop(void)
+@@ -979,12 +983,12 @@ void kcov_remote_stop(void)
  	 * actually found the remote handle and started collecting coverage.
  	 */
  	if (in_serving_softirq() && !t->kcov_softirq) {
@@ -5287,7 +5270,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  		return;
  	}
  
-@@ -1013,7 +1017,7 @@ void kcov_remote_stop(void)
+@@ -1014,7 +1018,7 @@ void kcov_remote_stop(void)
  		spin_unlock(&kcov_remote_lock);
  	}
  
@@ -5296,7 +5279,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  
  	/* Get in kcov_remote_start(). */
  	kcov_put(kcov);
-@@ -1034,8 +1038,8 @@ static int __init kcov_init(void)
+@@ -1035,8 +1039,8 @@ static int __init kcov_init(void)
  	int cpu;
  
  	for_each_possible_cpu(cpu) {
@@ -5308,7 +5291,7 @@ index 80bfe71bbe13e..36ca640c4f8e7 100644
  			return -ENOMEM;
  		per_cpu_ptr(&kcov_percpu_data, cpu)->irq_area = area;
 diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index af57705e1fef3..b9ad72a1299f3 100644
+index 258d425b2c4a5..e60f87cb16b38 100644
 --- a/kernel/kprobes.c
 +++ b/kernel/kprobes.c
 @@ -1245,10 +1245,10 @@ void kprobe_busy_end(void)
@@ -7076,7 +7059,7 @@ index 66c1ca01dd0e9..749f3d224f579 100644
  	div = div < 0 ? 7 : div > sizeof(long) * 8 - 2 ? sizeof(long) * 8 - 2 : div;
  	bl = max(rdp->blimit, pending >> div);
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 25b8ea91168ea..98b6f9a37e891 100644
+index b43da6201b9aa..baaa2e26da7e4 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -75,7 +75,11 @@ __read_mostly int sysctl_resched_latency_warn_once = 1;
@@ -7405,7 +7388,7 @@ index 25b8ea91168ea..98b6f9a37e891 100644
  void __cant_sleep(const char *file, int line, int preempt_offset)
  {
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 4a1393405a6fe..b9b475228407f 100644
+index 94fcd585eb7f0..2c3255d4201be 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
 @@ -4635,7 +4635,7 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
@@ -7453,7 +7436,7 @@ index 4a1393405a6fe..b9b475228407f 100644
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -7433,7 +7433,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
+@@ -7453,7 +7453,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
  	return;
  
  preempt:
@@ -7462,7 +7445,7 @@ index 4a1393405a6fe..b9b475228407f 100644
  	/*
  	 * Only set the backward buddy when the current task is still
  	 * on the rq. This can happen when a wakeup gets interleaved
-@@ -11494,7 +11494,7 @@ static void task_fork_fair(struct task_struct *p)
+@@ -11509,7 +11509,7 @@ static void task_fork_fair(struct task_struct *p)
  		 * 'current' within the tree based on its new key value.
  		 */
  		swap(curr->vruntime, se->vruntime);
@@ -7471,7 +7454,7 @@ index 4a1393405a6fe..b9b475228407f 100644
  	}
  
  	se->vruntime -= cfs_rq->min_vruntime;
-@@ -11521,7 +11521,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
+@@ -11536,7 +11536,7 @@ prio_changed_fair(struct rq *rq, struct task_struct *p, int oldprio)
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)
@@ -7537,7 +7520,7 @@ index e1c655f928c74..f230b1ac7f910 100644
  	list_splice_init(&q->task_list, &tmp);
  	while (!list_empty(&tmp)) {
 diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index 4e8698e62f075..3d0157bd4e144 100644
+index 8c82ca3aa652f..89bd202757f59 100644
 --- a/kernel/sched/topology.c
 +++ b/kernel/sched/topology.c
 @@ -526,7 +526,7 @@ static int init_rootdomain(struct root_domain *rd)
@@ -7633,7 +7616,7 @@ index 82825345432c5..9d3c8c56d9044 100644
  	local_irq_restore(flags);
  }
 diff --git a/kernel/softirq.c b/kernel/softirq.c
-index 41f470929e991..3989514033315 100644
+index dc60f0c66a25f..b5339cae719fa 100644
 --- a/kernel/softirq.c
 +++ b/kernel/softirq.c
 @@ -80,21 +80,6 @@ static void wakeup_softirqd(void)
@@ -9416,7 +9399,7 @@ index 76a3385943e50..bd7386eede235 100644
  config BQL
  	bool
 diff --git a/net/core/dev.c b/net/core/dev.c
-index f80bc2ca888aa..fab36aedc1991 100644
+index e86ef1a1647ec..1b3b8910d9a10 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -225,14 +225,14 @@ static inline struct hlist_head *dev_index_hash(struct net *net, int ifindex)
@@ -9536,7 +9519,7 @@ index f80bc2ca888aa..fab36aedc1991 100644
  }
  EXPORT_SYMBOL(__napi_schedule);
  
-@@ -11346,6 +11354,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
+@@ -11347,6 +11355,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
  
  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
  	local_irq_enable();
@@ -9544,7 +9527,7 @@ index f80bc2ca888aa..fab36aedc1991 100644
  
  #ifdef CONFIG_RPS
  	remsd = oldsd->rps_ipi_list;
-@@ -11359,7 +11368,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
+@@ -11360,7 +11369,7 @@ static int dev_cpu_dead(unsigned int oldcpu)
  		netif_rx_ni(skb);
  		input_queue_head_incr(oldsd);
  	}
@@ -9553,7 +9536,7 @@ index f80bc2ca888aa..fab36aedc1991 100644
  		netif_rx_ni(skb);
  		input_queue_head_incr(oldsd);
  	}
-@@ -11674,7 +11683,7 @@ static int __init net_dev_init(void)
+@@ -11675,7 +11684,7 @@ static int __init net_dev_init(void)
  
  		INIT_WORK(flush, flush_backlog);
  
@@ -10034,7 +10017,7 @@ index 0d5c422f87452..8aec1b529364a 100644
  	spin_lock_init(&est->lock);
  	est->refcnt		= 1;
 diff --git a/net/sched/act_api.c b/net/sched/act_api.c
-index d775676956bf9..94c05713ecf89 100644
+index 0b4deb33bdf7a..188a6280b0a6a 100644
 --- a/net/sched/act_api.c
 +++ b/net/sched/act_api.c
 @@ -486,16 +486,18 @@ int tcf_idr_create(struct tc_action_net *tn, u32 index, struct nlattr *est,
@@ -10067,7 +10050,7 @@ index d775676956bf9..94c05713ecf89 100644
  		if (err)
  			goto err4;
  	}
-@@ -1141,13 +1143,13 @@ void tcf_action_update_stats(struct tc_action *a, u64 bytes, u64 packets,
+@@ -1161,13 +1163,13 @@ void tcf_action_update_stats(struct tc_action *a, u64 bytes, u64 packets,
  			     u64 drops, bool hw)
  {
  	if (a->cpu_bstats) {
@@ -10084,7 +10067,7 @@ index d775676956bf9..94c05713ecf89 100644
  		return;
  	}
  
-@@ -1186,9 +1188,10 @@ int tcf_action_copy_stats(struct sk_buff *skb, struct tc_action *p,
+@@ -1206,9 +1208,10 @@ int tcf_action_copy_stats(struct sk_buff *skb, struct tc_action *p,
  	if (err < 0)
  		goto errout;
  
@@ -10943,7 +10926,7 @@ index 56d3dc5e95c7c..b7ca9c7d83b4c 100644
  			return -1;
  	}
 diff --git a/net/sched/sch_multiq.c b/net/sched/sch_multiq.c
-index 8b99f07aa3a76..f28050c7f12d6 100644
+index caa76c96b02ba..6b875f532548f 100644
 --- a/net/sched/sch_multiq.c
 +++ b/net/sched/sch_multiq.c
 @@ -337,8 +337,7 @@ static int multiq_dump_class_stats(struct Qdisc *sch, unsigned long cl,
@@ -11031,10 +11014,10 @@ index b1dbe03dde1b5..aba554b4a3269 100644
  	++sch->q.qlen;
  
 diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index e40b4425eb6b5..9a2c01b1b3374 100644
+index 4a0986843fb5d..4c5fbcf601da3 100644
 --- a/net/sched/sch_taprio.c
 +++ b/net/sched/sch_taprio.c
-@@ -1998,7 +1998,7 @@ static int taprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
+@@ -1995,7 +1995,7 @@ static int taprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
  	struct netdev_queue *dev_queue = taprio_queue_get(sch, cl);
  
  	sch = dev_queue->qdisc_sleeping;
@@ -11044,7 +11027,7 @@ index e40b4425eb6b5..9a2c01b1b3374 100644
  		return -1;
  	return 0;
 diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index b19592673eef2..2e8367cc528ae 100644
+index 3cf53e3140a5a..af9e6d531f007 100644
 --- a/net/sunrpc/svc_xprt.c
 +++ b/net/sunrpc/svc_xprt.c
 @@ -462,7 +462,7 @@ void svc_xprt_enqueue(struct svc_xprt *xprt)
@@ -11207,7 +11190,7 @@ index f64f3d62d6c2a..e4087b2d3fc4b 100644
  		return ret;
  
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index c6f211758f4e3..292b50bdfc9f4 100644
+index e9d2ef3deccd1..52d671d97a0e2 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
 @@ -51,8 +51,10 @@

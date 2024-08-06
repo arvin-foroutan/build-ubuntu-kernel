@@ -182,20 +182,20 @@ fi
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
     if [ ${KERNEL_BASE_VER} == "6.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.10-rc6-rt11.patch .;
-        patch -p1 < ./patch-6.10-rc6-rt11.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.10.2-rt14.patch .;
+        patch -p1 < ./patch-6.10.2-rt14.patch;
     elif [ ${KERNEL_BASE_VER} == "6.6" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.36-rt35.patch .;
-        patch -p1 < ./patch-6.6.36-rt35.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.43-rt38.patch .;
+        patch -p1 < ./patch-6.6.43-rt38.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.96-rt35.patch .;
-        patch -p1 < ./patch-6.1.96-rt35.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.102-rt37.patch .;
+        patch -p1 < ./patch-6.1.102-rt37.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.160-rt77.patch .;
-        patch -p1 < ./patch-5.15.160-rt77.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.163-rt78.patch .;
+        patch -p1 < ./patch-5.15.163-rt78.patch;
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.219-rt111.patch .;
-        patch -p1 < ./patch-5.10.219-rt111.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.222-rt114.patch .;
+        patch -p1 < ./patch-5.10.222-rt114.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.278-rt91.patch .;
         patch -p1 < ./patch-5.4.278-rt91.patch;
