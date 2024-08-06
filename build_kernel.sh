@@ -901,6 +901,12 @@ fi
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
+USE_LLVM=${USE_LLVM:-"no"}
+if [ ${USE_LLVM} == "yes" ]; then
+    echo "*** Disable KBUILD_CFLAGS for LLVM... ✓";
+    sed -i "s/KBUILD_CFLAGS += -fno-inline-functions-called-once/KBUILD_CFLAGS +=/g" ./Makefile;
+fi
+
 ZFS_SUPPORT=${ZFS_SUPPORT:-"no"}
 if [ ${ZFS_SUPPORT} == "no" ]; then
     echo "*** Disabling zfs by default (can cause issues during compilation)... ✓";
@@ -972,7 +978,11 @@ case $yno in
     [yY] | [yY][Ee][Ss] )
         ;&
     *)
-        fakeroot debian/rules editconfigs;
+        if [ ${USE_LLVM} == "yes" ]; then
+            LLVM=1 fakeroot debian/rules editconfigs;
+        else
+            fakeroot debian/rules editconfigs;
+        fi
         ;;
 esac
 
@@ -1002,7 +1012,11 @@ case $yno in
         ;&
     *)
         echo "*** Starting build... ✓";
-        NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
+        if [ ${USE_LLVM} == "yes" ]; then
+            LLVM=1 NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
+        else
+            NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
+        fi
         ;;
 esac
 
