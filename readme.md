@@ -6,8 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.10 (mainline)
-- 6.9 (stable)
+- 6.10 (stable)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
@@ -20,7 +19,6 @@ Assuming a fresh install of Ubuntu, you'll need the following dependencies:
 
 ```console
 $ sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev lz4 zstd wireless-tools default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
-
 ```
 
 ## Getting started
@@ -50,6 +48,7 @@ $ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
 ```console
   AMDGPU_BUILTIN		Build the amdgpu module into the kernel (default: no)
   VBOX_SUPPORT			Add support for VirtualBox (default: no)
+  USE_LLVM			Compile the kernel using LLVM/Clang instead of GCC (default: no)
 ```
 
 ### Building other versions
@@ -120,34 +119,40 @@ $ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KER
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
 
+6.10-rt:
+
+```console
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10.2 KERNEL_SUB_VER=061002 ./build_kernel.sh
+```
+
 6.6-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.14 KERNEL_SUB_VER=060614 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.43 KERNEL_SUB_VER=060643 ./build_kernel.sh
 ```
 
 6.1-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.75 KERNEL_SUB_VER=060175 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.102 KERNEL_SUB_VER=0601102 ./build_kernel.sh
 ```
 
 5.15-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.145 KERNEL_SUB_VER=0515145 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.163 KERNEL_SUB_VER=0515163 ./build_kernel.sh
 ```
 
 5.10-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.209 KERNEL_SUB_VER=0510209 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.222 KERNEL_SUB_VER=0510222 ./build_kernel.sh
 ```
 
 5.4-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.264 KERNEL_SUB_VER=0504264 ./build_kernel.sh
+$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.278 KERNEL_SUB_VER=0504278 ./build_kernel.sh
 ```
 
 #### Full tickless kernels
