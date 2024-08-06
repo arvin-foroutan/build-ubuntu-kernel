@@ -253,6 +253,9 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     patch -p1 < ./0004-drm-atomic-allow-no-op-FB_ID-updates-for-async-flips.patch;
     patch -p1 < ./0005-drm-amdgpu-vcn-identify-unified-queue-in-sw-init.patch;
     patch -p1 < ./0006-drm-amdgpu-vcn-not-pause-dpg-for-unified-queue.patch;
+    echo "*** Copying and applying O3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.10-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
