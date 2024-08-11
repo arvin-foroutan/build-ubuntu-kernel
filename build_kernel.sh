@@ -272,6 +272,9 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-uas-set-host-status-byte-on-data-completion-error.patch;
     patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
+    echo "*** Copying and applying acpi align slab patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
+    patch -p1 < ./acpi_align_slab.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
