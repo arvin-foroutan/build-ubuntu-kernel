@@ -6,6 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
+- 6.11 (rc)
 - 6.10 (stable)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -169,11 +170,13 @@ Examples of the `nohz_full` setting:
 
 4c: `nohz_full=1-3`
 
-4c/8t: `nohz_full=1-3,5-7`
+4c/8t: `nohz_full=1-7`
 
-6c/12t `nohz_full=1-5,7-11`
+8c/16t: `nohz_full=1-15`
 
-8c/16t: `nohz_full=1-7,9-15`
+12c/24t: `nohz_full=1-23`
+
+16c/32t: `nohz_full=1-31`
 
 ### Additional Notes
 
