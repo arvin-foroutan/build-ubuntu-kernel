@@ -203,18 +203,64 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying intel pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/intel-pstate-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-intel-pstate-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.11-merge-v20240805.patch;
+    echo "*** Copying and applying bbr3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
+    echo "*** Copying and applying cachyos patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
+    patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
+    echo "*** Copying and applying O3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-Cachy-Allow-O3.patch;
+    echo "*** Copying and applying futex patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    patch -p1 < ./0001-futex-6.11-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
+    echo "*** Copying and applying iosched patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/iosched-patches-all/*.patch .;
+    patch -p1 < ./0001-iosched-patches.patch;
+    echo "*** Copying and applying ntsync patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-all/*.patch .;
+    patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying pf patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/6.10/pf-patches-v5-sep/*.patch .;
+    patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
-    echo "*** Copying and applying iosched patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.10/iosched-patches-all/*.patch .;
-    patch -p1 < ./0001-iosched-patches.patch;
-    echo "*** Copying and applying ntsync patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.10/ntsync-patches-all/*.patch .;
-    patch -p1 < ./0001-ntsync-patches.patch;
-    echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.10/kbuild-cachyos-patches/*.patch .;
-    patch -p1 < ./0001-Cachy-Allow-O3.patch;
+    echo "*** Copying and applying acpi align slab patch.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
+    patch -p1 < ./acpi_align_slab.patch;
+    echo "*** Copying and applying xanmod patches.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.10.y-xanmod/xanmod/*.patch .;
+    if [ ${KERNEL_TYPE} != "rt" ]; then
+        patch -p1 < ./0007-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
+    fi
+    patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
+    patch -p1 < ./0002-XANMOD-x86-build-Add-more-x86-code-optimization-flag.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0009-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0011-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
+    patch -p1 < ./0012-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0013-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0014-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0015-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
+    patch -p1 < ./0016-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0017-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0018-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
+    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v4-all/*.patch .;
