@@ -210,8 +210,11 @@ if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/intel-pstate-patches-v2-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
+    patch -p1 < ./0003-arch-Kconfig-Default-to-maximum-amount-of-ASLR-bits.patch;
+    patch -p1 < ./0004-x86-apic-Remove-logical-destination-mode-for-64-bit.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-6.11-merge-v20240805.patch;
