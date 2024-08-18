@@ -997,9 +997,9 @@ case $yno in
     *)
         echo "*** Starting build... ✓";
         if [ ${USE_LLVM} == "yes" ]; then
-            LLVM=1 NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
+            LLVM=1 CONCURRENCY_LEVEL=$(nproc) NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
         else
-            NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
+            CONCURRENCY_LEVEL=$(nproc) NO_JEVENTS=1 NO_LIBTRACEEVENT=1 fakeroot debian/rules binary-headers binary-generic binary-perarch;
         fi
         ;;
 esac
