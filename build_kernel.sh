@@ -268,8 +268,11 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v4-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying intel pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
