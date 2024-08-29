@@ -269,7 +269,7 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v4-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3/*.patch .;
@@ -286,6 +286,9 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     patch -p1 < ./0005-drm-amdgpu-vcn-identify-unified-queue-in-sw-init.patch;
     patch -p1 < ./0006-drm-amdgpu-vcn-not-pause-dpg-for-unified-queue.patch;
+    echo "*** Copying and applying cachyos fixes patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches/*.patch .;
+    patch -p1 < ./0001-x86-amd_nb-Add-new-PCI-IDs-for-AMD-family-1Ah-model-.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
@@ -302,9 +305,8 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v5-sep/*.patch .;
-    patch -p1 < ./0001-uas-set-host-status-byte-on-data-completion-error.patch;
-    patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v6/*.patch .;
+    patch -p1 < ./0001-pf-patches.patch;
     echo "*** Copying and applying acpi align slab patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
     patch -p1 < ./acpi_align_slab.patch;
