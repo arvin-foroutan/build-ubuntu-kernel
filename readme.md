@@ -41,13 +41,12 @@ See the script itself for additional details, and the information below on some 
 ### Passing in optional variables
 
 ```console
-$ AMDGPU_BUILTIN=yes VBOX_SUPPORT=yes ./build_kernel.sh
+$ VBOX_SUPPORT=yes ./build_kernel.sh
 ```
 
 #### Variables
 
 ```console
-  AMDGPU_BUILTIN		Build the amdgpu module into the kernel (default: no)
   VBOX_SUPPORT			Add support for VirtualBox (default: no)
   USE_LLVM			Compile the kernel using LLVM/Clang instead of GCC (default: no)
 ```
