@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.10"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.7"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061007"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.9"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061009"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -269,7 +269,7 @@ if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
     patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v5-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v8-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-v3-all/*.patch .;
@@ -285,11 +285,10 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-patches-sep/*.patch .;
-    patch -p1 < ./0001-cachy-move-AMD_PRIVATE_COLOR-to-Kconfig.patch;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches/*.patch .;
-    patch -p1 < ./0001-x86-amd_nb-Add-new-PCI-IDs-for-AMD-family-1Ah-model-.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v2/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
@@ -932,11 +931,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.10.7-061007+customidle-generic
-# 6.10.7-061007+customfull-generic
-# 6.10.7-061007+customrt-generic
+# 6.10.9-061009+customidle-generic
+# 6.10.9-061009+customfull-generic
+# 6.10.9-061009+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.10.7-061007+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.10.9-061009+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1072,7 +1071,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.10.7-061007+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.10.9-061009+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
