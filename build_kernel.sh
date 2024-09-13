@@ -204,13 +204,13 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v4-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v8-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/intel-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
@@ -222,8 +222,8 @@ if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches/*.patch .;
-    patch -p1 < ./0001-x86-amd_nb-Add-new-PCI-IDs-for-AMD-family-1Ah-model-.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v5/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
@@ -239,6 +239,12 @@ if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying thp patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/thp-patches/*.patch .;
+    patch -p1 < ./0001-thp-patches.patch;
+    echo "*** Copying and applying eevdf patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/eevdf-patches-v5-all/*.patch .;
+    patch -p1 < ./0001-eevdf-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.10/pf-patches-v6-sep/*.patch .;
     patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
