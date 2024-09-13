@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.10"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.9"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061009"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.10"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061010"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -281,7 +281,7 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v4/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
@@ -293,8 +293,8 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v2/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v4/*.patch .;
+    patch -p1 < ./0001-x86-amd_nb-Add-new-PCI-IDs-for-AMD-family-1Ah-model-.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
@@ -311,8 +311,8 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v6/*.patch .;
-    patch -p1 < ./0001-pf-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-patches-v6-sep/*.patch .;
+    patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
     echo "*** Copying and applying acpi align slab patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
     patch -p1 < ./acpi_align_slab.patch;
@@ -937,11 +937,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.10.9-061009+customidle-generic
-# 6.10.9-061009+customfull-generic
-# 6.10.9-061009+customrt-generic
+# 6.10.10-061010+customidle-generic
+# 6.10.10-061010+customfull-generic
+# 6.10.10-061010+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.10.9-061009+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.10.10-061010+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1077,7 +1077,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.10.9-061009+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.10.10-061010+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
