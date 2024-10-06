@@ -6,7 +6,8 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.11 (rc)
+- 6.12 (rc)
+- 6.11 (mainlne)
 - 6.10 (stable)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -19,15 +20,15 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 Assuming a fresh install of Ubuntu, you'll need the following dependencies:
 
 ```console
-$ sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev lz4 zstd wireless-tools default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
+sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev lz4 zstd wireless-tools default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
 ```
 
 ## Getting started
 
 ```console
-$ git clone https://github.com/arvin-foroutan/build-ubuntu-kernel.git
-$ cd build-ubuntu-kernel
-$ ./build_kernel.sh
+git clone https://github.com/arvin-foroutan/build-ubuntu-kernel.git
+cd build-ubuntu-kernel
+./build_kernel.sh
 ```
 
 ## Is that it?
@@ -41,7 +42,7 @@ See the script itself for additional details, and the information below on some 
 ### Passing in optional variables
 
 ```console
-$ VBOX_SUPPORT=yes ./build_kernel.sh
+VBOX_SUPPORT=yes ./build_kernel.sh
 ```
 
 #### Variables
@@ -53,10 +54,10 @@ $ VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.10 mainline kernel will be built with the following:
+By default, the latest 6.11 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
-- 1000 Hz timer, idle tickless
+- 1000 Hz timer, idle tickless, -O3 optimization
 - Built with gcc and 'Generic x86/64' optimizations.
 
 Current patch set includes:
@@ -77,82 +78,94 @@ Current patch set includes:
 
 To build other versions, you can use the following convention:
 
+6.10:
+
+```console
+KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10.13 KERNEL_SUB_VER=061013 ./build_kernel.sh
+```
+
 6.6 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.43 KERNEL_SUB_VER=060643 ./build_kernel.sh
+KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.54 KERNEL_SUB_VER=060654 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-$ KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.102 KERNEL_SUB_VER=0601102 ./build_kernel.sh
+KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.112 KERNEL_SUB_VER=0601112 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.164 KERNEL_SUB_VER=0515164 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.167 KERNEL_SUB_VER=0515167 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.223 KERNEL_SUB_VER=0510223 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.226 KERNEL_SUB_VER=0510226 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-$ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.281 KERNEL_SUB_VER=0504281 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.284 KERNEL_SUB_VER=0504284 ./build_kernel.sh
 ```
 
 #### Development kernels
 
-6.11-rc1:
+6.12-rc1:
 
 ```console
-$ KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.11 KERNEL_PATCH_VER=6.11-rc1 KERNEL_SUB_VER=061100rc1 ./build_kernel.sh
+KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12-rc1 KERNEL_SUB_VER=061200rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
 
 Real-time kernels have specific use-cases and generally should only be used if you know why you need it.
 
+6.11-rt:
+
+```console
+KERNEL_TYPE=rt KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.11 KERNEL_PATCH_VER=6.11-rc7 KERNEL_SUB_VER=061100rc7 ./opt/build-ubuntu-kernel/build_kernel.sh
+```
+
 6.10-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10.2 KERNEL_SUB_VER=061002 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10.2 KERNEL_SUB_VER=061002 ./build_kernel.sh
 ```
 
 6.6-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.43 KERNEL_SUB_VER=060643 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.52 KERNEL_SUB_VER=060652 ./build_kernel.sh
 ```
 
 6.1-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.102 KERNEL_SUB_VER=0601102 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.111 KERNEL_SUB_VER=0601111 ./build_kernel.sh
 ```
 
 5.15-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.163 KERNEL_SUB_VER=0515163 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.167 KERNEL_SUB_VER=0515167 ./build_kernel.sh
 ```
 
 5.10-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.222 KERNEL_SUB_VER=0510222 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.225 KERNEL_SUB_VER=0510225 ./build_kernel.sh
 ```
 
 5.4-rt:
 
 ```console
-$ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.278 KERNEL_SUB_VER=0504278 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.278 KERNEL_SUB_VER=0504278 ./build_kernel.sh
 ```
 
 #### Full tickless kernels
@@ -160,7 +173,7 @@ $ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.278
 Just pass `KERNEL_TYPE=full` to any kernel build:
 
 ```console
-$ KERNEL_TYPE=full ./build_kernel.sh
+KERNEL_TYPE=full ./build_kernel.sh
 ```
 
 Note: Full tickless kernels require `nohz_full` GRUB boot parameter to be set with specific CPU cores for it to be useful. Otherwise, there is extra overhead over the traditional idle tickless kernel. 
