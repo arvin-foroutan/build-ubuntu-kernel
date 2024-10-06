@@ -177,25 +177,28 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     echo "*** Successfully applied all Ubuntu patches. ✓";
 fi
 
-# Allow support for rt (real-time) kernels
+# Allow support for rt (real-time) kernels (this is now mainlined in 6.12+)
 # https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt
 if [ ${KERNEL_TYPE} == "rt" ]; then
     echo "*** Copying and applying rt patches... ✓";
-    if [ ${KERNEL_BASE_VER} == "6.10" ]; then
+    if [ ${KERNEL_BASE_VER} == "6.11" ]; then
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.11-rt7.patch .;
+        patch -p1 < ./patch-6.11-rt7.patch;
+    elif [ ${KERNEL_BASE_VER} == "6.10" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.10.2-rt14.patch .;
         patch -p1 < ./patch-6.10.2-rt14.patch;
     elif [ ${KERNEL_BASE_VER} == "6.6" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.43-rt38.patch .;
-        patch -p1 < ./patch-6.6.43-rt38.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.6.52-rt43.patch .;
+        patch -p1 < ./patch-6.6.52-rt43.patch;
     elif [ ${KERNEL_BASE_VER} == "6.1" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.102-rt37.patch .;
-        patch -p1 < ./patch-6.1.102-rt37.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-6.1.111-rt42.patch .;
+        patch -p1 < ./patch-6.1.111-rt42.patch;
     elif [ ${KERNEL_BASE_VER} == "5.15" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.163-rt78.patch .;
-        patch -p1 < ./patch-5.15.163-rt78.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.15.167-rt79.patch .;
+        patch -p1 < ./patch-5.15.167-rt79.patch;
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.222-rt114.patch .;
-        patch -p1 < ./patch-5.10.222-rt114.patch;
+        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.225-rt117.patch .;
+        patch -p1 < ./patch-5.10.225-rt117.patch;
     elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.278-rt91.patch .;
         patch -p1 < ./patch-5.4.278-rt91.patch;
@@ -281,11 +284,13 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v4/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.10-merge-v20240722.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v4-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
+    patch -p1 < ./0003-arch-Kconfig-Default-to-maximum-amount-of-ASLR-bits.patch;
+    patch -p1 < ./0004-cpufreq-intel_pstate-Update-Meteor-Lake-EPPs.patch;
+    patch -p1 < ./0005-cpufreq-intel_pstate-Update-Arrow-Lake-EPPs.patch;
+    patch -p1 < ./0006-x86-apic-Remove-logical-destination-mode-for-64-bit.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
@@ -337,15 +342,9 @@ elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
-    echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v6-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.6-merge-v20231106.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
@@ -452,7 +451,6 @@ elif [ ${KERNEL_BASE_VER} == "6.1" ]; then  # LTS kernel, supported until 2028
     patch -p1 < ./0021-bitmap-switch-from-inline-to-__always_inline.patch;
     patch -p1 < ./0023-kthread_worker-check-all-delayed-works-when-destroy-.patch;
     patch -p1 < ./0025-xfs-fix-off-by-one-error-in-xfs_btree_space_to_heigh.patch;
-    patch -p1 < ./0028-xfs-fix-extent-busy-updating.patch;
     patch -p1 < ./0029-x86-pm-Force-out-of-line-memcpy.patch;
     patch -p1 < ./0030-mm-compaction-Rename-compact_control-rescan-to-finis.patch;
     patch -p1 < ./0031-mm-compaction-Check-if-a-page-has-been-captured-befo.patch;
