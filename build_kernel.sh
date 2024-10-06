@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.10"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.10.10"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061010"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.11"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.11.2"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061102"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -206,51 +206,37 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
+if [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v8-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/intel-pstate-patches-v3-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.11-merge-v20240805.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.11-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
-    echo "*** Copying and applying iosched patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/iosched-patches-all/*.patch .;
-    patch -p1 < ./0001-iosched-patches.patch;
     echo "*** Copying and applying mm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/mm-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mm-patches/*.patch .;
     patch -p1 < ./0001-mm-patches.patch;
     echo "*** Copying and applying ntsync patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
-    echo "*** Copying and applying thp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/thp-patches/*.patch .;
-    patch -p1 < ./0001-thp-patches.patch;
-    echo "*** Copying and applying eevdf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/eevdf-patches-v5-all/*.patch .;
-    patch -p1 < ./0001-eevdf-patches.patch;
-    echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.10/pf-patches-v6-sep/*.patch .;
-    patch -p1 < ./0002-mm-ksm-Consider-the-number-of-ksm_mm_slot-in-the-gen.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
@@ -258,24 +244,25 @@ if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
     cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
     patch -p1 < ./acpi_align_slab.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-6.10.y-xanmod/xanmod/*.patch .;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        patch -p1 < ./0007-XANMOD-rcu-Change-sched_setscheduler_nocheck-calls-t.patch;
-    fi
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.11.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
-    patch -p1 < ./0002-XANMOD-x86-build-Add-more-x86-code-optimization-flag.patch;
-    patch -p1 < ./0008-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-    patch -p1 < ./0009-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0011-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
-    patch -p1 < ./0012-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
-    patch -p1 < ./0013-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-    patch -p1 < ./0014-XANMOD-mm-Raise-max_map_count-default-value.patch;
-    patch -p1 < ./0015-XANMOD-mm-vmscan-vm_swappiness-30-decreases-the-amou.patch;
-    patch -p1 < ./0016-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-    patch -p1 < ./0017-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0018-XANMOD-lib-kconfig.debug-disable-default-CONFIG_SYMB.patch;
-    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-    patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    patch -p1 < ./0002-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
+    patch -p1 < ./0003-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
+    patch -p1 < ./0004-kbuild-Remove-GCC-minimal-function-alignment.patch;
+    patch -p1 < ./0005-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0009-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
+    patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
+    patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0012-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0014-XANMOD-mm-vmscan-Set-minimum-amount-of-swapping.patch;
+    patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
+    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v8-all/*.patch .;
@@ -935,11 +922,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.10.10-061010+customidle-generic
-# 6.10.10-061010+customfull-generic
-# 6.10.10-061010+customrt-generic
+# 6.11.2-061102+customidle-generic
+# 6.11.2-061102+customfull-generic
+# 6.11.2-061102+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.10.10-061010+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.11.2-061102+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1075,7 +1062,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.10.10-061010+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.11.2-061102+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
