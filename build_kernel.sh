@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.11"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.11.2"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061102"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.11.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061103"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -301,12 +301,23 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying amd cache patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
+    patch -p1 < ./0001-amd-cache-optimizer-patches.patch;
+    echo "*** Copying and applying amd drm patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-patches-sep/*.patch .;
+    patch -p1 < ./0001-drm-amd-pm-update-the-default-power-limit-on-smu-13..patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-patches-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-sep/*.patch .;
+    patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
+    patch -p1 < ./0002-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
+    patch -p1 < ./0003-arch-Kconfig-Default-to-maximum-amount-of-ASLR-bits.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.11-merge-v20240923r2.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
@@ -316,18 +327,33 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     echo "*** Copying and applying cachyos fixes patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    echo "*** Copying and applying cpuidle patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
+    patch -p1 < ./0001-cpuidle-6.11-merge-changes-from-dev-tree.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.11-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
+    echo "*** Copying and applying handheld patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches/*.patch .;
+    patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying mm patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mm-patches/*.patch .;
     patch -p1 < ./0001-mm-patches.patch;
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying openvpn patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/openvpn-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-openvpn-patches.patch;
+    echo "*** Copying and applying v4l2loopback patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
+    patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
+    echo "*** Copying and applying zstd cachyos patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-zstd-cachyos-patches.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
@@ -354,6 +380,9 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
     patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    echo "*** Copying and applying rsec patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/tweaks/rsec_speedup.patch .;
+    patch -p1 < ./rsec_speedup.patch;
 elif [ ${KERNEL_BASE_VER} == "6.10" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v8-all/*.patch .;
@@ -1013,11 +1042,11 @@ elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
 fi
 
 # Examples:
-# 6.11.2-061102+customidle-generic
-# 6.11.2-061102+customfull-generic
-# 6.11.2-061102+customrt-generic
+# 6.11.3-061103+customidle-generic
+# 6.11.3-061103+customfull-generic
+# 6.11.3-061103+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.11.2-061102+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.11.3-061103+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1153,7 +1182,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.11.2-061102+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.11.3-061103+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
