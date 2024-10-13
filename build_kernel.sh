@@ -211,7 +211,7 @@ if [ ${KERNEL_BASE_VER} == "6.11" ]; then   # Latest rc
 if [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
 if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest rc
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying amd cache patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-cache-optimizer-patches/*.patch .;
@@ -229,18 +229,8 @@ if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v2-sep/*.patch .;
-    patch -p1 < ./0002-drm-amdgpu-smu13-always-apply-the-powersave-optimiza.patch;
-    patch -p1 < ./0003-drm-amdgpu-swsmu-Only-force-workload-setup-on-init.patch;
-    patch -p1 < ./0004-drm-amdgpu-swsmu-default-to-fullscreen-3D-profile-fo.patch;
-    patch -p1 < ./0005-wifi-rtw89-pci-early-chips-only-enable-36-bit-DMA-on.patch;
-    patch -p1 < ./0007-Revert-drm-amdgpu-swsmu-default-to-fullscreen-3D-pro.patch;
-    patch -p1 < ./0008-Revert-drm-amdgpu-swsmu-Only-force-workload-setup-on.patch;
-    patch -p1 < ./0009-Revert-drm-amdgpu-smu13-always-apply-the-powersave-o.patch;
-    patch -p1 < ./0010-drm-amdgpu-smu13-always-apply-the-powersave-optimiza.patch;
-    patch -p1 < ./0011-drm-amdgpu-swsmu-Only-force-workload-setup-on-init.patch;
-    patch -p1 < ./0012-drm-amdgpu-swsmu-default-to-fullscreen-3D-profile-fo.patch;
-    patch -p1 < ./0013-drm-amdgpu-swsmu-add-automatic-parameter-to-set_soft.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v3/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-patches.patch;
@@ -299,7 +289,7 @@ if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest rc
     patch -p1 < ./rsec_speedup.patch;
 elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v4-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying amd cache patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
@@ -325,7 +315,7 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v6/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
