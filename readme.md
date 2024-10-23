@@ -7,8 +7,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 ## Supported versions
 
 - 6.12 (rc)
-- 6.11 (mainlne)
-- 6.10 (stable)
+- 6.11 (stable)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
@@ -78,12 +77,6 @@ Current patch set includes:
 
 To build other versions, you can use the following convention:
 
-6.10:
-
-```console
-KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10.13 KERNEL_SUB_VER=061013 ./build_kernel.sh
-```
-
 6.6 LTS:
 
 ```console
@@ -130,12 +123,6 @@ Real-time kernels have specific use-cases and generally should only be used if y
 
 ```console
 KERNEL_TYPE=rt KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.11 KERNEL_PATCH_VER=6.11-rc7 KERNEL_SUB_VER=061100rc7 ./opt/build-ubuntu-kernel/build_kernel.sh
-```
-
-6.10-rt:
-
-```console
-KERNEL_TYPE=rt KERNEL_BASE_VER=6.10 KERNEL_PATCH_VER=6.10.2 KERNEL_SUB_VER=061002 ./build_kernel.sh
 ```
 
 6.6-rt:
