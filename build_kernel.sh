@@ -257,9 +257,6 @@ if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest rc
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
-    echo "*** Copying and applying acpi align slab patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
-    patch -p1 < ./acpi_align_slab.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.11.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
@@ -352,9 +349,6 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
     patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
-    echo "*** Copying and applying acpi align slab patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/acpi-align-slab/acpi_align_slab.patch .;
-    patch -p1 < ./acpi_align_slab.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.11.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
