@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.11"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.11.4"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061104"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.11.5"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061105"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -961,11 +961,11 @@ fi
 # fi
 
 # Examples:
-# 6.11.4-061104+customidle-generic
-# 6.11.4-061104+customfull-generic
-# 6.11.4-061104+customrt-generic
+# 6.11.5-061105+customidle-generic
+# 6.11.5-061105+customfull-generic
+# 6.11.5-061105+customrt-generic
 # Note: A hyphen between label and type (e.g. customidle -> custom-idle) causes problems with some parsers
-# Because the final version name becomes: 6.11.4-061104+custom-idle-generic, so just keep it combined
+# Because the final version name becomes: 6.11.5-061105+custom-idle-generic, so just keep it combined
 echo "*** Updating version in changelog (necessary for Ubuntu)... ✓";
 sed -i "s/${KERNEL_SUB_VER}/${KERNEL_SUB_VER}+${KERNEL_VERSION_LABEL}${KERNEL_TYPE}/g" ./debian.master/changelog;
 
@@ -1101,7 +1101,7 @@ echo "*** Finished installing kernel, cleaning up build directory... ✓";
 rm -rf ${KERNEL_BUILD_DIR};
 
 # To list your installed kernels: sudo update-grub2
-# To uninstall a kernel: sudo apt purge *6.11.4-061104+customidle-generic*
+# To uninstall a kernel: sudo apt purge *6.11.5-061105+customidle-generic*
 # Also, keep an eye out for the directories below as they build up over time.
 echo "ls -alh /usr/src"
 ls -alh /usr/src;
