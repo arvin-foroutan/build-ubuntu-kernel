@@ -226,7 +226,7 @@ if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v21/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v25/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
@@ -321,11 +321,8 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v25/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v29/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
-    echo "*** Copying and applying mm cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mm-cachyos-patches-v2/*.patch .;
-    patch -p1 < ./0001-mm-cachyos-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-6.11-merge-changes-from-dev-tree.patch;
