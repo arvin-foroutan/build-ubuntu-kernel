@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.11"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.11.8"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061108"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.12"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.12.1"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061201"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -203,66 +203,57 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest rc
-    echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v9-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
-    echo "*** Copying and applying amd cache patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-cache-optimizer-patches/*.patch .;
+if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest mainline
+    echo "*** Copying and applying amd cache optimizer patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
     patch -p1 < ./0001-amd-cache-optimizer-patches.patch;
-    echo "*** Copying and applying amd pm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-patches-sep/*.patch .;
-    patch -p1 < ./0001-drm-amd-pm-update-the-default-power-limit-on-smu-13..patch;
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
-    echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/clearlinux-patches/*.patch .;
-    patch -p1 < ./0001-clearlinux-patches.patch;
-    echo "*** Copying and applying cachyos patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
-    patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v25/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v6/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
+    patch -p1 < ./0001-clearlinux-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-patches.patch;
     echo "*** Copying and applying crypto patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/crypto-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/crypto-patches-all/*.patch .;
     patch -p1 < ./0001-crypto-patches.patch;
-    echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
-    patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.12-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
     echo "*** Copying and applying futex2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex2-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex2-patches-all/*.patch .;
     patch -p1 < ./0001-futex2-patches.patch;
     echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/handheld-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches/*.patch .;
     patch -p1 < ./0001-handheld-patches.patch;
-    echo "*** Copying and applying mm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.11/mm-patches/*.patch .;
-    patch -p1 < ./0001-mm-patches.patch;
+    echo "*** Copying and applying O3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-Cachy-Allow-O3.patch;
+    echo "*** Copying and applying lrng patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/lrng-patches-all/*.patch .;
+    patch -p1 < ./0001-lrng-patches.patch;
     echo "*** Copying and applying ntsync patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
-    echo "*** Copying and applying openvpn patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/openvpn-patches-v4-all/*.patch .;
-    patch -p1 < ./0001-openvpn-patches.patch;
     echo "*** Copying and applying apple t2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches/*.patch .;
     patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
     echo "*** Copying and applying zstd cachyos patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/zstd-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-cachyos-patches/*.patch .;
     patch -p1 < ./0001-zstd-cachyos-patches.patch;
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
@@ -315,14 +306,16 @@ elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/6.12-rc/clearlinux-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/6.12/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
     echo "*** Copying and applying cachyos patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.10/cachyos-patches-sep/*.patch .;
     patch -p1 < ./0002-Cachy-drm-amdgpu-pm-Allow-override-of-min_power_limi.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v29/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v29-sep/*.patch .;
+    patch -p1 < ./0001-drm-amd-Taint-the-kernel-when-enabling-overdrive.patch;
+    patch -p1 < ./0002-Bluetooth-btusb-Add-2-USB-HW-IDs-for-MT7925-0xe118-e.patch;
+    patch -p1 < ./0003-drm-edid-add-a-quirk-for-two-240Hz-Samsung-monitors.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-6.11-merge-changes-from-dev-tree.patch;
