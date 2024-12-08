@@ -146,7 +146,8 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     if [ ${KERNEL_BASE_VER} == "5.4" ]; then
         KERNEL_BASE_VER_OVERRIDE=5.4;
     elif [ ${KERNEL_BASE_VER} == "6.11" ] ||
-         [ ${KERNEL_BASE_VER} == "6.12" ]; then
+         [ ${KERNEL_BASE_VER} == "6.12" ] ||
+         [ ${KERNEL_BASE_VER} == "6.13" ]; then
         KERNEL_BASE_VER_OVERRIDE=6.10+;
     else
         KERNEL_BASE_VER_OVERRIDE=5.7+;
@@ -203,7 +204,60 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest mainline
+if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest rc
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying bbr3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
+    echo "*** Copying and applying cachyos fixes patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v3/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/clearlinux-patches/*.patch .;
+    patch -p1 < ./0001-clearlinux-patches.patch;
+    echo "*** Copying and applying futex patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    patch -p1 < ./0001-futex-6.13-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
+    echo "*** Copying and applying O3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-Cachy-Allow-O3.patch;
+    echo "*** Copying and applying ntsync patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-all/*.patch .;
+    patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying v4l2loopback patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches/*.patch .;
+    patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
+    # echo "*** Copying and applying zstd cachyos patches.. ✓";
+    # cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/zstd-cachyos-patches/*.patch .;
+    # patch -p1 < ./0001-zstd-cachyos-patches.patch;
+    echo "*** Copying and applying graysky cpu patches.. ✓";
+    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.8-rc4+.patch .;
+    patch -p1 < ./graysky-gcc-6.8-rc4+.patch;
+    echo "*** Copying and applying xanmod patches.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.11.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
+    patch -p1 < ./0002-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
+    patch -p1 < ./0003-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
+    patch -p1 < ./0004-kbuild-Remove-GCC-minimal-function-alignment.patch;
+    patch -p1 < ./0005-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0009-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
+    patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
+    patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0012-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0014-XANMOD-mm-vmscan-Set-minimum-amount-of-swapping.patch;
+    patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # Latest mainline
     echo "*** Copying and applying amd cache optimizer patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
     patch -p1 < ./0001-amd-cache-optimizer-patches.patch;
@@ -278,7 +332,7 @@ if [ ${KERNEL_BASE_VER} == "6.12" ]; then   # Latest mainline
     echo "*** Copying and applying rsec patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/rsec_speedup.patch .;
     patch -p1 < ./rsec_speedup.patch;
-elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest mainline
+elif [ ${KERNEL_BASE_VER} == "6.11" ]; then # Latest stable
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v10-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
