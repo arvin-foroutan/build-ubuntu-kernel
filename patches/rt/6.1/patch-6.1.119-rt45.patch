@@ -1,3 +1,15 @@
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4b19dfb5d2fd..428b2259225d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4833,6 +4833,7 @@ S:	Maintained
+ F:	Documentation/admin-guide/module-signing.rst
+ F:	certs/
+ F:	scripts/sign-file.c
++F:	scripts/ssl-common.h
+ F:	tools/certs/
+ 
+ CFAG12864B LCD DRIVER
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
 index 6d5afe2e6ba3..5d92aef787e3 100644
 --- a/arch/arm/Kconfig
@@ -167,7 +179,7 @@ index b0db85310331..77877dcb54ed 100644
  	return 0;
  }
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 2ef939075039..4a184c28fc94 100644
+index 57b437ed0974..3f6910a95e4b 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -93,6 +93,7 @@ config ARM64
@@ -295,10 +307,10 @@ index 82f4572c8ddf..2a606c7bf025 100644
  			local_daif_restore(DAIF_PROCCTX_NOIRQ);
  
 diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 6050e6e10d32..df697d3f68cd 100644
+index 46ae22cd8bcc..6e2ac9d4ba0d 100644
 --- a/arch/powerpc/Kconfig
 +++ b/arch/powerpc/Kconfig
-@@ -151,6 +151,7 @@ config PPC
+@@ -157,6 +157,7 @@ config PPC
  	select ARCH_STACKWALK
  	select ARCH_SUPPORTS_ATOMIC_RMW
  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC_BOOK3S || PPC_8xx || 40x
@@ -306,7 +318,7 @@ index 6050e6e10d32..df697d3f68cd 100644
  	select ARCH_USE_BUILTIN_BSWAP
  	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
  	select ARCH_USE_MEMTEST
-@@ -242,8 +243,10 @@ config PPC
+@@ -248,8 +249,10 @@ config PPC
  	select HAVE_PERF_EVENTS_NMI		if PPC64
  	select HAVE_PERF_REGS
  	select HAVE_PERF_USER_STACK_DUMP
@@ -662,6 +674,188 @@ index f0cb881c1d69..fd8fb76f324f 100644
  #define _TIF_POLLING_NRFLAG	(1 << TIF_POLLING_NRFLAG)
  #define _TIF_IO_BITMAP		(1 << TIF_IO_BITMAP)
  #define _TIF_SPEC_FORCE_UPDATE	(1 << TIF_SPEC_FORCE_UPDATE)
+diff --git a/certs/Makefile b/certs/Makefile
+index 799ad7b9e68a..67e1f2707c2f 100644
+--- a/certs/Makefile
++++ b/certs/Makefile
+@@ -84,5 +84,5 @@ targets += x509_revocation_list
+ 
+ hostprogs := extract-cert
+ 
+-HOSTCFLAGS_extract-cert.o = $(shell $(HOSTPKG_CONFIG) --cflags libcrypto 2> /dev/null)
++HOSTCFLAGS_extract-cert.o = $(shell $(HOSTPKG_CONFIG) --cflags libcrypto 2> /dev/null) -I$(srctree)/scripts
+ HOSTLDLIBS_extract-cert = $(shell $(HOSTPKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto)
+diff --git a/certs/extract-cert.c b/certs/extract-cert.c
+index 8c1fb9a70d66..0a89cdc3e185 100644
+--- a/certs/extract-cert.c
++++ b/certs/extract-cert.c
+@@ -21,14 +21,17 @@
+ #include <openssl/bio.h>
+ #include <openssl/pem.h>
+ #include <openssl/err.h>
+-#include <openssl/engine.h>
+-
+-/*
+- * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
+- *
+- * Remove this if/when that API is no longer used
+- */
+-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
++#if OPENSSL_VERSION_MAJOR >= 3
++# define USE_PKCS11_PROVIDER
++# include <openssl/provider.h>
++# include <openssl/store.h>
++#else
++# if !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_DEPRECATED_3_0)
++#  define USE_PKCS11_ENGINE
++#  include <openssl/engine.h>
++# endif
++#endif
++#include "ssl-common.h"
+ 
+ #define PKEY_ID_PKCS7 2
+ 
+@@ -40,41 +43,6 @@ void format(void)
+ 	exit(2);
+ }
+ 
+-static void display_openssl_errors(int l)
+-{
+-	const char *file;
+-	char buf[120];
+-	int e, line;
+-
+-	if (ERR_peek_error() == 0)
+-		return;
+-	fprintf(stderr, "At main.c:%d:\n", l);
+-
+-	while ((e = ERR_get_error_line(&file, &line))) {
+-		ERR_error_string(e, buf);
+-		fprintf(stderr, "- SSL %s: %s:%d\n", buf, file, line);
+-	}
+-}
+-
+-static void drain_openssl_errors(void)
+-{
+-	const char *file;
+-	int line;
+-
+-	if (ERR_peek_error() == 0)
+-		return;
+-	while (ERR_get_error_line(&file, &line)) {}
+-}
+-
+-#define ERR(cond, fmt, ...)				\
+-	do {						\
+-		bool __cond = (cond);			\
+-		display_openssl_errors(__LINE__);	\
+-		if (__cond) {				\
+-			err(1, fmt, ## __VA_ARGS__);	\
+-		}					\
+-	} while(0)
+-
+ static const char *key_pass;
+ static BIO *wb;
+ static char *cert_dst;
+@@ -94,6 +62,66 @@ static void write_cert(X509 *x509)
+ 		fprintf(stderr, "Extracted cert: %s\n", buf);
+ }
+ 
++static X509 *load_cert_pkcs11(const char *cert_src)
++{
++	X509 *cert = NULL;
++#ifdef USE_PKCS11_PROVIDER
++	OSSL_STORE_CTX *store;
++
++	if (!OSSL_PROVIDER_try_load(NULL, "pkcs11", true))
++		ERR(1, "OSSL_PROVIDER_try_load(pkcs11)");
++	if (!OSSL_PROVIDER_try_load(NULL, "default", true))
++		ERR(1, "OSSL_PROVIDER_try_load(default)");
++
++	store = OSSL_STORE_open(cert_src, NULL, NULL, NULL, NULL);
++	ERR(!store, "OSSL_STORE_open");
++
++	while (!OSSL_STORE_eof(store)) {
++		OSSL_STORE_INFO *info = OSSL_STORE_load(store);
++
++		if (!info) {
++			drain_openssl_errors(__LINE__, 0);
++			continue;
++		}
++		if (OSSL_STORE_INFO_get_type(info) == OSSL_STORE_INFO_CERT) {
++			cert = OSSL_STORE_INFO_get1_CERT(info);
++			ERR(!cert, "OSSL_STORE_INFO_get1_CERT");
++		}
++		OSSL_STORE_INFO_free(info);
++		if (cert)
++			break;
++	}
++	OSSL_STORE_close(store);
++#elif defined(USE_PKCS11_ENGINE)
++		ENGINE *e;
++		struct {
++			const char *cert_id;
++			X509 *cert;
++		} parms;
++
++		parms.cert_id = cert_src;
++		parms.cert = NULL;
++
++		ENGINE_load_builtin_engines();
++		drain_openssl_errors(__LINE__, 1);
++		e = ENGINE_by_id("pkcs11");
++		ERR(!e, "Load PKCS#11 ENGINE");
++		if (ENGINE_init(e))
++			drain_openssl_errors(__LINE__, 1);
++		else
++			ERR(1, "ENGINE_init");
++		if (key_pass)
++			ERR(!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0), "Set PKCS#11 PIN");
++		ENGINE_ctrl_cmd(e, "LOAD_CERT_CTRL", 0, &parms, NULL, 1);
++		ERR(!parms.cert, "Get X.509 from PKCS#11");
++		cert = parms.cert;
++#else
++		fprintf(stderr, "no pkcs11 engine/provider available\n");
++		exit(1);
++#endif
++	return cert;
++}
++
+ int main(int argc, char **argv)
+ {
+ 	char *cert_src;
+@@ -119,28 +147,10 @@ int main(int argc, char **argv)
+ 		fclose(f);
+ 		exit(0);
+ 	} else if (!strncmp(cert_src, "pkcs11:", 7)) {
+-		ENGINE *e;
+-		struct {
+-			const char *cert_id;
+-			X509 *cert;
+-		} parms;
+-
+-		parms.cert_id = cert_src;
+-		parms.cert = NULL;
++		X509 *cert = load_cert_pkcs11(cert_src);
+ 
+-		ENGINE_load_builtin_engines();
+-		drain_openssl_errors();
+-		e = ENGINE_by_id("pkcs11");
+-		ERR(!e, "Load PKCS#11 ENGINE");
+-		if (ENGINE_init(e))
+-			drain_openssl_errors();
+-		else
+-			ERR(1, "ENGINE_init");
+-		if (key_pass)
+-			ERR(!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0), "Set PKCS#11 PIN");
+-		ENGINE_ctrl_cmd(e, "LOAD_CERT_CTRL", 0, &parms, NULL, 1);
+-		ERR(!parms.cert, "Get X.509 from PKCS#11");
+-		write_cert(parms.cert);
++		ERR(!cert, "load_cert_pkcs11 failed");
++		write_cert(cert);
+ 	} else {
+ 		BIO *b;
+ 		X509 *x509;
 diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
 index 966aab902d19..ee69e4443691 100644
 --- a/drivers/block/zram/zram_drv.c
@@ -1240,7 +1434,7 @@ index 5b6209f5a801..6001d81bdd3a 100644
  
  static void b44_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index 425d6ccd5413..f8b1adc389b3 100644
+index 1693f6c60efc..99c17409fae8 100644
 --- a/drivers/net/ethernet/broadcom/bcmsysport.c
 +++ b/drivers/net/ethernet/broadcom/bcmsysport.c
 @@ -457,10 +457,10 @@ static void bcm_sysport_update_tx_stats(struct bcm_sysport_priv *priv,
@@ -1268,7 +1462,7 @@ index 425d6ccd5413..f8b1adc389b3 100644
  		} else
  			data[i] = *(u32 *)p;
  		j++;
-@@ -1878,10 +1878,10 @@ static void bcm_sysport_get_stats64(struct net_device *dev,
+@@ -1879,10 +1879,10 @@ static void bcm_sysport_get_stats64(struct net_device *dev,
  				    &stats->tx_packets);
  
  	do {
@@ -1282,10 +1476,10 @@ index 425d6ccd5413..f8b1adc389b3 100644
  
  static void bcm_sysport_netif_start(struct net_device *dev)
 diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
-index 19fb8c4caab8..9eec22984b2c 100644
+index 7cc0ea3737b2..d13bb52188b1 100644
 --- a/drivers/net/ethernet/cortina/gemini.c
 +++ b/drivers/net/ethernet/cortina/gemini.c
-@@ -1949,7 +1949,7 @@ static void gmac_get_stats64(struct net_device *netdev,
+@@ -1953,7 +1953,7 @@ static void gmac_get_stats64(struct net_device *netdev,
  
  	/* Racing with RX NAPI */
  	do {
@@ -1294,7 +1488,7 @@ index 19fb8c4caab8..9eec22984b2c 100644
  
  		stats->rx_packets = port->stats.rx_packets;
  		stats->rx_bytes = port->stats.rx_bytes;
-@@ -1961,11 +1961,11 @@ static void gmac_get_stats64(struct net_device *netdev,
+@@ -1965,11 +1965,11 @@ static void gmac_get_stats64(struct net_device *netdev,
  		stats->rx_crc_errors = port->stats.rx_crc_errors;
  		stats->rx_frame_errors = port->stats.rx_frame_errors;
  
@@ -1308,7 +1502,7 @@ index 19fb8c4caab8..9eec22984b2c 100644
  
  		stats->tx_errors = port->stats.tx_errors;
  		stats->tx_packets = port->stats.tx_packets;
-@@ -1975,15 +1975,15 @@ static void gmac_get_stats64(struct net_device *netdev,
+@@ -1979,15 +1979,15 @@ static void gmac_get_stats64(struct net_device *netdev,
  		stats->rx_missed_errors = port->stats.rx_missed_errors;
  		stats->rx_fifo_errors = port->stats.rx_fifo_errors;
  
@@ -1327,7 +1521,7 @@ index 19fb8c4caab8..9eec22984b2c 100644
  
  	stats->rx_dropped += stats->rx_missed_errors;
  }
-@@ -2052,18 +2052,18 @@ static void gmac_get_ethtool_stats(struct net_device *netdev,
+@@ -2056,18 +2056,18 @@ static void gmac_get_ethtool_stats(struct net_device *netdev,
  	/* Racing with MIB interrupt */
  	do {
  		p = values;
@@ -1349,7 +1543,7 @@ index 19fb8c4caab8..9eec22984b2c 100644
  
  		for (i = 0; i < RX_STATUS_NUM; i++)
  			*p++ = port->rx_stats[i];
-@@ -2071,13 +2071,13 @@ static void gmac_get_ethtool_stats(struct net_device *netdev,
+@@ -2075,13 +2075,13 @@ static void gmac_get_ethtool_stats(struct net_device *netdev,
  			*p++ = port->rx_csum_stats[i];
  		*p++ = port->rx_napi_exits;
  
@@ -1365,7 +1559,7 @@ index 19fb8c4caab8..9eec22984b2c 100644
  
  		for (i = 0; i < TX_MAX_FRAGS; i++) {
  			*values++ = port->tx_frag_stats[i];
-@@ -2086,7 +2086,7 @@ static void gmac_get_ethtool_stats(struct net_device *netdev,
+@@ -2090,7 +2090,7 @@ static void gmac_get_ethtool_stats(struct net_device *netdev,
  		*values++ = port->tx_frags_linearized;
  		*values++ = port->tx_hw_csummed;
  
@@ -1416,7 +1610,7 @@ index 77edc3d9b505..a29de29bdf23 100644
  	}
  }
 diff --git a/drivers/net/ethernet/emulex/benet/be_main.c b/drivers/net/ethernet/emulex/benet/be_main.c
-index a9e4e6464a04..968fecfc03bd 100644
+index b0a85c9b952b..1cb44baa0f13 100644
 --- a/drivers/net/ethernet/emulex/benet/be_main.c
 +++ b/drivers/net/ethernet/emulex/benet/be_main.c
 @@ -665,10 +665,10 @@ static void be_get_stats64(struct net_device *netdev,
@@ -1714,7 +1908,7 @@ index 107bcca7db8c..8f36fe90180f 100644
  	/* Once we successfully copy the stats in, update the data pointer */
  	*data += size;
 diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 1194dcacbd29..2a304f4507e0 100644
+index 3b165d8f03dc..e4ab1ec742f1 100644
 --- a/drivers/net/ethernet/intel/i40e/i40e_main.c
 +++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
 @@ -425,10 +425,10 @@ static void i40e_get_netdev_stats_struct_tx(struct i40e_ring *ring,
@@ -1814,10 +2008,10 @@ index f4ac2b164b3e..892c6a4f03bb 100644
  	/* Once we successfully copy the stats in, update the data pointer */
  	*data += size;
 diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 3f01942e4982..9a32f434869e 100644
+index 9be88820b77c..d98a50d9472a 100644
 --- a/drivers/net/ethernet/intel/ice/ice_main.c
 +++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -6424,10 +6424,10 @@ ice_fetch_u64_stats_per_ring(struct u64_stats_sync *syncp,
+@@ -6425,10 +6425,10 @@ ice_fetch_u64_stats_per_ring(struct u64_stats_sync *syncp,
  	unsigned int start;
  
  	do {
@@ -1871,7 +2065,7 @@ index ceff537d9d22..4ee849985e2b 100644
  	}
  	spin_unlock(&adapter->stats64_lock);
 diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index f2f719a952f8..948329c0369a 100644
+index 2e2caf559d00..21ce72d0e7e8 100644
 --- a/drivers/net/ethernet/intel/igb/igb_main.c
 +++ b/drivers/net/ethernet/intel/igb/igb_main.c
 @@ -6664,10 +6664,10 @@ void igb_update_stats(struct igb_adapter *adapter)
@@ -2329,10 +2523,10 @@ index c530db76880f..96d55c91c969 100644
  		data[i++] = packets;
  		data[i++] = bytes;
 diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-index 27f4786ace4f..a5ca5c4a7896 100644
+index 4fbf2d6129ff..a60a17098d51 100644
 --- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
 +++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-@@ -1631,21 +1631,21 @@ static void nfp_net_stat64(struct net_device *netdev,
+@@ -1630,21 +1630,21 @@ static void nfp_net_stat64(struct net_device *netdev,
  		unsigned int start;
  
  		do {
@@ -2582,10 +2776,10 @@ index 0fb15a17b547..d716e6fe26e1 100644
  
  static void rhine_set_rx_mode(struct net_device *dev)
 diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index b631d80de337..977f100cb53d 100644
+index ce0dd78826af..0c144c7ade1a 100644
 --- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -1310,16 +1310,16 @@ axienet_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
+@@ -1319,16 +1319,16 @@ axienet_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
  	netdev_stats_to_stats64(stats, &dev->stats);
  
  	do {
@@ -2607,7 +2801,7 @@ index b631d80de337..977f100cb53d 100644
  
  static const struct net_device_ops axienet_netdev_ops = {
 diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 1b7405539984..453ff84b784a 100644
+index 2fba5dfd9cd0..f6f9b91513f4 100644
 --- a/drivers/net/hyperv/netvsc_drv.c
 +++ b/drivers/net/hyperv/netvsc_drv.c
 @@ -1268,12 +1268,12 @@ static void netvsc_get_vf_stats(struct net_device *net,
@@ -2800,10 +2994,10 @@ index 2e9742952c4e..f6d53e63ef4e 100644
  		*packets += tpackets;
  	}
 diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 8a8fd74110e2..e277f6da79f3 100644
+index c007e262daf7..26dc01dc8ebe 100644
 --- a/drivers/net/macsec.c
 +++ b/drivers/net/macsec.c
-@@ -2832,9 +2832,9 @@ static void get_rx_sc_stats(struct net_device *dev,
+@@ -2814,9 +2814,9 @@ static void get_rx_sc_stats(struct net_device *dev,
  
  		stats = per_cpu_ptr(rx_sc->stats, cpu);
  		do {
@@ -2815,7 +3009,7 @@ index 8a8fd74110e2..e277f6da79f3 100644
  
  		sum->InOctetsValidated += tmp.InOctetsValidated;
  		sum->InOctetsDecrypted += tmp.InOctetsDecrypted;
-@@ -2913,9 +2913,9 @@ static void get_tx_sc_stats(struct net_device *dev,
+@@ -2895,9 +2895,9 @@ static void get_tx_sc_stats(struct net_device *dev,
  
  		stats = per_cpu_ptr(macsec_priv(dev)->secy.tx_sc.stats, cpu);
  		do {
@@ -2827,7 +3021,7 @@ index 8a8fd74110e2..e277f6da79f3 100644
  
  		sum->OutPktsProtected   += tmp.OutPktsProtected;
  		sum->OutPktsEncrypted   += tmp.OutPktsEncrypted;
-@@ -2969,9 +2969,9 @@ static void get_secy_stats(struct net_device *dev, struct macsec_dev_stats *sum)
+@@ -2951,9 +2951,9 @@ static void get_secy_stats(struct net_device *dev, struct macsec_dev_stats *sum)
  
  		stats = per_cpu_ptr(macsec_priv(dev)->stats, cpu);
  		do {
@@ -2991,7 +3185,7 @@ index 8dcd3b6e143b..cfc81e45d461 100644
  		result->xdp_tx_err += xdp_tx_err;
  		result->xdp_packets += packets;
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e3e5107adaca..0f1c6f88423f 100644
+index 11aa0a7d54cd..85e1e6aaab90 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
 @@ -2107,18 +2107,18 @@ static void virtnet_stats(struct net_device *dev,
@@ -3068,7 +3262,7 @@ index 208df4d41939..6043e63b42f9 100644
  		stats->tx_packets += tpkts;
  		stats->tx_dropped += tdrops;
 diff --git a/drivers/net/vxlan/vxlan_vnifilter.c b/drivers/net/vxlan/vxlan_vnifilter.c
-index c5cf55030158..c3ff30ab782e 100644
+index 3d113d709d19..2a20c63cdce2 100644
 --- a/drivers/net/vxlan/vxlan_vnifilter.c
 +++ b/drivers/net/vxlan/vxlan_vnifilter.c
 @@ -129,9 +129,9 @@ static void vxlan_vnifilter_stats_get(const struct vxlan_vni_node *vninode,
@@ -4368,7 +4562,7 @@ index d22430840b53..59f4fb1626ea 100644
  };
  
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 0373e0935990..55d698367883 100644
+index fbbd0df1106b..4174d5a5d97b 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
 @@ -3169,7 +3169,11 @@ struct softnet_data {
@@ -4733,7 +4927,7 @@ index c2f1fd95a821..260c08efeb48 100644
  	bool
  
 diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index d77597daa002..2d1ada6c9d02 100644
+index 42f5b37a74c6..f33d993ea6dd 100644
 --- a/kernel/bpf/syscall.c
 +++ b/kernel/bpf/syscall.c
 @@ -2158,11 +2158,11 @@ static void bpf_prog_get_stats(const struct bpf_prog *prog,
@@ -4921,7 +5115,7 @@ index 65dba9076f31..ab18048e2186 100644
  	NULL
  };
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 3b38303ed27b..a046e03c7ead 100644
+index 7fb9731bc5f5..9bea1c7ff94e 100644
 --- a/kernel/locking/lockdep.c
 +++ b/kernel/locking/lockdep.c
 @@ -2245,6 +2245,9 @@ static inline bool usage_match(struct lock_list *entry, void *mask)
@@ -6834,10 +7028,10 @@ index f0c3d0d4a0dd..7a79f27deab1 100644
  extern void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime);
  extern bool sched_rt_bandwidth_account(struct rt_rq *rt_rq);
 diff --git a/kernel/signal.c b/kernel/signal.c
-index 4bebd2443cc3..2e2eafc8375e 100644
+index 723c84d162dd..ae3c903c6b20 100644
 --- a/kernel/signal.c
 +++ b/kernel/signal.c
-@@ -2302,13 +2302,13 @@ static int ptrace_stop(int exit_code, int why, unsigned long message,
+@@ -2303,13 +2303,13 @@ static int ptrace_stop(int exit_code, int why, unsigned long message,
  	/*
  	 * Don't want to allow preemption here, because
  	 * sys_ptrace() needs this task to be inactive.
@@ -7066,10 +7260,10 @@ index e09852be4e63..591cac6f03ec 100644
  
  /*
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index c9b52e920b8f..c2ef2443686f 100644
+index 96749a6cf111..e6aa1685e04e 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -2644,11 +2644,19 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
+@@ -2642,11 +2642,19 @@ unsigned int tracing_gen_ctx_irq_test(unsigned int irqs_status)
  	if (softirq_count() >> (SOFTIRQ_SHIFT + 1))
  		trace_flags |= TRACE_FLAG_BH_OFF;
  
@@ -7091,7 +7285,7 @@ index c9b52e920b8f..c2ef2443686f 100644
  		(min_t(unsigned int, migration_disable_value(), 0xf)) << 4;
  }
  
-@@ -4242,15 +4250,17 @@ unsigned long trace_total_entries(struct trace_array *tr)
+@@ -4240,15 +4248,17 @@ unsigned long trace_total_entries(struct trace_array *tr)
  
  static void print_lat_help_header(struct seq_file *m)
  {
@@ -7118,7 +7312,7 @@ index c9b52e920b8f..c2ef2443686f 100644
  }
  
  static void print_event_info(struct array_buffer *buf, struct seq_file *m)
-@@ -4284,14 +4294,16 @@ static void print_func_help_header_irq(struct array_buffer *buf, struct seq_file
+@@ -4282,14 +4292,16 @@ static void print_func_help_header_irq(struct array_buffer *buf, struct seq_file
  
  	print_event_info(buf, m);
  
@@ -7156,7 +7350,7 @@ index 24859d964505..8d9a21d40f5a 100644
  	return ret;
  }
 diff --git a/kernel/trace/trace_output.c b/kernel/trace/trace_output.c
-index bf1965b18099..133f15d3b886 100644
+index 5cd4fb656306..3c227e2843ae 100644
 --- a/kernel/trace/trace_output.c
 +++ b/kernel/trace/trace_output.c
 @@ -442,6 +442,7 @@ int trace_print_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
@@ -7263,10 +7457,10 @@ index 8ba4b269ab89..0cbe90634654 100644
  		return;
  	}
 diff --git a/lib/debugobjects.c b/lib/debugobjects.c
-index 5dfa582dbadd..d42f2839a222 100644
+index 8c3b483a8fb4..e7c5889094d3 100644
 --- a/lib/debugobjects.c
 +++ b/lib/debugobjects.c
-@@ -600,10 +600,21 @@ static void debug_objects_fill_pool(void)
+@@ -601,10 +601,21 @@ static void debug_objects_fill_pool(void)
  {
  	/*
  	 * On RT enabled kernels the pool refill must happen in preemptible
@@ -7291,10 +7485,10 @@ index 5dfa582dbadd..d42f2839a222 100644
  
  static void
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index a905b850d31c..f99dc2f63ba4 100644
+index 58a3f70eb39b..558974d23f1c 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -6601,19 +6601,17 @@ static void __build_all_zonelists(void *data)
+@@ -6633,19 +6633,17 @@ static void __build_all_zonelists(void *data)
  	unsigned long flags;
  
  	/*
@@ -7319,7 +7513,7 @@ index a905b850d31c..f99dc2f63ba4 100644
  
  #ifdef CONFIG_NUMA
  	memset(node_load, 0, sizeof(node_load));
-@@ -6650,9 +6648,8 @@ static void __build_all_zonelists(void *data)
+@@ -6682,9 +6680,8 @@ static void __build_all_zonelists(void *data)
  #endif
  	}
  
@@ -7386,10 +7580,10 @@ index 9ffd40b8270c..bc75fa1e4666 100644
  		u64_stats_add(&stats->rx_packets, rxpackets);
  		u64_stats_add(&stats->rx_bytes, rxbytes);
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 20d8b9195ef6..522cb8b1b36c 100644
+index 42c16b3e86b9..6b8ab043db62 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -4621,15 +4621,6 @@ static void rps_trigger_softirq(void *data)
+@@ -4629,15 +4629,6 @@ static void rps_trigger_softirq(void *data)
  
  #endif /* CONFIG_RPS */
  
@@ -7405,7 +7599,7 @@ index 20d8b9195ef6..522cb8b1b36c 100644
  /*
   * Check if this softnet_data structure is another cpu one
   * If yes, queue it to our IPI list and return 1
-@@ -6690,6 +6681,30 @@ static void skb_defer_free_flush(struct softnet_data *sd)
+@@ -6698,6 +6689,30 @@ static void skb_defer_free_flush(struct softnet_data *sd)
  	}
  }
  
@@ -7436,7 +7630,7 @@ index 20d8b9195ef6..522cb8b1b36c 100644
  static __latent_entropy void net_rx_action(struct softirq_action *h)
  {
  	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
-@@ -10512,12 +10527,12 @@ void dev_fetch_sw_netstats(struct rtnl_link_stats64 *s,
+@@ -10520,12 +10535,12 @@ void dev_fetch_sw_netstats(struct rtnl_link_stats64 *s,
  
  		stats = per_cpu_ptr(netstats, cpu);
  		do {
@@ -7451,7 +7645,7 @@ index 20d8b9195ef6..522cb8b1b36c 100644
  
  		s->rx_packets += rx_packets;
  		s->rx_bytes   += rx_bytes;
-@@ -11451,7 +11466,11 @@ static int __init net_dev_init(void)
+@@ -11459,7 +11474,11 @@ static int __init net_dev_init(void)
  		INIT_CSD(&sd->csd, rps_trigger_softirq, sd);
  		sd->cpu = i;
  #endif
@@ -7565,10 +7759,10 @@ index 768b8d65a5ba..ec9119e84c54 100644
 +	}
  }
 diff --git a/net/devlink/leftover.c b/net/devlink/leftover.c
-index 032c7af065cd..94e8cc3de330 100644
+index f1c6bd727a83..f6b660604e29 100644
 --- a/net/devlink/leftover.c
 +++ b/net/devlink/leftover.c
-@@ -8307,10 +8307,10 @@ static void devlink_trap_stats_read(struct devlink_stats __percpu *trap_stats,
+@@ -8287,10 +8287,10 @@ static void devlink_trap_stats_read(struct devlink_stats __percpu *trap_stats,
  
  		cpu_stats = per_cpu_ptr(trap_stats, i);
  		do {
@@ -7681,7 +7875,7 @@ index f1f43894efb8..dc5165d3eec4 100644
  		stats->rx_packets	+= local.rx_packets;
  		stats->rx_bytes		+= local.rx_bytes;
 diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 17a1b731a76b..2be696513629 100644
+index 18e37b32a5d6..fc750ab4c039 100644
 --- a/net/netfilter/ipvs/ip_vs_ctl.c
 +++ b/net/netfilter/ipvs/ip_vs_ctl.c
 @@ -2299,13 +2299,13 @@ static int ip_vs_stats_percpu_show(struct seq_file *seq, void *v)
@@ -7701,10 +7895,10 @@ index 17a1b731a76b..2be696513629 100644
  		seq_printf(seq, "%3X %8LX %8LX %8LX %16LX %16LX\n",
  			   i, (u64)conns, (u64)inpkts,
 diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 63b7be0a95d0..d8df45082982 100644
+index ed09b1fdda16..350fa285592f 100644
 --- a/net/netfilter/nf_tables_api.c
 +++ b/net/netfilter/nf_tables_api.c
-@@ -1713,10 +1713,10 @@ static int nft_dump_stats(struct sk_buff *skb, struct nft_stats __percpu *stats)
+@@ -1714,10 +1714,10 @@ static int nft_dump_stats(struct sk_buff *skb, struct nft_stats __percpu *stats)
  	for_each_possible_cpu(cpu) {
  		cpu_stats = per_cpu_ptr(stats, cpu);
  		do {
@@ -7762,3 +7956,217 @@ index d4a2db0b2299..0a0e4c283f02 100644
  
  			masks_and_count[i].counter += counter;
  		}
+diff --git a/scripts/sign-file.c b/scripts/sign-file.c
+index 3edb156ae52c..7070245edfc1 100644
+--- a/scripts/sign-file.c
++++ b/scripts/sign-file.c
+@@ -27,14 +27,17 @@
+ #include <openssl/evp.h>
+ #include <openssl/pem.h>
+ #include <openssl/err.h>
+-#include <openssl/engine.h>
+-
+-/*
+- * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
+- *
+- * Remove this if/when that API is no longer used
+- */
+-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
++#if OPENSSL_VERSION_MAJOR >= 3
++# define USE_PKCS11_PROVIDER
++# include <openssl/provider.h>
++# include <openssl/store.h>
++#else
++# if !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_DEPRECATED_3_0)
++#  define USE_PKCS11_ENGINE
++#  include <openssl/engine.h>
++# endif
++#endif
++#include "ssl-common.h"
+ 
+ /*
+  * Use CMS if we have openssl-1.0.0 or newer available - otherwise we have to
+@@ -83,41 +86,6 @@ void format(void)
+ 	exit(2);
+ }
+ 
+-static void display_openssl_errors(int l)
+-{
+-	const char *file;
+-	char buf[120];
+-	int e, line;
+-
+-	if (ERR_peek_error() == 0)
+-		return;
+-	fprintf(stderr, "At main.c:%d:\n", l);
+-
+-	while ((e = ERR_get_error_line(&file, &line))) {
+-		ERR_error_string(e, buf);
+-		fprintf(stderr, "- SSL %s: %s:%d\n", buf, file, line);
+-	}
+-}
+-
+-static void drain_openssl_errors(void)
+-{
+-	const char *file;
+-	int line;
+-
+-	if (ERR_peek_error() == 0)
+-		return;
+-	while (ERR_get_error_line(&file, &line)) {}
+-}
+-
+-#define ERR(cond, fmt, ...)				\
+-	do {						\
+-		bool __cond = (cond);			\
+-		display_openssl_errors(__LINE__);	\
+-		if (__cond) {				\
+-			errx(1, fmt, ## __VA_ARGS__);	\
+-		}					\
+-	} while(0)
+-
+ static const char *key_pass;
+ 
+ static int pem_pw_cb(char *buf, int len, int w, void *v)
+@@ -139,28 +107,64 @@ static int pem_pw_cb(char *buf, int len, int w, void *v)
+ 	return pwlen;
+ }
+ 
+-static EVP_PKEY *read_private_key(const char *private_key_name)
++static EVP_PKEY *read_private_key_pkcs11(const char *private_key_name)
+ {
+-	EVP_PKEY *private_key;
++	EVP_PKEY *private_key = NULL;
++#ifdef USE_PKCS11_PROVIDER
++	OSSL_STORE_CTX *store;
+ 
++	if (!OSSL_PROVIDER_try_load(NULL, "pkcs11", true))
++		ERR(1, "OSSL_PROVIDER_try_load(pkcs11)");
++	if (!OSSL_PROVIDER_try_load(NULL, "default", true))
++		ERR(1, "OSSL_PROVIDER_try_load(default)");
++
++	store = OSSL_STORE_open(private_key_name, NULL, NULL, NULL, NULL);
++	ERR(!store, "OSSL_STORE_open");
++
++	while (!OSSL_STORE_eof(store)) {
++		OSSL_STORE_INFO *info = OSSL_STORE_load(store);
++
++		if (!info) {
++			drain_openssl_errors(__LINE__, 0);
++			continue;
++		}
++		if (OSSL_STORE_INFO_get_type(info) == OSSL_STORE_INFO_PKEY) {
++			private_key = OSSL_STORE_INFO_get1_PKEY(info);
++			ERR(!private_key, "OSSL_STORE_INFO_get1_PKEY");
++		}
++		OSSL_STORE_INFO_free(info);
++		if (private_key)
++			break;
++	}
++	OSSL_STORE_close(store);
++#elif defined(USE_PKCS11_ENGINE)
++	ENGINE *e;
++
++	ENGINE_load_builtin_engines();
++	drain_openssl_errors(__LINE__, 1);
++	e = ENGINE_by_id("pkcs11");
++	ERR(!e, "Load PKCS#11 ENGINE");
++	if (ENGINE_init(e))
++		drain_openssl_errors(__LINE__, 1);
++	else
++		ERR(1, "ENGINE_init");
++	if (key_pass)
++		ERR(!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0), "Set PKCS#11 PIN");
++	private_key = ENGINE_load_private_key(e, private_key_name, NULL, NULL);
++	ERR(!private_key, "%s", private_key_name);
++#else
++	fprintf(stderr, "no pkcs11 engine/provider available\n");
++	exit(1);
++#endif
++	return private_key;
++}
++
++static EVP_PKEY *read_private_key(const char *private_key_name)
++{
+ 	if (!strncmp(private_key_name, "pkcs11:", 7)) {
+-		ENGINE *e;
+-
+-		ENGINE_load_builtin_engines();
+-		drain_openssl_errors();
+-		e = ENGINE_by_id("pkcs11");
+-		ERR(!e, "Load PKCS#11 ENGINE");
+-		if (ENGINE_init(e))
+-			drain_openssl_errors();
+-		else
+-			ERR(1, "ENGINE_init");
+-		if (key_pass)
+-			ERR(!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0),
+-			    "Set PKCS#11 PIN");
+-		private_key = ENGINE_load_private_key(e, private_key_name,
+-						      NULL, NULL);
+-		ERR(!private_key, "%s", private_key_name);
++		return read_private_key_pkcs11(private_key_name);
+ 	} else {
++		EVP_PKEY *private_key;
+ 		BIO *b;
+ 
+ 		b = BIO_new_file(private_key_name, "rb");
+@@ -169,9 +173,9 @@ static EVP_PKEY *read_private_key(const char *private_key_name)
+ 						      NULL);
+ 		ERR(!private_key, "%s", private_key_name);
+ 		BIO_free(b);
+-	}
+ 
+-	return private_key;
++		return private_key;
++	}
+ }
+ 
+ static X509 *read_x509(const char *x509_name)
+@@ -306,7 +310,7 @@ int main(int argc, char **argv)
+ 
+ 		/* Digest the module data. */
+ 		OpenSSL_add_all_digests();
+-		display_openssl_errors(__LINE__);
++		drain_openssl_errors(__LINE__, 0);
+ 		digest_algo = EVP_get_digestbyname(hash_algo);
+ 		ERR(!digest_algo, "EVP_get_digestbyname");
+ 
+diff --git a/scripts/ssl-common.h b/scripts/ssl-common.h
+new file mode 100644
+index 000000000000..2db0e181143c
+--- /dev/null
++++ b/scripts/ssl-common.h
+@@ -0,0 +1,32 @@
++/* SPDX-License-Identifier: LGPL-2.1+ */
++/*
++ * SSL helper functions shared by sign-file and extract-cert.
++ */
++
++static void drain_openssl_errors(int l, int silent)
++{
++	const char *file;
++	char buf[120];
++	int e, line;
++
++	if (ERR_peek_error() == 0)
++		return;
++	if (!silent)
++		fprintf(stderr, "At main.c:%d:\n", l);
++
++	while ((e = ERR_peek_error_line(&file, &line))) {
++		ERR_error_string(e, buf);
++		if (!silent)
++			fprintf(stderr, "- SSL %s: %s:%d\n", buf, file, line);
++		ERR_get_error();
++	}
++}
++
++#define ERR(cond, fmt, ...)				\
++	do {						\
++		bool __cond = (cond);			\
++		drain_openssl_errors(__LINE__, 0);	\
++		if (__cond) {				\
++			errx(1, fmt, ## __VA_ARGS__);	\
++		}					\
++	} while (0)
