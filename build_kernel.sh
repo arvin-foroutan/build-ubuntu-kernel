@@ -201,14 +201,23 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest rc
+    echo "*** Copying and applying amd pstate patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-pstate-patches-v6-all/*.patch .;
+    patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying amd tlb patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-tlb-broadcast-patches-all/*.patch .;
+    patch -p1 < ./0001-amd-tlb-broadcast-dev-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.13-merge-v20250106.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v6/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/clearlinux-patches/*.patch .;
@@ -225,6 +234,12 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest rc
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntsync-patches-v3-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying t2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches/*.patch .;
+    patch -p1 < ./0001-t2-patches.patch;
+    echo "*** Copying and applying itmt patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/itmt-core-ranking-patches/*.patch .;
+    patch -p1 < ./0001-itmt-6.13-merge-changes-from-dev-tree.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
@@ -258,8 +273,11 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
     patch -p1 < ./0001-amd-cache-optimizer-patches.patch;
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v6-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v7-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
+    echo "*** Copying and applying amd tlb patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-amd-tlb-broadcast-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
@@ -267,7 +285,7 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v18/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v20/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying clang patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clang-patches-v2/*.patch .;
@@ -284,9 +302,6 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # Latest stable
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.12-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
-    echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v3/*.patch .;
-    patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
