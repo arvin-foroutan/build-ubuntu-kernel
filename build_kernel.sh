@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.12"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.12.10"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061210"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.12.11"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061211"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -285,8 +285,23 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v21/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v21-sep/*.patch .;
+    patch -p1 < ./0001-drm-amd-Taint-the-kernel-when-enabling-overdrive.patch;
+    patch -p1 < ./0002-drm-edid-add-a-quirk-for-two-240Hz-Samsung-monitors.patch;
+    patch -p1 < ./0003-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
+    patch -p1 < ./0004-fs-ntfs3-Add-more-checks-in-mi_enum_attr-part-2.patch;
+    patch -p1 < ./0005-fs-ntfs3-Add-check-in-ntfs_extend_initialized_size.patch;
+    patch -p1 < ./0006-fs-ntfs3-Switch-to-folio-to-release-resources.patch;
+    patch -p1 < ./0007-fs-ntfs3-Accumulated-refactoring-changes.patch;
+    patch -p1 < ./0008-workqueue-Reduce-expensive-locks-for-unbound-workque.patch;
+    patch -p1 < ./0009-Reapply-x86-tlb-put-cpumask_test_cpu-in-prev-next-un.patch;
+    patch -p1 < ./0010-Bluetooth-btmtk-Remove-resetting-mt7921-before-downl.patch;
+    patch -p1 < ./0011-kprobes-Reduce-preempt-disable-scope-in-check_kprobe.patch;
+    patch -p1 < ./0012-futex-improve-user-space-accesses.patch;
+    patch -p1 < ./0013-Input-xpad-add-support-for-ASUS-ROG-RAIKIRI-PRO.patch;
+    patch -p1 < ./0015-drm-amd-Invert-APU-check-for-amdgpu_device_evict_res.patch;
+    patch -p1 < ./0016-drm-amd-Add-Suspend-Hibernate-notification-callback-.patch;
+    patch -p1 < ./0017-sched_ext-Include-remaining-task-time-slice-in-error.patch;
     echo "*** Copying and applying clang patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clang-patches-v2/*.patch .;
     patch -p1 < ./0001-clang-patches.patch;
