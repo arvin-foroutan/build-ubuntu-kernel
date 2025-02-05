@@ -202,13 +202,13 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v12/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v13/*.patch .;
     patch -p1 < ./0001-iosched-6.13-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying amd drm patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-drm-patches-all/*.patch .;
     patch -p1 < ./0001-amd-drm-patches.patch;
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying amd tlb patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v2-all/*.patch .;
@@ -223,7 +223,7 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v4/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
@@ -241,8 +241,8 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches-v2/*.patch .;
     patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying itmt patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/itmt-core-ranking-patches/*.patch .;
-    patch -p1 < ./0001-itmt-6.13-merge-changes-from-dev-tree.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/itmt-core-ranking-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-itmt-core-ranking-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
