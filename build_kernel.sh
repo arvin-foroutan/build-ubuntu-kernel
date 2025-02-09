@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.13"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.13.1"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061301"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.13.2"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061302"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -208,10 +208,10 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-drm-patches-all/*.patch .;
     patch -p1 < ./0001-amd-drm-patches.patch;
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying amd tlb patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v4-all/*.patch .;
     patch -p1 < ./0001-amd-tlb-broadcast-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
@@ -223,8 +223,20 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v6-sep/*.patch .;
+    patch -p1 < ./0001-drm-edid-add-a-quirk-for-two-240Hz-Samsung-monitors.patch;
+    patch -p1 < ./0002-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
+    patch -p1 < ./0003-get_task_exe_file-check-PF_KTHREAD-locklessly.patch;
+    patch -p1 < ./0004-kprobes-Reduce-preempt-disable-scope-in-check_kprobe.patch;
+    patch -p1 < ./0005-Input-xpad-add-support-for-ASUS-ROG-RAIKIRI-PRO.patch;
+    patch -p1 < ./0006-Fix-GA605W-backlight.patch;
+    patch -p1 < ./0007-sched_ext-Include-remaining-task-time-slice-in-error.patch;
+    patch -p1 < ./0008-hid-asus-Disable-OOBE-mode-on-the-ProArt-P16.patch;
+    patch -p1 < ./0009-Revert-Fix-GA605W-backlight.patch;
+    patch -p1 < ./0010-sched_ext-Include-task-weight-in-the-error-state-dum.patch;
+    patch -p1 < ./0012-x86-boot-Use-std-gnu11-to-fix-build-with-GCC-15.patch;
+    patch -p1 < ./0013-efi-libstub-Use-std-gnu11-to-fix-build-with-GCC-15.patch;
+    patch -p1 < ./0014-fuse-prevent-folio-use-after-free-in-readahead.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
@@ -237,6 +249,9 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v2-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
+    echo "*** Copying and applying pid patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pid-patches-all/*.patch .;
+    patch -p1 < ./0001-pid-patches.patch;
     echo "*** Copying and applying t2 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches-v2/*.patch .;
     patch -p1 < ./0001-t2-patches.patch;
