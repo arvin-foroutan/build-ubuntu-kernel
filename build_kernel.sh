@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.13"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.13.2"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061302"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.13.4"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061304"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -208,10 +208,10 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-drm-patches-all/*.patch .;
     patch -p1 < ./0001-amd-drm-patches.patch;
     echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v3-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v5-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying amd tlb patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v7-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v8-all/*.patch .;
     patch -p1 < ./0001-amd-tlb-broadcast-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
@@ -235,14 +235,40 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying ntsync patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v3-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
     echo "*** Copying and applying pid patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pid-patches-all/*.patch .;
     patch -p1 < ./0001-pid-patches.patch;
     echo "*** Copying and applying t2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches-v2/*.patch .;
-    patch -p1 < ./0001-t2-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches-v2-sep/*.patch .;
+    patch -p1 < ./0001-Add-apple-bce-driver.patch;
+    patch -p1 < ./0002-Put-apple-bce-in-drivers-staging.patch;
+    patch -p1 < ./0003-HID-hid-appletb-bl-add-driver-for-the-backlight-of-A.patch;
+    patch -p1 < ./0004-HID-hid-appletb-kbd-add-driver-for-the-keyboard-mode.patch;
+    patch -p1 < ./0005-HID-multitouch-support-getting-the-contact-ID-from-H.patch;
+    patch -p1 < ./0006-HID-multitouch-support-getting-the-tip-state-from-HI.patch;
+    patch -p1 < ./0007-HID-multitouch-take-cls-maxcontacts-into-account-for.patch;
+    patch -p1 < ./0008-HID-multitouch-allow-specifying-if-a-device-is-direc.patch;
+    patch -p1 < ./0009-HID-multitouch-add-device-ID-for-Apple-Touch-Bars.patch;
+    patch -p1 < ./0010-lib-vsprintf-Add-support-for-generic-FOURCCs-by-exte.patch;
+    patch -p1 < ./0011-drm-format-helper-add-helper-for-BGR888-to-XRGB8888-.patch;
+    patch -p1 < ./0012-drm-tiny-add-driver-for-Apple-Touch-Bars-in-x86-Macs.patch;
+    patch -p1 < ./0013-HID-hid-appletb-kbd-add-support-for-fn-toggle-betwee.patch;
+    patch -p1 < ./0014-HID-hid-appletb-kbd-add-support-for-automatic-bright.patch;
+    patch -p1 < ./0015-i915-4-lane-quirk-for-mbp15-1.patch;
+    patch -p1 < ./0016-apple-gmux-allow-switching-to-igpu-at-probe.patch;
+    patch -p1 < ./0017-applesmc-convert-static-structures-to-drvdata.patch;
+    patch -p1 < ./0018-applesmc-make-io-port-base-addr-dynamic.patch;
+    patch -p1 < ./0019-applesmc-switch-to-acpi_device-from-platform.patch;
+    patch -p1 < ./0020-applesmc-key-interface-wrappers.patch;
+    patch -p1 < ./0021-applesmc-basic-mmio-interface-implementation.patch;
+    patch -p1 < ./0022-applesmc-fan-support-on-T2-Macs.patch;
+    patch -p1 < ./0023-applesmc-Add-iMacPro-to-applesmc_whitelist.patch;
+    patch -p1 < ./0024-applesmc-make-applesmc_remove-void.patch;
+    patch -p1 < ./0025-applesmc-battery-charge-limiter.patch;
+    patch -p1 < ./0026-Input-bcm5974-Add-support-for-the-T2-Macs.patch;
+    patch -p1 < ./0027-drm-i915-Discard-large-BIOS-framebuffers-causing-dis.patch;
     echo "*** Copying and applying itmt patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/itmt-core-ranking-patches-v2-all/*.patch .;
     patch -p1 < ./0001-itmt-core-ranking-patches.patch;
