@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.13"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.13.4"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061304"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.13.5"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061305"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -211,10 +211,10 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v5-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying amd tlb patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v8-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v9-all/*.patch .;
     patch -p1 < ./0001-amd-tlb-broadcast-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
@@ -223,8 +223,18 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v8/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v10-sep/*.patch .;
+    patch -p1 < ./0001-drm-edid-add-a-quirk-for-two-240Hz-Samsung-monitors.patch;
+    patch -p1 < ./0002-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
+    patch -p1 < ./0003-get_task_exe_file-check-PF_KTHREAD-locklessly.patch;
+    patch -p1 < ./0004-kprobes-Reduce-preempt-disable-scope-in-check_kprobe.patch;
+    patch -p1 < ./0005-Input-xpad-add-support-for-ASUS-ROG-RAIKIRI-PRO.patch;
+    patch -p1 < ./0006-Fix-GA605W-backlight.patch;
+    patch -p1 < ./0007-sched_ext-Include-remaining-task-time-slice-in-error.patch;
+    patch -p1 < ./0008-Revert-Fix-GA605W-backlight.patch;
+    patch -p1 < ./0009-sched_ext-Include-task-weight-in-the-error-state-dum.patch;
+    patch -p1 < ./0010-fuse-prevent-folio-use-after-free-in-readahead.patch;
+    patch -p1 < ./0011-mei-vsc-Use-wakeuphostint-when-getting-the-host-wake.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/clearlinux-patches/*.patch .;
     patch -p1 < ./0001-clearlinux-patches.patch;
