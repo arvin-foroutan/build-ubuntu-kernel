@@ -310,16 +310,10 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
     patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
-elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # Latest stable
+elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
     echo "*** Copying and applying amd cache optimizer patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
     patch -p1 < ./0001-amd-cache-optimizer-patches.patch;
-    echo "*** Copying and applying amd pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-v7-all/*.patch .;
-    patch -p1 < ./0001-amd-pstate-patches.patch;
-    echo "*** Copying and applying amd tlb patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-tlb-broadcast-patches-v3-all/*.patch .;
-    patch -p1 < ./0001-amd-tlb-broadcast-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
