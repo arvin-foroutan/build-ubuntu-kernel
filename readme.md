@@ -7,7 +7,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 ## Supported versions
 
 - 6.13 (mainline)
-- 6.12 (stable)
+- 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
@@ -64,6 +64,7 @@ Current patch set includes:
  - AMD P-State driver
  - BBR3 TCP congestion control
  - Multi-generational LRU
+ - Adaptive Deadline I/O Scheduler (ADIOS)
  - CachyOS patches
  - Xanmod patches
  - PF-kernel patches
@@ -77,40 +78,40 @@ Current patch set includes:
 
 To build other versions, you can use the following convention:
 
-6.12:
+6.12 LTS:
 
 ```console
-KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.11 KERNEL_SUB_VER=061211 ./build_kernel.sh
+KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.17 KERNEL_SUB_VER=061217 ./build_kernel.sh
 ```
 
 6.6 LTS:
 
 ```console
-KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.54 KERNEL_SUB_VER=060654 ./build_kernel.sh
+KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.80 KERNEL_SUB_VER=060680 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.112 KERNEL_SUB_VER=0601112 ./build_kernel.sh
+KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.129 KERNEL_SUB_VER=0601129 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.167 KERNEL_SUB_VER=0515167 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.178 KERNEL_SUB_VER=0515178 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.226 KERNEL_SUB_VER=0510226 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.234 KERNEL_SUB_VER=0510234 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.284 KERNEL_SUB_VER=0504284 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.290 KERNEL_SUB_VER=0504290 ./build_kernel.sh
 ```
 
 #### Development kernels
