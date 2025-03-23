@@ -220,8 +220,8 @@ if [ ${KERNEL_BASE_VER} == "6.13" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
     patch -p1 < ./0001-aufs-6.13-merge-v20250210.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
-    patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches-v2/*.patch .;
+    patch -p1 < ./0001-bbr3-patches.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v13-sep/*.patch .;
     patch -p1 < ./0001-drm-edid-add-a-quirk-for-two-240Hz-Samsung-monitors.patch;
