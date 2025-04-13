@@ -6,7 +6,9 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.13 (mainline)
+- 6.15 (rc)
+- 6.14 (mainline)
+- 6.13 (stable)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -53,7 +55,7 @@ VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.13 mainline kernel will be built with the following:
+By default, the latest 6.14 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless, -O3 optimization
@@ -77,6 +79,12 @@ Current patch set includes:
  - AUFS support
 
 To build other versions, you can use the following convention:
+
+6.13:
+
+```console
+KERNEL_BASE_VER=6.13 KERNEL_PATCH_VER=6.13.11 KERNEL_SUB_VER=061311 ./build_kernel.sh
+```
 
 6.12 LTS:
 
@@ -116,10 +124,10 @@ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.290 KERNEL_SUB_VER=0
 
 #### Development kernels
 
-6.13-rc1:
+6.15-rc1:
 
 ```console
-KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.13 KERNEL_PATCH_VER=6.13-rc1 KERNEL_SUB_VER=061300rc1 ./build_kernel.sh
+KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.15 KERNEL_PATCH_VER=6.15-rc1 KERNEL_SUB_VER=061500rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
