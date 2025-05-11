@@ -289,7 +289,7 @@ if [ ${KERNEL_BASE_VER} == "6.15" ]; then   # Latest rc
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.14" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v3/*.patch .;
     patch -p1 < ./0001-iosched-6.14-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying amd drm patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-drm-patches-all/*.patch .;
@@ -304,7 +304,7 @@ elif [ ${KERNEL_BASE_VER} == "6.14" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v3/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
@@ -316,10 +316,13 @@ elif [ ${KERNEL_BASE_VER} == "6.14" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cache-aware-patches/*.patch .;
     patch -p1 < ./0001-cache-6.14-merge-changes-from-dev-tree.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v10-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v14-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-crypto-crc32c_generic-Add-an-alias-for-crc32c_intel.patch;
-    patch -p1 < ./0004-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
+    patch -p1 < ./0005-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
+    patch -p1 < ./0007-Input-xpad-Add-support-for-8BitDo-Ultimate-2-Wireles.patch;
+    patch -p1 < ./0014-Revert-Bluetooth-l2cap-Check-encryption-key-size-on-.patch;
+    patch -p1 < ./0016-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
     echo "*** Copying and applying cpu cachyos patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-cpu-cachyos-patches.patch;
@@ -353,11 +356,14 @@ elif [ ${KERNEL_BASE_VER} == "6.14" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pid-patches-all/*.patch .;
     patch -p1 < ./0001-pid-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-patches-v9-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-patches-v11-sep/*.patch .;
     patch -p1 < ./0002-tpm-Mask-TPM-RC-in-tpm2_start_auth_session.patch;
     patch -p1 < ./0003-ice-mark-ice_write_prof_mask_reg-as-noinline.patch;
     patch -p1 < ./0004-fixes-6.14-update-tpm2_start_auth_session-fix.patch;
     patch -p1 < ./0005-Kconfig-switch-CONFIG_SYSFS_SYCALL-default-to-n.patch;
+    patch -p1 < ./0006-gcc-15-make-unterminated-string-initialization-just-.patch;
+    patch -p1 < ./0007-gcc-15-disable-Wunterminated-string-initialization-e.patch;
+    patch -p1 < ./0008-mei-vsc-Use-struct-vsc_tp_packet-as-vsc-tp-tx_buf-an.patch;
     echo "*** Copying and applying smb patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/smb-patches-v2/*.patch .;
     patch -p1 < ./0001-smb-patches.patch;
