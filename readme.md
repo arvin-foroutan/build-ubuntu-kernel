@@ -8,7 +8,6 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 - 6.15 (rc)
 - 6.14 (mainline)
-- 6.13 (stable)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -79,12 +78,6 @@ Current patch set includes:
  - AUFS support
 
 To build other versions, you can use the following convention:
-
-6.13:
-
-```console
-KERNEL_BASE_VER=6.13 KERNEL_PATCH_VER=6.13.11 KERNEL_SUB_VER=061311 ./build_kernel.sh
-```
 
 6.12 LTS:
 
