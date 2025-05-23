@@ -7,7 +7,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 ## Supported versions
 
 - 6.15 (rc)
-- 6.14 (mainline)
+- 6.14 (stable)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -67,6 +67,7 @@ Current patch set includes:
  - Multi-generational LRU
  - Adaptive Deadline I/O Scheduler (ADIOS)
  - CachyOS patches
+ - Lucjan patches
  - Xanmod patches
  - PF-kernel patches
  - FUTEX Proton/Wine Fsync support
@@ -82,37 +83,37 @@ To build other versions, you can use the following convention:
 6.12 LTS:
 
 ```console
-KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.17 KERNEL_SUB_VER=061217 ./build_kernel.sh
+KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.30 KERNEL_SUB_VER=061230 ./build_kernel.sh
 ```
 
 6.6 LTS:
 
 ```console
-KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.80 KERNEL_SUB_VER=060680 ./build_kernel.sh
+KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.92 KERNEL_SUB_VER=060692 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.129 KERNEL_SUB_VER=0601129 ./build_kernel.sh
+KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.140 KERNEL_SUB_VER=0601140 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.178 KERNEL_SUB_VER=0515178 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.184 KERNEL_SUB_VER=0515184 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.234 KERNEL_SUB_VER=0510234 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.237 KERNEL_SUB_VER=0510237 ./build_kernel.sh
 ```
 
 5.4 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.290 KERNEL_SUB_VER=0504290 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.293 KERNEL_SUB_VER=0504293 ./build_kernel.sh
 ```
 
 #### Development kernels
@@ -130,31 +131,31 @@ Real-time kernels have specific use-cases and generally should only be used if y
 6.6-rt:
 
 ```console
-KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.63 KERNEL_SUB_VER=060663 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.87 KERNEL_SUB_VER=060687 ./build_kernel.sh
 ```
 
 6.1-rt:
 
 ```console
-KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.119 KERNEL_SUB_VER=0601119 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.134 KERNEL_SUB_VER=0601134 ./build_kernel.sh
 ```
 
 5.15-rt:
 
 ```console
-KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.173 KERNEL_SUB_VER=0515173 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.183 KERNEL_SUB_VER=0515183 ./build_kernel.sh
 ```
 
 5.10-rt:
 
 ```console
-KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.229 KERNEL_SUB_VER=0510229 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.237 KERNEL_SUB_VER=0510237 ./build_kernel.sh
 ```
 
 5.4-rt:
 
 ```console
-KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.285 KERNEL_SUB_VER=0504285 ./build_kernel.sh
+KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.290 KERNEL_SUB_VER=0504290 ./build_kernel.sh
 ```
 
 #### Full tickless kernels
