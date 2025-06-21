@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.15"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.15.2"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061502"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.15.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061503"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -280,7 +280,7 @@ if [ ${KERNEL_BASE_VER} == "6.15" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/openvpn-dco-patches-v4-all/*.patch .;
     patch -p1 < ./0001-openvpn-dco-patches.patch;
     echo "*** Copying and applying pf patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-patches-v9/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/pf-fixes-patches-v11/*.patch .;
     patch -p1 < ./0001-pf-fixes-patches.patch;
     echo "*** Copying and applying rt patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/rt-patches-all/*.patch .;
