@@ -6,6 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
+- 6.16 (rc)
 - 6.15 (stable)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
@@ -117,10 +118,10 @@ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.293 KERNEL_SUB_VER=0
 
 #### Development kernels
 
-6.15-rc1:
+6.16-rc1:
 
 ```console
-KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.15 KERNEL_PATCH_VER=6.15-rc1 KERNEL_SUB_VER=061500rc1 ./build_kernel.sh
+KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.16 KERNEL_PATCH_VER=6.16-rc1 KERNEL_SUB_VER=061600rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
