@@ -132,7 +132,7 @@ fi
 
 if [ -d ${PATCH_PATH}/xanmod-patches ]; then
     echo "*** Found xanmod-patches, pulling latest... ✓";
-    git -C ${PATCH_PATH}/xanmod-patches pull https://github.com/xanmod/linux-patches.git;
+    git -C ${PATCH_PATH}/xanmod-patches pull https://gitlab.com/xanmod/linux-patches.git;
 else
     echo "*** Fetching xanmod patches... ✓";
     git clone https://github.com/xanmod/linux-patches.git ${PATCH_PATH}/xanmod-patches;
@@ -291,9 +291,10 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
     patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
     patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
-    patch -p1 < ./0014-XANMOD-mm-vmscan-Set-minimum-amount-of-swapping.patch;
+    patch -p1 < ./0014-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
     patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
     patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
     patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.15" ]; then # Latest stable
@@ -383,10 +384,10 @@ elif [ ${KERNEL_BASE_VER} == "6.15" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-v4l2loopback-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-6.11.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
-    patch -p1 < ./0002-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
-    patch -p1 < ./0003-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.15.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0001-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
+    patch -p1 < ./0002-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
+    patch -p1 < ./0003-kbuild-Re-add-.config-file-required-to-sign-external.patch;
     patch -p1 < ./0004-kbuild-Remove-GCC-minimal-function-alignment.patch;
     patch -p1 < ./0005-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
     patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
@@ -395,9 +396,10 @@ elif [ ${KERNEL_BASE_VER} == "6.15" ]; then # Latest stable
     patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
     patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
     patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
-    patch -p1 < ./0014-XANMOD-mm-vmscan-Set-minimum-amount-of-swapping.patch;
+    patch -p1 < ./0014-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
     patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
     patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
     patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
@@ -477,25 +479,24 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-cachyos-patches/*.patch .;
     patch -p1 < ./0001-zstd-cachyos-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-6.11.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0001-XANMOD-x86-build-Prevent-generating-avx2-and-avx512-.patch;
-    patch -p1 < ./0002-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
-    patch -p1 < ./0003-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
-    patch -p1 < ./0004-kbuild-Remove-GCC-minimal-function-alignment.patch;
-    patch -p1 < ./0005-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
-    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0009-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
-    patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
-    patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
-    patch -p1 < ./0012-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
-    patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
-    patch -p1 < ./0014-XANMOD-mm-vmscan-Set-minimum-amount-of-swapping.patch;
-    patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-    patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
-    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.12.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0001-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
+    patch -p1 < ./0002-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
+    patch -p1 < ./0003-kbuild-Remove-GCC-minimal-function-alignment.patch;
+    patch -p1 < ./0004-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    patch -p1 < ./0006-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0007-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0008-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
+    patch -p1 < ./0009-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
+    patch -p1 < ./0010-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0011-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
+    patch -p1 < ./0012-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0013-XANMOD-mm-vmscan-Set-minimum-amount-of-swapping.patch;
+    patch -p1 < ./0014-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0015-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0016-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
+    patch -p1 < ./0017-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.6" ]; then  # LTS kernel, supported until 2029
     echo "*** Copying and applying graysky cpu patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-6.1.79-6.8-rc3.patch .;
