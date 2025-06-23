@@ -236,7 +236,6 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
     patch -p1 < ./0005-drm-amd-display-disable-CRTC-degamma-LUT-for-DCN401.patch;
-    patch -p1 < ./0006-drm-amd-display-Fix-mpv-playback-corruption-on-westo.patch;
     patch -p1 < ./0007-mfd-Fix-compilation-without-CONFIG_OF.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
