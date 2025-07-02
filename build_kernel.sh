@@ -204,17 +204,15 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches-v7/*.patch .;
     patch -p1 < ./0001-iosched-6.16-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3/*.patch .;
-    patch -p1 < ./0001-arch-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3-sep/*.patch .;
+    patch -p1 < ./0001-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
+    patch -p1 < ./0002-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v3/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
-    echo "*** Copying and applying aufs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.16-merge-v20250616.patch;
     echo "*** Copying and applying async patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/async-patches/*.patch .;
     patch -p1 < ./0001-async-patches.patch;
@@ -231,13 +229,12 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v5-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
     patch -p1 < ./0005-drm-amd-display-disable-CRTC-degamma-LUT-for-DCN401.patch;
     patch -p1 < ./0006-mfd-Fix-compilation-without-CONFIG_OF.patch;
-    patch -p1 < ./0007-Revert-wifi-iwlwifi-Fix-incorrect-logic-on-cmd_ver-r.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -275,6 +272,9 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     echo "*** Copying and applying s5 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/s5-patches/*.patch .;
     patch -p1 < ./0001-s5-patches.patch;
+    echo "*** Copying and applying t2 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches/*.patch .;
+    patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches-v3/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
@@ -299,13 +299,13 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.15" ]; then # Latest stable
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v5/*.patch .;
     patch -p1 < ./0001-iosched-6.15-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying amd pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-pstate-patches-all/*.patch .;
     patch -p1 < ./0001-amd-pstate-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v3/*.patch .;
@@ -326,7 +326,7 @@ elif [ ${KERNEL_BASE_VER} == "6.15" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches-all/*.patch .;
     patch -p1 < ./0001-cpu-cachyos-patches.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v10-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v13-sep/*.patch .;
     patch -p1 < ./0002-i2c-piix4-Make-CONFIG_I2C_PIIX4-dependent-on-CONFIG_.patch;
     patch -p1 < ./0003-i2c-piix4-x86-platform-Move-the-SB800-PIIX4-FCH-defi.patch;
     patch -p1 < ./0004-platform-x86-amd-pmc-Use-FCH_PM_BASE-definition.patch;
@@ -338,10 +338,8 @@ elif [ ${KERNEL_BASE_VER} == "6.15" ]; then # Latest stable
     patch -p1 < ./0011-zen-documentation-Revert-the-svg-s.patch;
     patch -p1 < ./0012-drm-amd-display-disable-CRTC-degamma-LUT-for-DCN401.patch;
     patch -p1 < ./0013-Revert-kbuild-remove-EXTRA_-FLAGS-support.patch;
-    patch -p1 < ./0014-drm-amd-display-Fix-mpv-playback-corruption-on-westo.patch;
-    patch -p1 < ./0015-drm-amdgpu-Fix-Illegal-opcode-in-command-stream-Erro.patch;
-    patch -p1 < ./0016-Revert-drm-amdgpu-Fix-Illegal-opcode-in-command-stre.patch;
-    patch -p1 < ./0017-drm-amdgpu-mes-add-compatibility-checks-for-set_hw_r.patch;
+    patch -p1 < ./0014-drm-amdgpu-Fix-Illegal-opcode-in-command-stream-Erro.patch;
+    patch -p1 < ./0015-Revert-drm-amdgpu-Fix-Illegal-opcode-in-command-stre.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
