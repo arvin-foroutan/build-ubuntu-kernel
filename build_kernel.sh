@@ -210,9 +210,6 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
     patch -p1 < ./0002-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
-    echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v3/*.patch .;
-    patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying async patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/async-patches/*.patch .;
     patch -p1 < ./0001-async-patches.patch;
@@ -234,7 +231,6 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
     patch -p1 < ./0005-drm-amd-display-disable-CRTC-degamma-LUT-for-DCN401.patch;
-    patch -p1 < ./0006-mfd-Fix-compilation-without-CONFIG_OF.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
