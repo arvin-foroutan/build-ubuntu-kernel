@@ -234,7 +234,6 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
     patch -p1 < ./0005-drm-amd-display-disable-CRTC-degamma-LUT-for-DCN401.patch;
-    patch -p1 < ./0006-drm-framebuffer-Acquire-internal-references-on-GEM-h.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -272,9 +271,6 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     echo "*** Copying and applying s5 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/s5-patches/*.patch .;
     patch -p1 < ./0001-s5-patches.patch;
-    echo "*** Copying and applying t2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches-v2/*.patch .;
-    patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches-v3/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
