@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.15"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.15.8"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061508"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.16"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061600"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -202,37 +202,38 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
+if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches-v11/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
     patch -p1 < ./0001-iosched-6.16-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-sep/*.patch .;
     patch -p1 < ./0001-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
     patch -p1 < ./0002-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying async patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/async-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/async-patches/*.patch .;
     patch -p1 < ./0001-async-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-initial-import.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/block-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-Prefer-teo-over-menu-governor.patch;
     echo "*** Copying and applying cpu cachyos patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v9-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
+    patch -p1 < ./0005-btrfs-fix-log-tree-replay-failure-due-to-file-with-0.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -250,28 +251,28 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest rc
     patch -p1 < ./0015-clear-net-sock-Introduce-64KB-reclaim-threshold.patch;
     patch -p1 < ./0016-clear-init-init_task-Tweak-timer_slack-value.patch;
     echo "*** Copying and applying drm patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/drm-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/drm-patches-all/*.patch .;
     patch -p1 < ./0001-drm-patches.patch;
     echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.16-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
     echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying le9 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/le9uo-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
     patch -p1 < ./0001-mm-6.16-add-le9uo.patch;
     echo "*** Copying and applying zblock patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/mm-zblock-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mm-zblock-patches/*.patch .;
     patch -p1 < ./0001-mm-add-zblock-allocator.patch;
     echo "*** Copying and applying rt patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/rt-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/rt-patches-all/*.patch .;
     patch -p1 < ./0001-rt-patches.patch;
     echo "*** Copying and applying s5 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/s5-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/s5-patches/*.patch .;
     patch -p1 < ./0001-s5-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.15.y-xanmod/xanmod/*.patch .;
