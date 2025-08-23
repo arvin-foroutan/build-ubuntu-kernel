@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.16"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.1"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061601"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.2"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061602"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -204,14 +204,14 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v3/*.patch .;
     patch -p1 < ./0001-iosched-6.16-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-sep/*.patch .;
     patch -p1 < ./0001-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
     patch -p1 < ./0002-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v3/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying async patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/async-patches/*.patch .;
@@ -229,11 +229,10 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v2-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v3-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
-    patch -p1 < ./0004-Bluetooth-btusb-Add-new-VID-PID-0489-e14e-for-MT7925.patch;
-    patch -p1 < ./0005-btrfs-fix-log-tree-replay-failure-due-to-file-with-0.patch;
+    patch -p1 < ./0004-drm-don-t-run-atomic_async_check-for-disabled-planes.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
