@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.16"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.4"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061604"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.5"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061605"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -204,15 +204,20 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v6/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v12/*.patch .;
     patch -p1 < ./0001-iosched-6.16-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-sep/*.patch .;
-    patch -p1 < ./0001-drivers-firmware-skip-simpledrm-if-nvidia-drm.modese.patch;
-    patch -p1 < ./0002-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3-sep/*.patch .;
+    patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
+    patch -p1 < ./0002-watchdog-intel_oc_wdt-Do-not-try-to-write-into-const.patch;
+    patch -p1 < ./0003-proc-fix-missing-pde_set_flags-for-net-proc-files.patch;
+    patch -p1 < ./0004-iwlwifi-Patch-to-fix-130-1030.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v4/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
+    echo "*** Copying and applying aufs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
+    patch -p1 < ./0001-aufs-6.16-merge-v20250804.patch;
     echo "*** Copying and applying async patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/async-patches/*.patch .;
     patch -p1 < ./0001-async-patches.patch;
@@ -229,11 +234,13 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v4-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-drm-don-t-run-atomic_async_check-for-disabled-planes.patch;
     patch -p1 < ./0005-net-ipv4-fix-regression-in-broadcast-routes.patch;
+    patch -p1 < ./0006-Revert-drm-don-t-run-atomic_async_check-for-disabled.patch;
+    patch -p1 < ./0007-drm-re-allow-no-op-changes-on-non-primary-planes-in-.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -272,7 +279,7 @@ if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/s5-patches/*.patch .;
     patch -p1 < ./0001-s5-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.15.y-xanmod/xanmod/*.patch .;
