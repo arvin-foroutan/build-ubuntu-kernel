@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.16"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.5"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061605"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.7"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061607"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -204,14 +204,13 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.16" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v12/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v13/*.patch .;
     patch -p1 < ./0001-iosched-6.16-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     patch -p1 < ./0002-watchdog-intel_oc_wdt-Do-not-try-to-write-into-const.patch;
-    patch -p1 < ./0003-proc-fix-missing-pde_set_flags-for-net-proc-files.patch;
-    patch -p1 < ./0004-iwlwifi-Patch-to-fix-130-1030.patch;
+    patch -p1 < ./0003-iwlwifi-Patch-to-fix-130-1030.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v4/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
