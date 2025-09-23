@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.16"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.7"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061607"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.8"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061608"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -226,14 +226,13 @@ if [ ${KERNEL_BASE_VER} == "6.17" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-drm-don-t-run-atomic_async_check-for-disabled-planes.patch;
     patch -p1 < ./0003-bpf-prevent-kfuncs-from-being-cloned-when-building-w.patch;
     patch -p1 < ./0004-net-ipv4-fix-regression-in-broadcast-routes.patch;
     patch -p1 < ./0005-Revert-drm-don-t-run-atomic_async_check-for-disabled.patch;
     patch -p1 < ./0006-drm-re-allow-no-op-changes-on-non-primary-planes-in-.patch;
-    patch -p1 < ./0007-drm-amd-display-Allow-RX6xxx-RX7700-to-invoke-amdgpu.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -288,9 +287,10 @@ elif [ ${KERNEL_BASE_VER} == "6.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v13/*.patch .;
     patch -p1 < ./0001-iosched-6.16-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     patch -p1 < ./0002-watchdog-intel_oc_wdt-Do-not-try-to-write-into-const.patch;
+    patch -p1 < ./0003-drm-i915-psr-Deactivate-PSR-only-on-LNL-and-when-sel.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v4/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
@@ -313,14 +313,13 @@ elif [ ${KERNEL_BASE_VER} == "6.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v6-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v7-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     patch -p1 < ./0002-drm-xe-Reapply-drm-i915-Disable-DSB-in-Xe-KMD.patch;
     patch -p1 < ./0004-drm-don-t-run-atomic_async_check-for-disabled-planes.patch;
     patch -p1 < ./0005-net-ipv4-fix-regression-in-broadcast-routes.patch;
     patch -p1 < ./0006-Revert-drm-don-t-run-atomic_async_check-for-disabled.patch;
     patch -p1 < ./0007-drm-re-allow-no-op-changes-on-non-primary-planes-in-.patch;
-    patch -p1 < ./0008-drm-amd-display-Allow-RX6xxx-RX7700-to-invoke-amdgpu.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
