@@ -215,7 +215,7 @@ if [ ${KERNEL_BASE_VER} == "6.17" ]; then   # Latest rc
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.16-merge-v20250915.patch;
+    patch -p1 < ./0001-aufs-6.17-merge-v20250915.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
