@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.16"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.8"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061608"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.16.9"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061609"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -215,7 +215,7 @@ if [ ${KERNEL_BASE_VER} == "6.17" ]; then   # Latest rc
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.17-merge-v20250915.patch;
+    patch -p1 < ./0001-aufs-6.17-merge-v20250922.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
@@ -296,7 +296,7 @@ elif [ ${KERNEL_BASE_VER} == "6.16" ]; then # Latest stable
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying aufs patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/aufs-patches/*.patch .;
-    patch -p1 < ./0001-aufs-6.16-merge-v20250915.patch;
+    patch -p1 < ./0001-aufs-6.16-merge-v20250922.patch;
     echo "*** Copying and applying async patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/async-patches/*.patch .;
     patch -p1 < ./0001-async-patches.patch;
