@@ -6,6 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
+- 6.17 (mainline)
 - 6.16 (stable)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
@@ -47,13 +48,13 @@ VBOX_SUPPORT=yes ./build_kernel.sh
 #### Variables
 
 ```console
-  VBOX_SUPPORT			Add support for VirtualBox (default: no)
-  USE_LLVM			Compile the kernel using LLVM/Clang instead of GCC (default: no)
+  VBOX_SUPPORT      Add support for VirtualBox (default: no)
+  USE_LLVM          Compile the kernel using LLVM/Clang instead of GCC (default: no)
 ```
 
 ### Building other versions
 
-By default, the latest 6.16 mainline kernel will be built with the following:
+By default, the latest 6.17 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless, -O3 optimization
@@ -78,6 +79,12 @@ Current patch set includes:
  - AUFS support
 
 To build other versions, you can use the following convention:
+
+6.16:
+
+```console
+KERNEL_BASE_VER=6.16 KERNEL_PATCH_VER=6.16.9 KERNEL_SUB_VER=061609 ./build_kernel.sh
+```
 
 6.12 LTS:
 
