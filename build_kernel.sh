@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.17"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.17"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061700"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.17.1"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061701"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -207,7 +207,7 @@ if [ ${KERNEL_BASE_VER} == "6.17" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches/*.patch .;
     patch -p1 < ./0001-iosched-6.17-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches/*.patch .;
@@ -225,7 +225,7 @@ if [ ${KERNEL_BASE_VER} == "6.17" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v2/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
@@ -258,24 +258,23 @@ if [ ${KERNEL_BASE_VER} == "6.17" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-6.15.y-xanmod/xanmod/*.patch .;
-    patch -p1 < ./0001-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
-    patch -p1 < ./0002-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
-    patch -p1 < ./0003-kbuild-Re-add-.config-file-required-to-sign-external.patch;
-    patch -p1 < ./0004-kbuild-Remove-GCC-minimal-function-alignment.patch;
-    patch -p1 < ./0005-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
-    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0009-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
-    patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
-    patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
-    patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
-    patch -p1 < ./0014-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
-    patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-    patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
-    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.17.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0004-XANMOD-kbuild-deb-pkg-Create-dbg-when-make-DEB_DEBUG.patch;
+    patch -p1 < ./0005-kbuild-Re-add-.config-file-required-to-sign-external.patch;
+    patch -p1 < ./0006-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0009-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0010-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
+    patch -p1 < ./0011-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
+    patch -p1 < ./0012-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0013-XANMOD-vfs-Decrease-rate-at-which-vfs-caches-are-rec.patch;
+    patch -p1 < ./0014-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0015-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
+    patch -p1 < ./0016-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0017-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0018-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
+    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.16" ]; then # Latest stable
     echo "*** Copying and applying adios io patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v13/*.patch .;
@@ -355,24 +354,25 @@ elif [ ${KERNEL_BASE_VER} == "6.16" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches-v2/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-6.15.y-xanmod/xanmod/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.16.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0001-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
-    patch -p1 < ./0002-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
-    patch -p1 < ./0003-kbuild-Re-add-.config-file-required-to-sign-external.patch;
-    patch -p1 < ./0004-kbuild-Remove-GCC-minimal-function-alignment.patch;
-    patch -p1 < ./0005-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
-    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
-    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
-    patch -p1 < ./0009-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
-    patch -p1 < ./0010-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
-    patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
-    patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
-    patch -p1 < ./0014-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
-    patch -p1 < ./0015-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
-    patch -p1 < ./0016-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
-    patch -p1 < ./0017-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
-    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
-    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+    patch -p1 < ./0002-XANMOD-x86-build-Add-LLVM-polyhedral-loop-optimizer-.patch;
+    patch -p1 < ./0004-XANMOD-kbuild-deb-pkg-Create-dbg-when-make-DEB_DEBUG.patch;
+    patch -p1 < ./0005-kbuild-Re-add-.config-file-required-to-sign-external.patch;
+    patch -p1 < ./0006-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0009-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0010-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
+    patch -p1 < ./0011-XANMOD-blk-wbt-Set-wbt_default_latency_nsec-to-2msec.patch;
+    patch -p1 < ./0012-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0013-XANMOD-vfs-Decrease-rate-at-which-vfs-caches-are-rec.patch;
+    patch -p1 < ./0014-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0015-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
+    patch -p1 < ./0016-XANMOD-sched-autogroup-Add-kernel-parameter-and-conf.patch;
+    patch -p1 < ./0017-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0018-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
+    patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
     echo "*** Copying and applying amd cache optimizer patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-cache-optimizer-patches/*.patch .;
