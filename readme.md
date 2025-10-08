@@ -83,7 +83,7 @@ To build other versions, you can use the following convention:
 6.16:
 
 ```console
-KERNEL_BASE_VER=6.16 KERNEL_PATCH_VER=6.16.9 KERNEL_SUB_VER=061609 ./build_kernel.sh
+KERNEL_BASE_VER=6.16 KERNEL_PATCH_VER=6.16.11 KERNEL_SUB_VER=061611 ./build_kernel.sh
 ```
 
 6.12 LTS:
