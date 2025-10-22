@@ -205,11 +205,12 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches-v4/*.patch .;
     patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
+    patch -p1 < ./0002-wifi-iwlwifi-mvm-fix-beacon-template-fixed-rate.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v3/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
@@ -226,13 +227,13 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v3-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
-    patch -p1 < ./0003-wifi-iwlwifi-mvm-fix-beacon-template-fixed-rate.patch;
-    patch -p1 < ./0004-hid-haptic-Fix-building-as-a-module.patch;
-    patch -p1 < ./0005-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger-branch.patch;
-    patch -p1 < ./0006-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
-    patch -p1 < ./0007-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
+    patch -p1 < ./0003-hid-haptic-Fix-building-as-a-module.patch;
+    patch -p1 < ./0004-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger-branch.patch;
+    patch -p1 < ./0005-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
+    patch -p1 < ./0006-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
+    patch -p1 < ./0007-Revert-hid-haptic-Fix-building-as-a-module.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -282,10 +283,10 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
 elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v4/*.patch .;
     patch -p1 < ./0001-iosched-6.17-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v3/*.patch .;
@@ -303,7 +304,7 @@ elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v5-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v6-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
