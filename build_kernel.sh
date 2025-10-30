@@ -212,7 +212,7 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     patch -p1 < ./0002-wifi-iwlwifi-mvm-fix-beacon-template-fixed-rate.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v5/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/block-patches-all/*.patch .;
@@ -266,7 +266,7 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/le9uo-patches/*.patch .;
     patch -p1 < ./0001-mm-6.18-add-le9uo.patch;
     echo "*** Copying and applying t2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches-v2/*.patch .;
     patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches-v2/*.patch .;
@@ -296,7 +296,7 @@ elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v4/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
