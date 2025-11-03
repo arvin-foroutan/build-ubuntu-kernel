@@ -212,7 +212,7 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     patch -p1 < ./0002-wifi-iwlwifi-mvm-fix-beacon-template-fixed-rate.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v6/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/block-patches-all/*.patch .;
@@ -296,7 +296,7 @@ elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v4/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v5/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
@@ -311,10 +311,9 @@ elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v8-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v9-sep/*.patch .;
     patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
-    patch -p1 < ./0004-drm-amd-display-Don-t-program-BLNDGAM_MEM_PWR_FORCE-.patch;
-    patch -p1 < ./0005-perf-Fix-system-hang-caused-by-cpu-clock.patch;
+    patch -p1 < ./0004-perf-Fix-system-hang-caused-by-cpu-clock.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
