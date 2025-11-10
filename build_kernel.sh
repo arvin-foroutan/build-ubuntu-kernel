@@ -233,9 +233,6 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0004-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
     patch -p1 < ./0005-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
     patch -p1 < ./0006-Revert-hid-haptic-Fix-building-as-a-module.patch;
-    patch -p1 < ./0007-perf-Fix-system-hang-caused-by-cpu-clock.patch;
-    patch -p1 < ./0008-x86-CPU-AMD-Gatekeep-Zen5-RDSEED-fix-behind-CONFIG_C.patch;
-    patch -p1 < ./0009-kbuild-Strip-trailing-padding-bytes-from-modules.bui.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
