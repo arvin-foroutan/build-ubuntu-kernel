@@ -209,7 +209,6 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v4-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
-    patch -p1 < ./0002-wifi-iwlwifi-mvm-fix-beacon-template-fixed-rate.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v7/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
@@ -231,9 +230,6 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0003-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger-branch.patch;
     patch -p1 < ./0004-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
     patch -p1 < ./0005-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
-    patch -p1 < ./0006-x86-CPU-AMD-Gatekeep-Zen5-RDSEED-fix-behind-CONFIG_C.patch;
-    patch -p1 < ./0007-x86-CPU-AMD-Add-additional-fixed-RDSEED-microcode-re.patch;
-    patch -p1 < ./0008-x86-microcode-AMD-Add-Zen5-model-0x44-stepping-0x1-m.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
