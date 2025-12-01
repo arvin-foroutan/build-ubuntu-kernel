@@ -5,9 +5,9 @@
 set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.17"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.17.9"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061709"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.18"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.18"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061800"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -202,35 +202,31 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
+if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches-v4/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches/*.patch .;
     patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/asus-patches-v9/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/block-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-Prefer-teo-over-menu-governor.patch;
     echo "*** Copying and applying cpu cachyos patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v12-sep/*.patch .;
-    patch -p1 < ./0001-kbuild-add-resolve_btfids-to-pacman-PKGBUILD.patch;
-    patch -p1 < ./0002-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger-branch.patch;
-    patch -p1 < ./0003-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
-    patch -p1 < ./0004-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
-    patch -p1 < ./0005-x86-CPU-AMD-Gatekeep-Zen5-RDSEED-fix-behind-CONFIG_C.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -247,26 +243,26 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0015-clear-net-sock-Introduce-64KB-reclaim-threshold.patch;
     patch -p1 < ./0016-clear-init-init_task-Tweak-timer_slack-value.patch;
     echo "*** Copying and applying crypto patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/crypto-patches-v3-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/crypto-patches-all/*.patch .;
     patch -p1 < ./0001-crypto-patches.patch;
     echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.18-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/intel-pstate-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying le9 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/le9uo-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
     patch -p1 < ./0001-mm-6.18-add-le9uo.patch;
     echo "*** Copying and applying t2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/t2-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches/*.patch .;
     patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/v4l2loopback-patches-v2/*.patch .;
-    patch -p1 < ./0001-v4l2loopback-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
+    patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.17.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0004-XANMOD-kbuild-deb-pkg-Create-dbg-when-make-DEB_DEBUG.patch;
@@ -284,7 +280,7 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest rc
     patch -p1 < ./0017-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
-elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
+elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest stable
     echo "*** Copying and applying adios io patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v4/*.patch .;
     patch -p1 < ./0001-iosched-6.17-introduce-ADIOS-I-O-scheduler.patch;
@@ -292,7 +288,7 @@ elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v8/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v9/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
@@ -328,9 +324,6 @@ elif [ ${KERNEL_BASE_VER} == "6.17" ]; then # Latest mainline
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.17-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
-    echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v5/*.patch .;
-    patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
