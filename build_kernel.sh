@@ -203,9 +203,6 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
-    echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches/*.patch .;
-    patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
@@ -248,9 +245,6 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.18-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
-    echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v2/*.patch .;
-    patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
