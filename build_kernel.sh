@@ -203,14 +203,23 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
 fi
 
 if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
+    echo "*** Copying and applying adios io patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
+    patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
+    patch -p1 < ./0002-drm-amdgpu-avoid-memory-allocation-in-the-critical-c.patch;
+    patch -p1 < ./0003-drm-amdgpu-use-GFP_ATOMIC-instead-of-NOWAIT-in-the-c.patch;
+    patch -p1 < ./0004-xfrm-Fix-inner-mode-lookup-in-tunnel-mode-GSO-segmen.patch;
+    patch -p1 < ./0006-btrfs-fix-use-after-free-warning-in-btrfs_get_or_cre.patch;
+    patch -p1 < ./0007-rust_binder-remove-spin_lock-in-rust_shrink_free_pag.patch;
+    patch -p1 < ./0008-rust_binder-correctly-handle-FDA-objects-of-length-z.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v2/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
@@ -222,8 +231,23 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v9/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v10-sep/*.patch .;
+    patch -p1 < ./0001-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger-branch.patch;
+    patch -p1 < ./0002-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
+    patch -p1 < ./0003-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
+    patch -p1 < ./0004-x86-CPU-AMD-Gatekeep-Zen5-RDSEED-fix-behind-CONFIG_C.patch;
+    patch -p1 < ./0005-drm-i915-rc6-Disable-RC6-for-InfinityBook-Pro-Gen8.patch;
+    patch -p1 < ./0006-drm-i915-rc6-Add-another-Boardname-to-Disable-RC6-fo.patch;
+    patch -p1 < ./0007-x86-mm-tlb-Make-enter_lazy_tlb-always-inline-on-x86.patch;
+    patch -p1 < ./0008-sched-Make-raw_spin_rq_unlock-inline.patch;
+    patch -p1 < ./0009-sched-core-Make-finish_task_switch-and-its-subfuncti.patch;
+    patch -p1 < ./0010-Revert-x86-vmscape-Remove-LFENCE-from-BHB-clearing-l.patch;
+    patch -p1 < ./0011-Revert-x86-vmscape-Replace-IBPB-with-branch-history-.patch;
+    patch -p1 < ./0012-Revert-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger.patch;
+    patch -p1 < ./0013-amdgpu-Add-CH7218-PCON-to-the-VRR-whitelist.patch;
+    patch -p1 < ./0014-spi-cs42l43-Use-actual-ACPI-firmware-node-for-chip-s.patch;
+    patch -p1 < ./0015-Revert-spi-cs42l43-Use-actual-ACPI-firmware-node-for.patch;
+    patch -p1 < ./0016-Add-BT-support-for-PRIME-B650M-A-AX6-II-motherboard.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -245,6 +269,9 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.18-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
+    echo "*** Copying and applying handheld patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v3/*.patch .;
+    patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
