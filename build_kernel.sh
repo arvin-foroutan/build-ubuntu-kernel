@@ -204,16 +204,17 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v3/*.patch .;
     patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     patch -p1 < ./0002-drm-amdgpu-avoid-memory-allocation-in-the-critical-c.patch;
     patch -p1 < ./0003-drm-amdgpu-use-GFP_ATOMIC-instead-of-NOWAIT-in-the-c.patch;
     patch -p1 < ./0004-rust_binder-correctly-handle-FDA-objects-of-length-z.patch;
+    patch -p1 < ./0005-drm-amd-display-Add-an-hdmi_hpd_debounce_delay_ms-mo.patch;
     echo "*** Copying and applying asus patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v4/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v5/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2-all/*.patch .;
@@ -228,7 +229,7 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v18-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v20-sep/*.patch .;
     patch -p1 < ./0001-x86-bhi-Add-BHB-clearing-for-CPUs-with-larger-branch.patch;
     patch -p1 < ./0002-x86-vmscape-Replace-IBPB-with-branch-history-clear-o.patch;
     patch -p1 < ./0003-x86-vmscape-Remove-LFENCE-from-BHB-clearing-long-loo.patch;
@@ -248,6 +249,8 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     patch -p1 < ./0018-sched-fair-Drop-useless-cpumask_empty-in-find_energy.patch;
     patch -p1 < ./0019-sched-fair-Simplify-task_numa_find_cpu.patch;
     patch -p1 < ./0020-Revert-amdgpu-Add-CH7218-PCON-to-the-VRR-whitelist.patch;
+    patch -p1 < ./0021-Revert-drm-amd-Check-if-ASPM-is-enabled-from-PCIe-su.patch;
+    patch -p1 < ./0022-usb-core-add-USB_QUIRK_NO_BOS-for-additional-capture.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
     patch -p1 < ./0002-pci-pme-wakeups.patch;
@@ -270,11 +273,8 @@ if [ ${KERNEL_BASE_VER} == "6.18" ]; then   # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.18-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
     echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v6/*.patch .;
     patch -p1 < ./0001-handheld-patches.patch;
-    echo "*** Copying and applying hdmi patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches/*.patch .;
-    patch -p1 < ./0001-hdmi-patches.patch;
     echo "*** Copying and applying intel pstate patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/intel-pstate-all/*.patch .;
     patch -p1 < ./0001-intel-pstate-patches.patch;
