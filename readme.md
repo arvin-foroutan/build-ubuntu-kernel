@@ -6,8 +6,8 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.18 (mainline)
-- 6.17 (stable)
+- 6.19 (mainline)
+- 6.18 (stable)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -54,7 +54,7 @@ VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.18 mainline kernel will be built with the following:
+By default, the latest 6.19 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless, -O3 optimization
@@ -63,6 +63,7 @@ By default, the latest 6.18 mainline kernel will be built with the following:
 Current patch set includes:
 
  - AMD P-State driver
+ - BMQ Scheduler
  - BBR3 TCP congestion control
  - Multi-generational LRU
  - Adaptive Deadline I/O Scheduler (ADIOS)
@@ -80,10 +81,10 @@ Current patch set includes:
 
 To build other versions, you can use the following convention:
 
-6.17:
+6.18:
 
 ```console
-KERNEL_BASE_VER=6.17 KERNEL_PATCH_VER=6.17.10 KERNEL_SUB_VER=061710 ./build_kernel.sh
+KERNEL_BASE_VER=6.18 KERNEL_PATCH_VER=6.18.13 KERNEL_SUB_VER=061813 ./build_kernel.sh
 ```
 
 6.12 LTS:
