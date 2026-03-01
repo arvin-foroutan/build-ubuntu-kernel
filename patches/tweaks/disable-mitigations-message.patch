@@ -1,0 +1,11 @@
+--- ./kernel/cpu.c	2024-09-15 07:57:56.000000000 -0700
++++ ./kernel/cpu.c	2024-09-15 11:14:34.122624193 -0700
+@@ -3218,7 +3218,7 @@
+ #else
+ static int __init mitigations_parse_cmdline(char *arg)
+ {
+-	pr_crit("Kernel compiled without mitigations, ignoring 'mitigations'; system may still be vulnerable\n");
++	//pr_crit("Kernel compiled without mitigations, ignoring 'mitigations'; system may still be vulnerable\n");
+ 	return 0;
+ }
+ #endif

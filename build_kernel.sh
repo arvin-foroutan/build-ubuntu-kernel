@@ -593,11 +593,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
     patch -p1 < ./pkill-on-warn.patch;
-    echo "*** Copying and applying lucjan custom patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
-    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
-    sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
 elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying pkill on warn.. (requires pkill_on_warn=1) ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/pkill-on-warn.patch .;
@@ -646,9 +641,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     patch -p1 < ./0010-ZEN-Add-OpenRGB-patches.patch;
     patch -p1 < ./0012-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
     patch -p1 < ./0016-iomap-avoid-deadlock-if-memory-reclaim-is-triggered-.patch;
-    echo "*** Copying and applying hwmon patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.14/hwmon-patches/*.patch .;
-    patch -p1 < ./0001-hwmon-patches.patch;
     echo "*** Copying and applying lqx patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/lqx-patches-v4/*.patch .;
     patch -p1 < ./0001-lqx-patches.patch;
@@ -668,10 +660,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/xanmod-patches/*.patch .;
     patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    echo "*** Copying and applying ll patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
-    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
-    patch -p1 < ./0004-mm-set-8-megabytes-for-address_space-level-file-read.patch;
     echo "*** Copying and applying misc xanmod tweaks patch.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/xanmod/*.patch .;
     if [ ${KERNEL_TYPE} != "rt" ]; then
@@ -694,11 +682,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
     patch -p1 < ./enable-background-reclaim-hugepages.patch;
-    if [ ${KERNEL_TYPE} == "rt" ]; then
-        sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-    else
-        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-    fi
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
     patch -p1 < ./cfs-zen-tweaks.patch;

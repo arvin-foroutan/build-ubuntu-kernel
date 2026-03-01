@@ -1,0 +1,11 @@
+--- ./drivers/bluetooth/btintel.c	2024-09-15 07:57:56.000000000 -0700
++++ ./drivers/bluetooth/btintel.c	2024-09-15 11:16:47.040929362 -0700
+@@ -2551,7 +2551,7 @@
+ 	}
+ 
+ 	if (!acpi_has_method(handle, "_PRR")) {
+-		bt_dev_err(hdev, "No support for _PRR ACPI method");
++		//bt_dev_err(hdev, "No support for _PRR ACPI method");
+ 		return;
+ 	}
+ 
