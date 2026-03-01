@@ -146,7 +146,8 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     if [ ${KERNEL_BASE_VER} == "6.12" ]; then
         KERNEL_BASE_VER_OVERRIDE=6.10+;
     elif [ ${KERNEL_BASE_VER} == "6.18" ] ||
-         [ ${KERNEL_BASE_VER} == "6.19" ]; then
+         [ ${KERNEL_BASE_VER} == "6.19" ] ||
+         [ ${KERNEL_BASE_VER} == "7.0" ]; then
         KERNEL_BASE_VER_OVERRIDE=6.18+;
     else
         KERNEL_BASE_VER_OVERRIDE=5.7+;
@@ -193,7 +194,77 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "6.19" ]; then   # Latest stable
+if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
+    echo "*** Copying and applying adios io patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches/*.patch .;
+    patch -p1 < ./0001-iosched-7.0-introduce-ADIOS-I-O-scheduler.patch;
+    echo "*** Copying and applying amd isp patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-isp-patches-all/*.patch .;
+    patch -p1 < ./0001-amd-isp-patches.patch;
+    echo "*** Copying and applying arch patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
+    patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
+    echo "*** Copying and applying block patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/block-patches-all/*.patch .;
+    patch -p1 < ./0001-block-patches.patch;
+    echo "*** Copying and applying bbr3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
+    echo "*** Copying and applying cpuidle patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
+    patch -p1 < ./0001-cpuidle-Prefer-teo-over-menu-governor.patch;
+    echo "*** Copying and applying cpu cachyos patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
+    echo "*** Copying and applying clearlinux patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
+    patch -p1 < ./0002-pci-pme-wakeups.patch;
+    patch -p1 < ./0003-smpboot-reuse-timer-calibration.patch;
+    patch -p1 < ./0005-migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
+    patch -p1 < ./0006-itmt_epb-use-epb-to-scale-itmt.patch;
+    patch -p1 < ./0007-itmt2-ADL-fixes.patch;
+    patch -p1 < ./0010-clocksource-only-perform-extended-clocksource-checks.patch;
+    patch -p1 < ./0011-ACPI-align-slab-for-improved-memory-performance.patch;
+    patch -p1 < ./0012-net-sock-increase-default-number-of-_SK_MEM_PACKETS-.patch;
+    patch -p1 < ./0013-clear-sched-fair-Tweak-idle-balance-calculation.patch;
+    patch -p1 < ./0014-clear-fs-binfmt_elf-Properly-handle-memory-mapping-f.patch;
+    patch -p1 < ./0015-clear-net-sock-Introduce-64KB-reclaim-threshold.patch;
+    patch -p1 < ./0016-clear-init-init_task-Tweak-timer_slack-value.patch;
+    echo "*** Copying and applying futex patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    patch -p1 < ./0001-futex-7.0-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
+    echo "*** Copying and applying hdmi patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/hdmi-patches/*.patch .;
+    patch -p1 < ./0001-hdmi-patches.patch;
+    echo "*** Copying and applying O3 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    patch -p1 < ./0001-Cachy-Allow-O3.patch;
+    echo "*** Copying and applying le9 patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/le9uo-patches/*.patch .;
+    patch -p1 < ./0001-mm-7.0-add-le9uo.patch;
+    echo "*** Copying and applying cachyos fixes patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v2/*.patch .;
+    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    echo "*** Copying and applying vesa patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/vesa-patches/*.patch .;
+    patch -p1 < ./0001-vesa-patches.patch;
+    echo "*** Copying and applying xanmod patches.. ✓";
+    cp -v ${XANMOD_PATCH_PATH}/linux-6.19.y-xanmod/xanmod/*.patch .;
+    patch -p1 < ./0004-XANMOD-kbuild-deb-pkg-Create-dbg-when-make-DEB_DEBUG.patch;
+    patch -p1 < ./0005-kbuild-Re-add-.config-file-required-to-sign-external.patch;
+    patch -p1 < ./0006-XANMOD-fair-Set-scheduler-tunable-latencies-to-unsca.patch;
+    patch -p1 < ./0007-XANMOD-block-mq-deadline-Increase-write-priority-to-.patch;
+    patch -p1 < ./0008-XANMOD-block-mq-deadline-Disable-front_merges-by-def.patch;
+    patch -p1 < ./0009-XANMOD-block-Set-rq_affinity-to-force-complete-I-O-r.patch;
+    patch -p1 < ./0011-XANMOD-kconfig-add-500Hz-timer-interrupt-kernel-conf.patch;
+    patch -p1 < ./0012-XANMOD-vfs-Decrease-rate-at-which-vfs-caches-are-rec.patch;
+    patch -p1 < ./0013-XANMOD-mm-Raise-max_map_count-default-value.patch;
+    patch -p1 < ./0014-XANMOD-mm-vmscan-Reduce-amount-of-swapping.patch;
+    patch -p1 < ./0015-XANMOD-cpufreq-tunes-ondemand-and-conservative-gover.patch;
+    patch -p1 < ./0016-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
+    patch -p1 < ./0017-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
+    patch -p1 < ./0018-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
+elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     echo "*** Copying and applying adios io patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches/*.patch .;
     patch -p1 < ./0001-iosched-6.19-introduce-ADIOS-I-O-scheduler.patch;
