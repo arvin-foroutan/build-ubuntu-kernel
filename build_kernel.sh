@@ -277,16 +277,13 @@ if [ ${KERNEL_BASE_VER} == "6.19" ]; then   # Latest mainline
     patch -p1 < ./0018-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
     patch -p1 < ./0019-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0020-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
-elif [ ${KERNEL_BASE_VER} == "6.18" ]; then # Latest stable
+elif [ ${KERNEL_BASE_VER} == "6.18" ]; then # LTS kernel, supported until 3031
     echo "*** Copying and applying adios io patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v3/*.patch .;
     patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying arch patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v8-sep/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
-    patch -p1 < ./0002-drm-amdgpu-avoid-memory-allocation-in-the-critical-c.patch;
-    patch -p1 < ./0003-drm-amdgpu-use-GFP_ATOMIC-instead-of-NOWAIT-in-the-c.patch;
-    patch -p1 < ./0005-drm-amd-display-Add-an-hdmi_hpd_debounce_delay_ms-mo.patch;
     echo "*** Copying and applying asus patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/asus-patches-v5/*.patch .;
     patch -p1 < ./0001-asus-patches.patch;
@@ -294,7 +291,7 @@ elif [ ${KERNEL_BASE_VER} == "6.18" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-v2-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/6.19/bbr3-patches-v2/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
@@ -427,9 +424,6 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
     patch -p1 < ./0014-clear-fs-binfmt_elf-Properly-handle-memory-mapping-f.patch;
     patch -p1 < ./0015-clear-net-sock-Introduce-64KB-reclaim-threshold.patch;
     patch -p1 < ./0016-clear-init-init_task-Tweak-timer_slack-value.patch;
-    echo "*** Copying and applying cpuidle patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
-    patch -p1 < ./0001-cpuidle-patches.patch;
     echo "*** Copying and applying cpu cachyos patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches-v3/*.patch .;
     patch -p1 < ./0001-cpu-cachyos-patches.patch;
@@ -448,9 +442,6 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
     echo "*** Copying and applying ntsync patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntsync-patches-v3-all/*.patch .;
     patch -p1 < ./0001-ntsync-patches.patch;
-    echo "*** Copying and applying apple t2 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/t2-patches/*.patch .;
-    patch -p1 < ./0001-t2-patches.patch;
     echo "*** Copying and applying v4l2loopback patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/v4l2loopback-patches/*.patch .;
     patch -p1 < ./0001-media-v4l2-core-add-v4l2loopback-driver.patch;
@@ -458,7 +449,7 @@ elif [ ${KERNEL_BASE_VER} == "6.12" ]; then # LTS kernel, supported until 2030
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/zstd-cachyos-patches/*.patch .;
     patch -p1 < ./0001-zstd-cachyos-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/linux-6.12.y-xanmod/xanmod/*.patch .;
+    cp -v ${XANMOD_PATCH_PATH}/eol/linux-6.12.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0001-XANMOD-x86-build-Add-more-CFLAGS-optimizations.patch;
     patch -p1 < ./0002-XANMOD-kbuild-Add-GCC-SMS-based-modulo-scheduling-fl.patch;
     patch -p1 < ./0003-kbuild-Remove-GCC-minimal-function-alignment.patch;
@@ -580,12 +571,6 @@ elif [ ${KERNEL_BASE_VER} == "5.15" ]; then # LTS kernel, supported until 2027
     patch -p1 < ./0001-ZEN-Add-VHBA-driver.patch;
     patch -p1 < ./0002-ZEN-intel-pstate-Implement-enable-parameter.patch;
     patch -p1 < ./0003-ZEN-Update-VHBA-driver.patch;
-    echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/zstd-patches-v2/*.patch .;
-    patch -p1 < ./0001-zstd-patches.patch;
-    echo "*** Copying and applying zstd upstream patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/zstd-upstream-patches-v4/*.patch .;
-    patch -p1 < ./0001-zstd-upstream-patches.patch;
     echo "*** Copying and applying misc xanmod tweaks.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/eol/linux-${KERNEL_BASE_VER}.y-xanmod/xanmod/*.patch .;
     patch -p1 < ./0004-XANMOD-dcache-cache_pressure-50-decreases-the-rate-a.patch;
@@ -683,12 +668,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/xanmod-patches/*.patch .;
     patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    echo "*** Copying and applying zstd patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/zstd-patches-v3/*.patch .;
-    patch -p1 < ./0001-init-add-support-for-zstd-compressed-modules.patch;
-    echo "*** Copying and applying zstd upstream patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/zstd-upstream-patches/*.patch .;
-    patch -p1 < ./0001-zstd-upstream-patches.patch;
     echo "*** Copying and applying ll patches.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
     patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
