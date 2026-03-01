@@ -143,9 +143,7 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     # Deprecated as of 5.4.45 but can still be applied
     # See https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.4.45/
     echo "*** Copying and applying Ubuntu patches... 1/4 ✓";
-    if [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        KERNEL_BASE_VER_OVERRIDE=5.4;
-    elif [ ${KERNEL_BASE_VER} == "6.12" ]; then
+    if [ ${KERNEL_BASE_VER} == "6.12" ]; then
         KERNEL_BASE_VER_OVERRIDE=6.10+;
     elif [ ${KERNEL_BASE_VER} == "6.18" ] ||
          [ ${KERNEL_BASE_VER} == "6.19" ]; then
@@ -162,16 +160,12 @@ if [ ${UBUNTU_PATCHES} == "yes" ]; then
     # Update the version in the changelog to latest version since the patches
     # are no longer maintained and because we want to keep our kernel as Ubuntu-like
     # as possible (with ABI and all)
-    if [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        sed -i "s/5.4.45-050445/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
-    else # for all kernels > 5.4. The 5.7.1 kernel was last to supply patches
-        sed -i "s/5.7.1-050701/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
-    fi
+    # The 5.7.1 kernel was last to supply patches
+    sed -i "s/5.7.1-050701/${KERNEL_PATCH_VER}-${KERNEL_SUB_VER}/g" ./0004-debian-changelog.patch;
     patch -p1 < ./0004-debian-changelog.patch;
 
     echo "*** Updating patch version number... 3/4 ✓";
-    [ ${KERNEL_BASE_VER} == "5.4" ] && KERNEL_PATCH_SUB_VER=5.4.0-26.30 || KERNEL_PATCH_SUB_VER=5.7.0-6.7;
-    patch -p1 < ./0005-configs-based-on-Ubuntu-${KERNEL_PATCH_SUB_VER}.patch;
+    patch -p1 < ./0005-configs-based-on-Ubuntu-5.7.0-6.7.patch;
 
     echo "*** Update debian compat level from 9 to 10... 4/4 ✓";
     # Solves the following:
@@ -196,9 +190,6 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     elif [ ${KERNEL_BASE_VER} == "5.10" ]; then
         cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.10.237-rt131.patch .;
         patch -p1 < ./patch-5.10.237-rt131.patch;
-    elif [ ${KERNEL_BASE_VER} == "5.4" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/rt/${KERNEL_BASE_VER}/patch-5.4.290-rt96.patch .;
-        patch -p1 < ./patch-5.4.290-rt96.patch;
     fi
 fi
 
@@ -702,195 +693,6 @@ elif [ ${KERNEL_BASE_VER} == "5.10" ]; then # LTS kernel, supported until 2026
     echo "*** Copying and applying cfs zen tweaks patch.. ✓";
     cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
     patch -p1 < ./cfs-zen-tweaks.patch;
-elif [ ${KERNEL_BASE_VER} == "5.4" ]; then  # LTS kernel, supported until 2025
-    echo "*** Copying and applying block 5.4 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/block-patches-v2-sep/*.patch .;
-    patch -p1 < ./0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch;
-    patch -p1 < ./0002-block-Fix-depends-for-BLK_DEV_ZONED.patch;
-    patch -p1 < ./0003-block-set-rq_affinity-2-for-full-multithreading-I-O-.patch;
-    echo "*** Copying and applying block 5.6 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.6/block-patches-v3-sep/*.patch .;
-    patch -p1 < ./0004-blk-mq-remove-the-bio-argument-to-prepare_request.patch;
-    patch -p1 < ./0005-block-Flag-elevators-suitable-for-single-queue.patch;
-    echo "*** Copying and applying block 5.7 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.7/block-patches-v5-sep/*.patch .;
-    patch -p1 < ./0006-block-bfq-iosched-fix-duplicated-word.patch;
-    patch -p1 < ./0007-block-bio-delete-duplicated-words.patch;
-    patch -p1 < ./0008-block-elevator-delete-duplicated-word-and-fix-typos.patch;
-    patch -p1 < ./0009-block-blk-timeout-delete-duplicated-word.patch;
-    echo "*** Copying and applying block 5.8 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.8/block-patches-v6-sep/*.patch .;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro*.patch .;
-    patch -p1 < ./5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro-part1.patch;
-    patch -p1 < ./5.4-block-5.8-0011-block-Convert-to-use-the-preferred-fallthrough-macro-part2.patch;
-    patch -p1 < ./0012-block-bfq-Disable-low_latency-when-blk_iolatency-is-.patch;
-    echo "*** Copying and applying block 5.10 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-block-5.10-elevator-mq-aware.patch .;
-    patch -p1 <./5.4-block-5.10-elevator-mq-aware.patch;
-    echo "*** Copying and applying BFQ 5.4 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/bfq-patches-sep/*.patch .;
-    patch -p1 < ./0001-blkcg-Make-bfq-disable-iocost-when-enabled.patch;
-    patch -p1 < ./0002-block-bfq-present-a-double-cgroups-interface.patch;
-    patch -p1 < ./0003-block-bfq-Skip-tracing-hooks-if-possible.patch;
-    echo "*** Copying and applying BFQ 5.7 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.7/bfq-patches-v5-sep/*.patch .;
-    patch -p1 < ./0001-bfq-Fix-check-detecting-whether-waker-queue-should-b.patch;
-    patch -p1 < ./0002-bfq-Allow-short_ttime-queues-to-have-waker.patch;
-    echo "*** Copying and applying Valve fsync/futex patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.10/futex-patches/0001-futex-patches.patch .;
-    patch -p1 < ./0001-futex-patches.patch;
-    echo "*** Copying and applying misc fixes patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/fixes-miscellaneous-v5/*.patch .;
-    patch -p1 < ./0001-fixes-miscellaneous.patch;
-    echo "*** Copying and applying misc fixes 5.14 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/0004-mm-Stop-kswapd-early-when-nothing-s-waiting-for-it-t.patch .;
-    patch -p1 < ./0004-mm-Stop-kswapd-early-when-nothing-s-waiting-for-it-t.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.14/fixes-miscellaneous-sep/*.patch .;
-    patch -p1 < ./0005-mm-Fully-disable-watermark-boosting-when-it-isn-t-us.patch;
-    patch -p1 < ./0007-kbuild-Disable-stack-conservation-for-GCC.patch;
-    patch -p1 < ./0009-ZEN-Add-OpenRGB-patches.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch .;
-    patch -p1 < ./0010-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-rep.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.14-0010-scsi-sd-Optimal-I-O-size-merge-fix.patch .;
-    patch -p1 < ./5.4-from-5.14-0010-scsi-sd-Optimal-I-O-size-merge-fix.patch;
-    echo "*** Copying and applying cve patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/cve-patches-v8-sep/*.patch .;
-    patch -p1 < ./0001-consolemap-Fix-a-memory-leaking-bug-in-drivers-tty-v.patch;
-    echo "*** Copying and applying exfat patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/exfat-patches/*.patch .;
-    patch -p1 < ./0001-exfat-patches.patch;
-    echo "*** Copying and applying SCSI patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/scsi-patches/*.patch .;
-    patch -p1 < ./0001-scsi-patches.patch;
-    echo "*** Copying and applying ll patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/ll-patches/*.patch .;
-    patch -p1 < ./0001-LL-kconfig-add-500Hz-timer-interrupt-kernel-config-o.patch;
-    patch -p1 < ./0002-LL-elevator-set-default-scheduler-to-bfq-for-blk-mq.patch;
-    patch -p1 < ./mm-set-8MB.patch;
-    echo "*** Copying and applying xanmod patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch .;
-    patch -p1 < ./0001-sched-autogroup-Add-kernel-parameter-and-config-opti.patch;
-    echo "*** Copying and applying cfs xanmod energy tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/5.4-cfs-xanmod-tweaks.patch .;
-    patch -p1 < ./5.4-cfs-xanmod-tweaks.patch;
-    echo "*** Copying and applying intel_cpufreq patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.6/0001-cpufreq*.patch .;
-    patch -p1 < ./0001-cpufreq-intel_pstate-Set-default-cpufreq_driver-to-i.patch;
-    # https://github.com/zen-kernel/zen-kernel/commit/7de2596b35ac1dbf55fb384f3d668a7315635c0b
-    echo "*** Copying and applying cfs zen tweaks patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/cfs-zen-tweaks.patch .;
-    patch -p1 < ./cfs-zen-tweaks.patch;
-    echo "*** Copying and applying force irq threads patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/force-irq-threads.patch .;
-    patch -p1 < ./force-irq-threads.patch;
-    echo "*** Copying and applying increase writeback threshold patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/increase-default-writeback-thresholds.patch .;
-    patch -p1 < ./increase-default-writeback-thresholds.patch;
-    echo "*** Copying and applying enable background reclaim hugepages patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/tweaks/enable-background-reclaim-hugepages.patch .;
-    patch -p1 < ./enable-background-reclaim-hugepages.patch;
-    echo "*** Copying and applying graysky's GCC patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/graysky/graysky-gcc-4.19-through-5.4.patch .;
-    patch -p1 < ./graysky-gcc-4.19-through-5.4.patch;
-    echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/O3-optimization/O3-v5.4+.patch .;
-    patch -p1 < ./O3-v5.4+.patch;
-    echo "*** Copying and applying O3 fix patch.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/O3-optimization/0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch .;
-    patch -p1 < ./0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch;
-    echo "*** Copying and applying arch 5.7 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.7/arch-patches-v9-sep/*.patch .;
-    patch -p1 < ./0004-virt-vbox-Add-support-for-the-new-VBG_IOCTL_ACQUIRE_.patch;
-    echo "*** Copying and applying arch 5.9 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.9/arch-patches-v9-sep/*.patch .;
-    patch -p1 < ./0004-HID-quirks-Add-Apple-Magic-Trackpad-2-to-hid_have_sp.patch;
-    echo "*** Copying and applying arch 5.12 patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/5.12/arch-patches-v7-sep/*.patch .;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.12-arch-0002-x86-setup-Consolidate-early-memory-reservations.patch .;
-    patch -p1 < ./5.4-from-5.12-arch-0002-x86-setup-Consolidate-early-memory-reservations.patch;
-    patch -p1 < ./0003-x86-setup-Merge-several-reservations-of-start-of-mem.patch;
-    patch -p1 < ./0004-x86-setup-Move-trim_snb_memory-later-in-setup_arch-t.patch;
-    patch -p1 < ./0005-x86-setup-always-reserve-the-first-1M-of-RAM.patch;
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.12-arch-reserve_bios_regions.patch .;
-    patch -p1 < ./5.4-from-5.12-arch-reserve_bios_regions.patch;
-    patch -p1 < ./0007-x86-crash-remove-crash_reserve_low_1M.patch;
-    echo "*** Copying and applying Clear Linux patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/clearlinux-patches-v6-sep/*.patch .;
-    patch -p1 < ./0006-intel_idle-tweak-cpuidle-cstates.patch;
-    patch -p1 < ./0009-raid6-add-Kconfig-option-to-skip-raid6-benchmarking.patch;
-    patch -p1 < ./0016-Add-boot-option-to-allow-unsigned-modules.patch;
-    patch -p1 < ./0020-use-lfence-instead-of-rep-and-nop.patch;
-    echo "*** Copying and applying Clear Linux patches from 5.10.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/clearlinux/*.patch .;
-    patch -p1 < ./0001-i8042-decrease-debug-message-level-to-info.patch;
-    patch -p1 < ./0002-Increase-the-ext4-default-commit-age.patch;
-    patch -p1 < ./0003-silence-rapl.patch;
-    patch -p1 < ./0004-pci-pme-wakeups.patch;
-    patch -p1 < ./0005-ksm-wakeups.patch;
-    patch -p1 < ./0007-bootstats-add-printk-s-to-measure-boot-time-in-more-.patch;
-    patch -p1 < ./0008-smpboot-reuse-timer-calibration.patch;
-    patch -p1 < ./0009-Initialize-ata-before-graphics.patch;
-    patch -p1 < ./0011-ipv4-tcp-allow-the-memory-tuning-for-tcp-to-go-a-lit.patch;
-    patch -p1 < ./0012-kernel-time-reduce-ntp-wakeups.patch;
-    patch -p1 < ./0013-init-wait-for-partition-and-retry-scan.patch;
-    patch -p1 < ./0014-print-fsync-count-for-bootchart.patch;
-    patch -p1 < ./0016-Enable-stateless-firmware-loading.patch;
-    patch -p1 < ./0017-Migrate-some-systemd-defaults-to-the-kernel-defaults.patch;
-    patch -p1 < ./0018-xattr-allow-setting-user.-attributes-on-symlinks-by-.patch;
-    patch -p1 < ./0020-do-accept-in-LIFO-order-for-cache-efficiency.patch;
-    patch -p1 < ./include-linux-wait-h-merge-fix.patch;
-    patch -p1 < ./0021-locking-rwsem-spin-faster.patch;
-    patch -p1 < ./0022-ata-libahci-ignore-staggered-spin-up.patch;
-    patch -p1 < ./0023-print-CPU-that-faults.patch;
-    patch -p1 < ./0025-nvme-workaround.patch;
-    patch -p1 < ./0026-Don-t-report-an-error-if-PowerClamp-run-on-other-CPU.patch;
-    if [ ${KERNEL_TYPE} == "rt" ]; then
-        cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/arch-patches-rt-v3-sep/*.patch .;
-        patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-        patch -p1 < ./0007-iwlwifi-pcie-restore-support-for-Killer-Qu-C0-NICs.patch;
-        patch -p1 < ./0008-drm-i915-save-AUD_FREQ_CNTRL-state-at-audio-domain-s.patch;
-        patch -p1 < ./0010-drm-i915-Fix-audio-power-up-sequence-for-gen10-displ.patch;
-        patch -p1 < ./0011-drm-i915-extend-audio-CDCLK-2-BCLK-constraint-to-mor.patch;
-        patch -p1 < ./0012-drm-i915-Limit-audio-CDCLK-2-BCLK-constraint-back-to.patch;
-        patch -p1 < ./0016-drm-amdgpu-Add-DC-feature-mask-to-disable-fractional.patch;
-        sed -i 's/sched_nr_migrate = 32/sched_nr_migrate = 256/g' ./kernel/sched/core.c;
-        echo "*** Copying and applying arch-rt 5.4 patches.. ✓";
-    else
-        patch -p1 < ./0003-sched-core-nr_migrate-256-increases-number-of-tasks-.patch;
-        echo "*** Copying and applying arch 5.4 patches.. ✓";
-        cp -v ${CUSTOM_PATCH_PATH}/lucjan/${KERNEL_BASE_VER}/arch-patches-v25-sep/*.patch .;
-        patch -p1 < ./0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch;
-        patch -p1 < ./0005-iwlwifi-pcie-restore-support-for-Killer-Qu-C0-NICs.patch;
-        patch -p1 < ./0006-drm-i915-save-AUD_FREQ_CNTRL-state-at-audio-domain-s.patch;
-        patch -p1 < ./0007-drm-i915-Fix-audio-power-up-sequence-for-gen10-displ.patch;
-        patch -p1 < ./0008-drm-i915-extend-audio-CDCLK-2-BCLK-constraint-to-mor.patch;
-        patch -p1 < ./0009-drm-i915-Limit-audio-CDCLK-2-BCLK-constraint-back-to.patch;
-        patch -p1 < ./0010-drm-amdgpu-Add-DC-feature-mask-to-disable-fractional.patch;
-    fi
-    echo "*** Copying and applying swap patches.. ✓";
-    cp -v ${CUSTOM_PATCH_PATH}/backports/${KERNEL_BASE_VER}/5.4-from-5.13-swap-*.patch .;
-    patch -p1 < ./5.4-from-5.13-swap-0001-swap-patches.patch;
-    patch -p1 < ./5.4-from-5.13-swap-merge-fix-new.patch;
-    echo "*** Copying and applying ck-hrtimer patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/ck-hrtimer/*.patch .;
-    patch -p1 < ./0001-Create-highres-timeout-variants-of-schedule_timeout-.patch;
-    patch -p1 < ./0002-Special-case-calls-of-schedule_timeout-1-to-use-the-.patch;
-    patch -p1 < ./0003-Convert-msleep-to-use-hrtimers-when-active.patch;
-    patch -p1 < ./0005-Replace-all-calls-to-schedule_timeout_interruptible-.patch;
-    patch -p1 < ./0006-Replace-all-calls-to-schedule_timeout_uninterruptibl.patch;
-    patch -p1 < ./0007-Don-t-use-hrtimer-overlay-when-pm_freezing-since-som.patch;
-    patch -p1 < ./0008-clockevents-hrtimer-Make-hrtimer-granularity-and-min.patch;
-    echo "*** Copying and applying modules patches.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/modules/*.patch .;
-    patch -p1 < ./0001-modules-disinherit-taint-proprietary-module.patch;
-    echo "*** Copying and applying misc xanmod tweaks.. ✓";
-    cp -v ${XANMOD_PATCH_PATH}/eol/linux-5.10.y-xanmod/xanmod/*.patch .;
-    if [ ${KERNEL_TYPE} != "rt" ]; then
-        patch -p1 < ./0005-kconfig-set-PREEMPT-and-RCU_BOOST-without-delay-by-d.patch;
-    fi
-    patch -p1 < ./0006-dcache-cache_pressure-50-decreases-the-rate-at-which.patch;
-    patch -p1 < ./0009-cpufreq-tunes-ondemand-and-conservative-governor-for.patch;
-    patch -p1 < ./0010-scripts-disable-the-localversion-tag-of-a-git-repo.patch;
 fi
 
 # Examples:
@@ -942,8 +744,7 @@ chmod a+x debian/scripts/*;
 chmod a+x debian/scripts/misc/*;
 
 echo "*** Create symlink for kernel ABI... ✓";
-[ ${KERNEL_BASE_VER} == "5.4" ] && ABI_VERSION=5.4.0-25.29 || ABI_VERSION=5.7.0-5.6;
-ln -rsv ./debian.master/abi/${ABI_VERSION} ./debian.master/abi/${KERNEL_PATCH_VER}-0.0;
+ln -rsv ./debian.master/abi/5.7.0-5.6 ./debian.master/abi/${KERNEL_PATCH_VER}-0.0;
 
 echo "*** Running fakeroot debian/rules clean... ✓";
 fakeroot debian/rules clean;
