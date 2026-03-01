@@ -6,8 +6,8 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 6.19 (mainline)
-- 6.18 (stable)
+- 6.19 (stable)
+- 6.18 LTS (Long-term support, until 2031)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
 - 6.1 LTS (Long-term support, until 2028)
@@ -81,54 +81,48 @@ Current patch set includes:
 
 To build other versions, you can use the following convention:
 
-6.18:
+6.18 LTS:
 
 ```console
-KERNEL_BASE_VER=6.18 KERNEL_PATCH_VER=6.18.13 KERNEL_SUB_VER=061813 ./build_kernel.sh
+KERNEL_BASE_VER=6.18 KERNEL_PATCH_VER=6.18.15 KERNEL_SUB_VER=061815 ./build_kernel.sh
 ```
 
 6.12 LTS:
 
 ```console
-KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.30 KERNEL_SUB_VER=061230 ./build_kernel.sh
+KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.74 KERNEL_SUB_VER=061274 ./build_kernel.sh
 ```
 
 6.6 LTS:
 
 ```console
-KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.92 KERNEL_SUB_VER=060692 ./build_kernel.sh
+KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.127 KERNEL_SUB_VER=0606127 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.140 KERNEL_SUB_VER=0601140 ./build_kernel.sh
+KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.164 KERNEL_SUB_VER=0601164 ./build_kernel.sh
 ```
 
 5.15 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.184 KERNEL_SUB_VER=0515184 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.201 KERNEL_SUB_VER=0515201 ./build_kernel.sh
 ```
 
 5.10 LTS:
 
 ```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.237 KERNEL_SUB_VER=0510237 ./build_kernel.sh
-```
-
-5.4 LTS:
-
-```console
-KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.293 KERNEL_SUB_VER=0504293 ./build_kernel.sh
+KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.251 KERNEL_SUB_VER=0510251 ./build_kernel.sh
 ```
 
 #### Development kernels
 
-6.18-rc1:
+6.19-rc1:
 
 ```console
-KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.18 KERNEL_PATCH_VER=6.18-rc1 KERNEL_SUB_VER=061800rc1 ./build_kernel.sh
+KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=6.19 KERNEL_PATCH_VER=6.19-rc1 KERNEL_SUB_VER=061900rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
@@ -161,12 +155,6 @@ KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.15 KERNEL_PATCH_VER=5.15.183
 
 ```console
 KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.237 KERNEL_SUB_VER=0510237 ./build_kernel.sh
-```
-
-5.4-rt:
-
-```console
-KERNEL_TYPE=rt KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.4 KERNEL_PATCH_VER=5.4.290 KERNEL_SUB_VER=0504290 ./build_kernel.sh
 ```
 
 #### Full tickless kernels
@@ -209,7 +197,7 @@ Examples of the `nohz_full` setting:
  
  - `defaults`: Ubuntu's config (provided as a reference, not to be used)
  
-5. For kernels 5.4 and 5.10, it will automatically default to "Native Optimizations" (-march=native), the other versions will need to be set manually in the config when you run the script. 
+5. For kernel 5.10, it will automatically default to "Native Optimizations" (-march=native), the other versions will need to be set manually in the config when you run the script.
 
 6. There's also a more generic "Core 2" option, but you should select your specific processor from the dropdown if you see it, or, "Intel Native" or "AMD Native" or "Zen 3" to create the fastest "happy" path for the compiled kernel.
 
