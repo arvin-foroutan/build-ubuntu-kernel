@@ -13,7 +13,6 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 - 6.1 LTS (Long-term support, until 2028)
 - 5.15 LTS (Long-term support, until 2027)
 - 5.10 LTS (Long-term support, until 2026)
-- 5.4 LTS (Long-term support, until 2025)
 
 ## So, how do I use this?
 
