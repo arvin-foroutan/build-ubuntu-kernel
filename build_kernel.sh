@@ -236,6 +236,9 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
     echo "*** Copying and applying hdmi patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/hdmi-patches/*.patch .;
     patch -p1 < ./0001-hdmi-patches.patch;
+    echo "*** Copying and applying ntfs patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntfs-patches-all/*.patch .;
+    patch -p1 < ./0001-ntfs-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
@@ -243,7 +246,7 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/le9uo-patches/*.patch .;
     patch -p1 < ./0001-mm-7.0-add-le9uo.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v5/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/vesa-patches/*.patch .;
@@ -322,7 +325,7 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v3/*.patch .;
     patch -p1 < ./0001-PRJC-for-6.19.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v14/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v16/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches-v2/*.patch .;
