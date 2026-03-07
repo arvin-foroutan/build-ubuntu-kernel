@@ -20,7 +20,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 Assuming a fresh install of Ubuntu, you'll need the following dependencies:
 
 ```console
-sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev lz4 zstd wireless-tools default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
+sudo apt install git build-essential kernel-wedge fakeroot flex bison binutils-dev libssl-dev libelf-dev libslang2-dev libpci-dev libiberty-dev libcap-dev libudev-dev libdw-dev libunwind-dev libncurses-dev libzstd-dev libnuma-dev libbabeltrace-dev libpfm4-dev lz4 zstd default-jre default-jdk linux-cloud-tools-common linux-tools-$(uname -r)
 ```
 
 ## Getting started
