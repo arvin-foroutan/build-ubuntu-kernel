@@ -209,8 +209,9 @@ Examples of the `nohz_full` setting:
 
 ### Benchmarks
 
-See [OpenBenchmarking](https://openbenchmarking.org/result/2406165-NE-OSBENCHTE40&sgm=1&ppt=D&shm=1&sgm=1&ppt=D)
-for benchmarks comparing the default Ubuntu 22.04 LTS kernel and the default custom kernel created by this script.
+March 14, 2026 - AMD Ryzen 5950X - [OpenBenchmarking](https://openbenchmarking.org/result/2603149-NE-OSBENCHKE55)
+
+June 16, 2024 - Intel i5-4670K - [OpenBenchmarking](https://openbenchmarking.org/result/2406165-NE-OSBENCHTE40)
 
 ### Script in action
 
