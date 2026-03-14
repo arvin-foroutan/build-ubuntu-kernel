@@ -322,10 +322,10 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
     patch -p1 < ./0001-mm-6.19-add-le9uo.patch;
     echo "*** Copying and applying prjc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v3/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v4/*.patch .;
     patch -p1 < ./0001-PRJC-for-6.19.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v16/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v17/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches-v2/*.patch .;
