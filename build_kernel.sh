@@ -4,10 +4,10 @@
 
 set -euo pipefail
 
-KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"6"}
-KERNEL_BASE_VER=${KERNEL_BASE_VER:-"6.19"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"6.19.8"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"061908"}
+KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"7"}
+KERNEL_BASE_VER=${KERNEL_BASE_VER:-"7.0"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.0.3"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070003"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -196,25 +196,28 @@ fi
 
 if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
     echo "*** Copying and applying adios io patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/adios-iosched-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
     patch -p1 < ./0001-iosched-7.0-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying amd isp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/amd-isp-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-isp-patches-all/*.patch .;
     patch -p1 < ./0001-amd-isp-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
     patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
     echo "*** Copying and applying block patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/block-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/bbr3-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
+    echo "*** Copying and applying cgroup patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cgroup-patches/*.patch .;
+    patch -p1 < ./0001-cgroup-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpuidle-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-Prefer-teo-over-menu-governor.patch;
     echo "*** Copying and applying cpu cachyos patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cpu-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpu-cachyos-patches/*.patch .;
     patch -p1 < ./0001-CACHY-Add-x86_64-ISA-and-Zen4-compiler-optimizations.patch;
     echo "*** Copying and applying clearlinux patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/6.13/clearlinux-patches-sep/*.patch .;
@@ -231,25 +234,28 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
     patch -p1 < ./0015-clear-net-sock-Introduce-64KB-reclaim-threshold.patch;
     patch -p1 < ./0016-clear-init-init_task-Tweak-timer_slack-value.patch;
     echo "*** Copying and applying futex patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/futex-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-7.0-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying hdmi patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/hdmi-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches/*.patch .;
     patch -p1 < ./0001-hdmi-patches.patch;
     echo "*** Copying and applying ntfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/ntfs-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs-patches-v5-all/*.patch .;
     patch -p1 < ./0001-ntfs-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/kbuild-cachyos-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying le9 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/le9uo-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
     patch -p1 < ./0001-mm-7.0-add-le9uo.patch;
+    echo "*** Copying and applying prjc patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v3/*.patch .;
+    patch -p1 < ./0001-PRJC-for-7.0.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/cachyos-fixes-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v9/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
     echo "*** Copying and applying vesa patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}-rc/vesa-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches/*.patch .;
     patch -p1 < ./0001-vesa-patches.patch;
     echo "*** Copying and applying xanmod patches.. ✓";
     cp -v ${XANMOD_PATCH_PATH}/linux-6.19.y-xanmod/xanmod/*.patch .;
@@ -286,6 +292,9 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     echo "*** Copying and applying bbr3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-patches-v2/*.patch .;
     patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
+    echo "*** Copying and applying cgroup patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cgroup-patches/*.patch .;
+    patch -p1 < ./0001-cgroup-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
     patch -p1 < ./0001-cpuidle-Prefer-teo-over-menu-governor.patch;
@@ -310,10 +319,10 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.19-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
     echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v3/*.patch .;
     patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying hdmi patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches-v3/*.patch .;
     patch -p1 < ./0001-hdmi-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
@@ -325,8 +334,11 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v4/*.patch .;
     patch -p1 < ./0001-PRJC-for-6.19.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v17/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v22/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    echo "*** Copying and applying mglru patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mglru-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-mglru-patches.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches-v2/*.patch .;
     patch -p1 < ./0001-vesa-patches.patch;
@@ -350,7 +362,7 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     patch -p1 < ./0016-XANMOD-lib-kconfig.debug-disable-default-SYMBOLIC_ER.patch;
     patch -p1 < ./0017-XANMOD-scripts-setlocalversion-remove-tag-for-git-re.patch;
     patch -p1 < ./0018-XANMOD-scripts-setlocalversion-Move-localversion-fil.patch;
-elif [ ${KERNEL_BASE_VER} == "6.18" ]; then # LTS kernel, supported until 3031
+elif [ ${KERNEL_BASE_VER} == "6.18" ]; then # LTS kernel, supported until 2031
     echo "*** Copying and applying adios io patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v3/*.patch .;
     patch -p1 < ./0001-iosched-6.18-introduce-ADIOS-I-O-scheduler.patch;
