@@ -6,7 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 7.0 (rc)
+- 7.0 (mainline)
 - 6.19 (stable)
 - 6.18 LTS (Long-term support, until 2031)
 - 6.12 LTS (Long-term support, until 2030)
@@ -54,7 +54,7 @@ VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 6.19 mainline kernel will be built with the following:
+By default, the latest 7.0 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless, -O3 optimization
@@ -80,6 +80,12 @@ Current patch set includes:
  - AUFS support
 
 To build other versions, you can use the following convention:
+
+6.19:
+
+```console
+KERNEL_BASE_VER=6.19 KERNEL_PATCH_VER=6.19.14 KERNEL_SUB_VER=061914 ./build_kernel.sh
+```
 
 6.18 LTS:
 
