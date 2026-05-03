@@ -318,9 +318,6 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-6.19-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-o.patch;
-    echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v3/*.patch .;
-    patch -p1 < ./0001-handheld-patches.patch;
     echo "*** Copying and applying hdmi patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches-v3/*.patch .;
     patch -p1 < ./0001-hdmi-patches.patch;
@@ -336,9 +333,6 @@ elif [ ${KERNEL_BASE_VER} == "6.19" ]; then # Latest stable
     echo "*** Copying and applying cachyos fixes patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v22/*.patch .;
     patch -p1 < ./0001-cachyos-fixes-patches.patch;
-    echo "*** Copying and applying mglru patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mglru-patches-v2-all/*.patch .;
-    patch -p1 < ./0001-mglru-patches.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches-v2/*.patch .;
     patch -p1 < ./0001-vesa-patches.patch;
