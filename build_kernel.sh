@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"7"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"7.0"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.0.3"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070003"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.0.5"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070005"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -194,16 +194,16 @@ if [ ${KERNEL_TYPE} == "rt" ]; then
     fi
 fi
 
-if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
+if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest mainline
     echo "*** Copying and applying adios io patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
     patch -p1 < ./0001-iosched-7.0-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying amd isp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-isp-patches-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-isp-patches-v2-all/*.patch .;
     patch -p1 < ./0001-amd-isp-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
-    patch -p1 < ./0001-add-sysctl-to-allow-disabling-unprivileged-CLONE_NEW.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
@@ -236,24 +236,51 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest rc
     echo "*** Copying and applying futex patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-7.0-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
+    echo "*** Copying and applying handheld patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v5/*.patch .;
+    patch -p1 < ./0001-handheld-patches.patch;
+    # echo "*** Copying and applying le9 patches.. ✓";
+    # cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
+    # patch -p1 < ./0001-mm-7.0-add-le9uo.patch;
+    echo "*** Copying and applying mglru patches.. ✓";
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mglru-patches-v2-all/*.patch .;
+    patch -p1 < ./0001-mglru-patches.patch;
     echo "*** Copying and applying hdmi patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches/*.patch .;
     patch -p1 < ./0001-hdmi-patches.patch;
     echo "*** Copying and applying ntfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs-patches-v5-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs-patches-v6-all/*.patch .;
     patch -p1 < ./0001-ntfs-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
-    echo "*** Copying and applying le9 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
-    patch -p1 < ./0001-mm-7.0-add-le9uo.patch;
     echo "*** Copying and applying prjc patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v3/*.patch .;
     patch -p1 < ./0001-PRJC-for-7.0.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v9/*.patch .;
-    patch -p1 < ./0001-cachyos-fixes-patches.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v13-sep/*.patch .;
+    patch -p1 < ./0001-drm-i915-rc6-Disable-RC6-for-InfinityBook-Pro-Gen8.patch;
+    patch -p1 < ./0002-drm-i915-rc6-Add-another-Boardname-to-Disable-RC6-fo.patch;
+    patch -p1 < ./0003-Add-BT-support-for-PRIME-B650M-A-AX6-II-motherboard.patch;
+    patch -p1 < ./0004-bluetooth-btusb-Add-VID-PID-13d3-3625.patch;
+    patch -p1 < ./0005-Revert-sched-fair-Proportional-newidle-balance.patch;
+    patch -p1 < ./0006-x86-mm-tlb-Make-enter_lazy_tlb-always-inline-on-x86.patch;
+    patch -p1 < ./0007-sched-Make-raw_spin_rq_unlock-inline.patch;
+    patch -p1 < ./0008-sched-core-Make-finish_task_switch-and-its-subfuncti.patch;
+    patch -p1 < ./0009-sched-fair-do-not-scan-twice-in-detach_tasks.patch;
+    patch -p1 < ./0010-Input-xpad-add-support-for-EasySMX-05-Pro.patch;
+    patch -p1 < ./0012-intel_idle-Add-Panther-Lake-C-states-table.patch;
+    patch -p1 < ./0013-x86-fred-enable-FRED-by-default.patch;
+    patch -p1 < ./0014-x86-Kconfig-tighten-up-wording-of-the-CONFIG_X86_FRE.patch;
+    patch -p1 < ./0015-wifi-rtw88-validate-RX-rate-to-prevent-out-of-bound.patch;
+    patch -p1 < ./0016-mm-page_alloc-Optimize-free_contig_range.patch;
+    patch -p1 < ./0017-vmalloc-Optimize-vfree-with-free_pages_bulk.patch;
+    patch -p1 < ./0018-sched_ext-idle-Prioritize-idle-SMT-sibling.patch;
+    patch -p1 < ./0019-x86-cpu-amd-Don-t-clear-RDSEED32-bit-on-znver5.patch;
+    patch -p1 < ./0020-sched-idle-Symmetric-idle-entry-exit-hooks-for-accur.patch;
+    patch -p1 < ./0021-Revert-sched-idle-Symmetric-idle-entry-exit-hooks-fo.patch;
+    patch -p1 < ./0022-platform-x86-samsung-galaxybook-Refactor-camera-lens.patch;
+    patch -p1 < ./0023-USB-core-sanitize-string-descriptors-against-C0-cont.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches/*.patch .;
     patch -p1 < ./0001-vesa-patches.patch;
