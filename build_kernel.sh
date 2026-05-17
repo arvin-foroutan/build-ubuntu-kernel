@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"7"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"7.0"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.0.5"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070005"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.0.8"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070008"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -198,10 +198,10 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/adios-iosched-patches-v2/*.patch .;
     patch -p1 < ./0001-iosched-7.0-introduce-ADIOS-I-O-scheduler.patch;
     echo "*** Copying and applying amd isp patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-isp-patches-v2-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-isp-patches-v3-all/*.patch .;
     patch -p1 < ./0001-amd-isp-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v2/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v5/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
@@ -236,11 +236,8 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/futex-patches/*.patch .;
     patch -p1 < ./0001-futex-7.0-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-op.patch;
     echo "*** Copying and applying handheld patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v5/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/handheld-patches-v6/*.patch .;
     patch -p1 < ./0001-handheld-patches.patch;
-    # echo "*** Copying and applying le9 patches.. ✓";
-    # cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/le9uo-patches/*.patch .;
-    # patch -p1 < ./0001-mm-7.0-add-le9uo.patch;
     echo "*** Copying and applying mglru patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/mglru-patches-v2-all/*.patch .;
     patch -p1 < ./0001-mglru-patches.patch;
@@ -248,7 +245,7 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/hdmi-patches/*.patch .;
     patch -p1 < ./0001-hdmi-patches.patch;
     echo "*** Copying and applying ntfs patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs-patches-v6-all/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/ntfs-patches-v7-all/*.patch .;
     patch -p1 < ./0001-ntfs-patches.patch;
     echo "*** Copying and applying O3 patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
@@ -257,7 +254,7 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v3/*.patch .;
     patch -p1 < ./0001-PRJC-for-7.0.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v13-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v23-sep/*.patch .;
     patch -p1 < ./0001-drm-i915-rc6-Disable-RC6-for-InfinityBook-Pro-Gen8.patch;
     patch -p1 < ./0002-drm-i915-rc6-Add-another-Boardname-to-Disable-RC6-fo.patch;
     patch -p1 < ./0003-Add-BT-support-for-PRIME-B650M-A-AX6-II-motherboard.patch;
@@ -277,9 +274,17 @@ if [ ${KERNEL_BASE_VER} == "7.0" ]; then    # Latest mainline
     patch -p1 < ./0018-sched_ext-idle-Prioritize-idle-SMT-sibling.patch;
     patch -p1 < ./0019-x86-cpu-amd-Don-t-clear-RDSEED32-bit-on-znver5.patch;
     patch -p1 < ./0020-sched-idle-Symmetric-idle-entry-exit-hooks-for-accur.patch;
-    patch -p1 < ./0021-Revert-sched-idle-Symmetric-idle-entry-exit-hooks-fo.patch;
-    patch -p1 < ./0022-platform-x86-samsung-galaxybook-Refactor-camera-lens.patch;
-    patch -p1 < ./0023-USB-core-sanitize-string-descriptors-against-C0-cont.patch;
+    patch -p1 < ./0021-platform-x86-samsung-galaxybook-Refactor-camera-lens.patch;
+    patch -p1 < ./0022-USB-core-sanitize-string-descriptors-against-C0-cont.patch;
+    patch -p1 < ./0023-ASoC-SDCA-Fix-NULL-pointer-dereference-in-sdca_jack_.patch;
+    patch -p1 < ./0024-drm-i915-psr-Accept-PSR2-Early-Transport-panels-with.patch;
+    patch -p1 < ./0025-drm-i915-alpm-limit-Panel-Replay-ALPM-programming-to.patch;
+    patch -p1 < ./0026-drm-i915-psr-Allow-PSR-with-VRR-on-Panther-Lake.patch;
+    patch -p1 < ./0027-drm-i915-use-TRANS_PUSH-frame-changes-for-Panel-Repl.patch;
+    patch -p1 < ./0028-drm-i915-psr-exit-Panel-Replay-during-updates-to-wor.patch;
+    patch -p1 < ./0029-drm-edid-populate-monitor-range-from-DisplayID-adapt.patch;
+    patch -p1 < ./0030-ALSA-hda-realtek-fix-mic-boost-on-Framework-PTL.patch;
+    patch -p1 < ./0033-ALSA-hda-realtek-Use-ALC287_FIXUP_TXNW2781_I2C-for-A.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches/*.patch .;
     patch -p1 < ./0001-vesa-patches.patch;
