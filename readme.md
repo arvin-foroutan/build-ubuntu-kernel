@@ -6,7 +6,7 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 7.0 (mainline)
+- 7.1 (mainline)
 - 6.18 LTS (Long-term support, until 2031)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
@@ -53,7 +53,7 @@ VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 7.0 mainline kernel will be built with the following:
+By default, the latest 7.1 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless, -O3 optimization
@@ -118,10 +118,10 @@ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.251 KERNEL_SUB_VER
 
 #### Development kernels
 
-7.0-rc1:
+7.2-rc1:
 
 ```console
-KERNEL_MAJOR_VER=7 KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=7.0 KERNEL_PATCH_VER=7.0-rc1 KERNEL_SUB_VER=070000rc1 ./build_kernel.sh
+KERNEL_MAJOR_VER=7 KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=7.2 KERNEL_PATCH_VER=7.2-rc1 KERNEL_SUB_VER=070200rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
