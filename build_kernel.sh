@@ -6,8 +6,8 @@ set -euo pipefail
 
 KERNEL_MAJOR_VER=${KERNEL_MAJOR_VER:-"7"}
 KERNEL_BASE_VER=${KERNEL_BASE_VER:-"7.1"}
-KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.1.2"}
-KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070102"}
+KERNEL_PATCH_VER=${KERNEL_PATCH_VER:-"7.1.8"}
+KERNEL_SUB_VER=${KERNEL_SUB_VER:-"070108"}
 KERNEL_TYPE=${KERNEL_TYPE:-"idle"}
 KERNEL_VERSION_LABEL=${KERNEL_VERSION_LABEL:-"custom"}
 
@@ -201,16 +201,16 @@ if [ ${KERNEL_BASE_VER} == "7.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/amd-isp-patches-all/*.patch .;
     patch -p1 < ./0001-amd-isp-patches.patch;
     echo "*** Copying and applying arch patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/arch-patches-v7/*.patch .;
     patch -p1 < ./0001-arch-patches.patch;
     echo "*** Copying and applying block patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/block-patches-all/*.patch .;
     patch -p1 < ./0001-block-patches.patch;
     echo "*** Copying and applying bbr3 patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-cachyos-patches/*.patch .;
-    patch -p1 < ./0001-tcp-bbr3-add-BBRv3-congestion-control.patch;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/bbr3-cachyos-patches-v2/*.patch .;
+    patch -p1 < ./0001-bbr3-cachyos-patches.patch;
     echo "*** Copying and applying cgroup patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cgroup-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cgroup-patches-v2/*.patch .;
     patch -p1 < ./0001-cgroup-patches.patch;
     echo "*** Copying and applying cpuidle patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cpuidle-patches/*.patch .;
@@ -244,55 +244,41 @@ if [ ${KERNEL_BASE_VER} == "7.1" ]; then    # Latest mainline
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/kbuild-cachyos-patches/*.patch .;
     patch -p1 < ./0001-Cachy-Allow-O3.patch;
     echo "*** Copying and applying prjc patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/prjc-patches-v2/*.patch .;
     patch -p1 < ./0001-PRJC-for-7.1.patch;
     echo "*** Copying and applying cachyos fixes patches.. ✓";
-    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v4-sep/*.patch .;
+    cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/cachyos-fixes-patches-v19-sep/*.patch .;
     patch -p1 < ./0001-drm-i915-rc6-Disable-RC6-for-InfinityBook-Pro-Gen8.patch;
     patch -p1 < ./0002-drm-i915-rc6-Add-another-Boardname-to-Disable-RC6-fo.patch;
     patch -p1 < ./0003-Add-BT-support-for-PRIME-B650M-A-AX6-II-motherboard.patch;
     patch -p1 < ./0004-bluetooth-btusb-Add-VID-PID-13d3-3625.patch;
     patch -p1 < ./0005-sched-fair-do-not-scan-twice-in-detach_tasks.patch;
     patch -p1 < ./0006-Input-xpad-add-support-for-EasySMX-05-Pro.patch;
-    patch -p1 < ./0008-x86-cpu-amd-Don-t-clear-RDSEED32-bit-on-znver5.patch;
-    patch -p1 < ./0009-sched-idle-Fix-avg_idle-saturation-by-establishing-s.patch;
-    patch -p1 < ./0010-mm-page_alloc-Optimize-free_contig_range.patch;
-    patch -p1 < ./0011-vmalloc-Optimize-vfree-with-free_pages_bulk.patch;
-    patch -p1 < ./0012-mm-page_alloc-Optimize-__free_contig_frozen_range.patch;
-    patch -p1 < ./0013-sched-core-Make-finish_task_switch-and-its-subfuncti.patch;
-    patch -p1 < ./0014-Revert-gpio-remove-of_get_named_gpio-and-linux-of_gp.patch;
-    patch -p1 < ./0015-mm-lruvec-preemptively-free-dead-folios-during-lru_a.patch;
-    patch -p1 < ./0016-USB-core-sanitize-string-descriptors-against-C0-cont.patch;
-    patch -p1 < ./0017-Reapply-gpio-remove-of_get_named_gpio-and-linux-of_g.patch;
-    patch -p1 < ./0018-sched-membarrier-Use-per-CPU-mutexes-for-targeted-co.patch;
-    patch -p1 < ./0019-sched-membarrier-Modernize-membarrier_global_expedit.patch;
-    patch -p1 < ./0020-Revert-mm-page_alloc-Optimize-__free_contig_frozen_r.patch;
-    patch -p1 < ./0021-Revert-vmalloc-Optimize-vfree-with-free_pages_bulk.patch;
-    patch -p1 < ./0022-Revert-mm-page_alloc-Optimize-free_contig_range.patch;
-    patch -p1 < ./0023-drm-i915-psr-Accept-PSR2-Early-Transport-panels-with.patch;
-    patch -p1 < ./0024-drm-i915-alpm-limit-Panel-Replay-ALPM-programming-to.patch;
-    patch -p1 < ./0025-drm-edid-populate-monitor-range-from-DisplayID-adapt.patch;
-    patch -p1 < ./0026-drm-i915-psr-exit-Panel-Replay-during-updates-to-wor.patch;
-    patch -p1 < ./0027-platform-x86-hp-wmi-Add-support-for-OMEN-Slim-16t-an.patch;
-    patch -p1 < ./0028-drm-nouveau-Wire-up-dmem-cgroups.patch;
-    patch -p1 < ./0029-btrfs-don-t-force-DIO-writes-to-be-serialized.patch;
-    patch -p1 < ./0030-scsi-smartpqi-use-shost_to_hba-in-pqi_scan_finished.patch;
-    patch -p1 < ./0031-Revert-scsi-Fix-sas_user_scan-to-handle-wildcard-and.patch;
-    patch -p1 < ./0032-i2c-Force-ASUE140D-touchpad-i2c-freq-to-100khz.patch;
-    patch -p1 < ./0033-ALSA-hda-realtek-Fix-muffled-internal-speakers-on-AS.patch;
-    patch -p1 < ./0034-wifi-iwlwifi-mld-skip-TX-when-firmware-is-dead.patch;
-    patch -p1 < ./0035-ASoC-tas2783A-Use-firmware-file-from-linux-firmware.patch;
-    patch -p1 < ./0036-drm-amd-display-Fix-mem_type-change-detection-for-as.patch;
-    patch -p1 < ./0037-ASoC-amd-acp-Add-DMI-override-for-ASUS-TUF-Gaming-A1.patch;
-    patch -p1 < ./0038-ASoC-amd-acp-Add-DMI-override-for-ASUS-Vivobook-18.patch;
-    patch -p1 < ./0039-platform-x86-amd-pmc-Check-for-intermediate-wakeup-i.patch;
-    patch -p1 < ./0040-platform-x86-amd-pmc-Delay-suspend-for-some-Lenovo-L.patch;
-    patch -p1 < ./0041-platform-x86-amd-pmc-Add-delay_suspend-module-parame.patch;
-    patch -p1 < ./0042-platform-x86-amd-pmc-Don-t-log-during-intermediate-w.patch;
-    patch -p1 < ./0043-drm-xe-Set-TTM-device-beneficial_order-to-9-2M.patch;
-    patch -p1 < ./0044-drm-amd-display-Fix-Color-Manager-3DLUT-Shaper-Blend.patch;
-    patch -p1 < ./0045-Revert-drm-amd-display-Fix-Color-Manager-3DLUT-Shape.patch;
-    patch -p1 < ./0046-drm-xe-Enable-Wa_14025515070.patch;
+    patch -p1 < ./0007-x86-cpu-amd-Don-t-clear-RDSEED32-bit-on-znver5.patch;
+    patch -p1 < ./0008-sched-idle-Fix-avg_idle-saturation-by-establishing-s.patch;
+    patch -p1 < ./0009-sched-core-Make-finish_task_switch-and-its-subfuncti.patch;
+    patch -p1 < ./0010-mm-lruvec-preemptively-free-dead-folios-during-lru_a.patch;
+    patch -p1 < ./0011-USB-core-sanitize-string-descriptors-against-C0-cont.patch;
+    patch -p1 < ./0012-sched-membarrier-Use-per-CPU-mutexes-for-targeted-co.patch;
+    patch -p1 < ./0013-sched-membarrier-Modernize-membarrier_global_expedit.patch;
+    patch -p1 < ./0014-drm-i915-psr-Accept-PSR2-Early-Transport-panels-with.patch;
+    patch -p1 < ./0015-drm-i915-alpm-limit-Panel-Replay-ALPM-programming-to.patch;
+    patch -p1 < ./0016-drm-edid-populate-monitor-range-from-DisplayID-adapt.patch;
+    patch -p1 < ./0017-drm-i915-psr-exit-Panel-Replay-during-updates-to-wor.patch;
+    patch -p1 < ./0018-platform-x86-hp-wmi-Add-support-for-OMEN-Slim-16t-an.patch;
+    patch -p1 < ./0019-drm-nouveau-Wire-up-dmem-cgroups.patch;
+    patch -p1 < ./0020-i2c-Force-ASUE140D-touchpad-i2c-freq-to-100khz.patch;
+    patch -p1 < ./0021-ALSA-hda-realtek-Fix-muffled-internal-speakers-on-AS.patch;
+    patch -p1 < ./0022-wifi-iwlwifi-mld-skip-TX-when-firmware-is-dead.patch;
+    patch -p1 < ./0023-ASoC-tas2783A-Use-firmware-file-from-linux-firmware.patch;
+    patch -p1 < ./0024-ASoC-amd-acp-Add-DMI-override-for-ASUS-TUF-Gaming-A1.patch;
+    patch -p1 < ./0025-ASoC-amd-acp-Add-DMI-override-for-ASUS-Vivobook-18.patch;
+    patch -p1 < ./0026-drm-xe-Enable-Wa_14025515070.patch;
+    patch -p1 < ./0027-drm-amd-display-Use-lockdep_assert_held-for-dc_lock-.patch;
+    patch -p1 < ./0028-ASoC-amd-yc-Add-quirk-for-Acer-Aspire-A314-23P.patch;
+    patch -p1 < ./0029-drm-amd-display-fix-compressed-buffer-config-routine.patch;
+    patch -p1 < ./0030-sof-Add-quirk-for-Dell-XPS-13-DX13260.patch;
+    patch -p1 < ./0033-PCI-Skip-Target-Speed-quirk-on-clamped-ports-with-no.patch;
     echo "*** Copying and applying vesa patches.. ✓";
     cp -v ${LUCJAN_PATCH_PATH}/${KERNEL_BASE_VER}/vesa-patches/*.patch .;
     patch -p1 < ./0001-vesa-patches.patch;
