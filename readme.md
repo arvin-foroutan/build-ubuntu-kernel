@@ -6,7 +6,8 @@ Well, because you can. Don't let anyone tell you otherwise. But it's recommended
 
 ## Supported versions
 
-- 7.1 (mainline)
+- 7.2 (mainline)
+- 7.1 (stable)
 - 6.18 LTS (Long-term support, until 2031)
 - 6.12 LTS (Long-term support, until 2030)
 - 6.6 LTS (Long-term support, until 2029)
@@ -53,7 +54,7 @@ VBOX_SUPPORT=yes ./build_kernel.sh
 
 ### Building other versions
 
-By default, the latest 7.1 mainline kernel will be built with the following:
+By default, the latest 7.2 mainline kernel will be built with the following:
 
 - Low-Latency Preemptive Kernel
 - 1000 Hz timer, idle tickless, -O3 optimization
@@ -80,28 +81,34 @@ Current patch set includes:
 
 To build other versions, you can use the following convention:
 
+7.1.13:
+
+```console
+KERNEL_BASE_VER=7.1 KERNEL_PATCH_VER=7.1.13 KERNEL_SUB_VER=070113 ./build_kernel.sh
+```
+
 6.18 LTS:
 
 ```console
-KERNEL_BASE_VER=6.18 KERNEL_PATCH_VER=6.18.15 KERNEL_SUB_VER=061815 ./build_kernel.sh
+KERNEL_MAJOR_VER=6 KERNEL_BASE_VER=6.18 KERNEL_PATCH_VER=6.18.15 KERNEL_SUB_VER=061815 ./build_kernel.sh
 ```
 
 6.12 LTS:
 
 ```console
-KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.74 KERNEL_SUB_VER=061274 ./build_kernel.sh
+KERNEL_MAJOR_VER=6 KERNEL_BASE_VER=6.12 KERNEL_PATCH_VER=6.12.74 KERNEL_SUB_VER=061274 ./build_kernel.sh
 ```
 
 6.6 LTS:
 
 ```console
-KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.127 KERNEL_SUB_VER=0606127 ./build_kernel.sh
+KERNEL_MAJOR_VER=6 KERNEL_BASE_VER=6.6 KERNEL_PATCH_VER=6.6.127 KERNEL_SUB_VER=0606127 ./build_kernel.sh
 ```
 
 6.1 LTS:
 
 ```console
-KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.164 KERNEL_SUB_VER=0601164 ./build_kernel.sh
+KERNEL_MAJOR_VER=6 KERNEL_BASE_VER=6.1 KERNEL_PATCH_VER=6.1.164 KERNEL_SUB_VER=0601164 ./build_kernel.sh
 ```
 
 5.15 LTS:
@@ -118,10 +125,10 @@ KERNEL_MAJOR_VER=5 KERNEL_BASE_VER=5.10 KERNEL_PATCH_VER=5.10.251 KERNEL_SUB_VER
 
 #### Development kernels
 
-7.2-rc1:
+7.3-rc1:
 
 ```console
-KERNEL_MAJOR_VER=7 KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=7.2 KERNEL_PATCH_VER=7.2-rc1 KERNEL_SUB_VER=070200rc1 ./build_kernel.sh
+KERNEL_MAJOR_VER=7 KERNEL_SRC_URI="https://git.kernel.org/torvalds/t" KERNEL_SRC_EXT="tar.gz" KERNEL_BASE_VER=7.3 KERNEL_PATCH_VER=7.3-rc1 KERNEL_SUB_VER=070300rc1 ./build_kernel.sh
 ```
 
 #### RT kernels
